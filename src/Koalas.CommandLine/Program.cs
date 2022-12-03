@@ -1,4 +1,4 @@
-﻿namespace Koalas;
+﻿namespace Koalas.CommandLine;
 
 public static class Program {
     public static void Main(string[] args) {

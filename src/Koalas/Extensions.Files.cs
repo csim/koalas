@@ -5,28 +5,23 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-public static partial class KoalasExtensions
-{
+public static partial class Extensions {
     public static IEnumerable<FileInfo> Files(IEnumerable<string> directoryPaths,
                                               string searchPattern = "",
-                                              SearchOption options = SearchOption.TopDirectoryOnly)
-    {
+                                              SearchOption options = SearchOption.TopDirectoryOnly) {
         return directoryPaths.SelectMany(directoryPath => new DirectoryInfo(directoryPath).EnumerateFiles(searchPattern, options));
     }
 
     public static IEnumerable<FileInfo> Files(string directoryPath,
                                               string searchPattern = "",
-                                              SearchOption options = SearchOption.TopDirectoryOnly)
-    {
+                                              SearchOption options = SearchOption.TopDirectoryOnly) {
         return Files(new[] { directoryPath }, searchPattern, options);
     }
 
     public static IReadOnlyList<T> ForAll<T>(this IEnumerable<T> items,
-                                             Action<T> action)
-    {
+                                             Action<T> action) {
         var list = items.CoerceList();
-        foreach (var item in list)
-        {
+        foreach (var item in list) {
             action(item);
         }
 
@@ -35,46 +30,39 @@ public static partial class KoalasExtensions
 
     public static IEnumerable<string> ReadDirectoryFiles(string directoryPath,
                                                          string searchPattern = "",
-                                                         SearchOption options = SearchOption.TopDirectoryOnly)
-    {
+                                                         SearchOption options = SearchOption.TopDirectoryOnly) {
         return ReadDirectoryFiles(new[] { directoryPath }, searchPattern, options);
     }
 
     public static IEnumerable<string> ReadDirectoryFiles(IEnumerable<string> directoryPaths,
                                                          string searchPattern = "",
-                                                         SearchOption options = SearchOption.TopDirectoryOnly)
-    {
+                                                         SearchOption options = SearchOption.TopDirectoryOnly) {
         return directoryPaths.SelectMany(directoryPath => new DirectoryInfo(directoryPath).EnumerateFiles(searchPattern, options)
                                                                                           .Select(file => File.ReadAllText(file.FullName)));
     }
 
     public static IEnumerable<string> ReadFileLines(string directoryPath,
                                                     string searchPattern = "",
-                                                    SearchOption options = SearchOption.TopDirectoryOnly)
-    {
+                                                    SearchOption options = SearchOption.TopDirectoryOnly) {
         return ReadFileLines(new[] { directoryPath }, searchPattern, options);
     }
 
     public static IEnumerable<string> ReadFileLines(IEnumerable<string> directoryPaths,
                                                     string searchPattern = "",
-                                                    SearchOption options = SearchOption.TopDirectoryOnly)
-    {
+                                                    SearchOption options = SearchOption.TopDirectoryOnly) {
         return directoryPaths.SelectMany(directoryPath => new DirectoryInfo(directoryPath).EnumerateFiles(searchPattern, options))
                              .SelectMany(file => File.ReadAllLines(file.FullName));
     }
 
-    public static IEnumerable<string> ReadFileLines(this IEnumerable<FileInfo> contents)
-    {
+    public static IEnumerable<string> ReadFileLines(this IEnumerable<FileInfo> contents) {
         return contents.SelectMany(f => File.ReadLines(f.FullName));
     }
 
-    public static IEnumerable<string> ReadFiles(this IEnumerable<FileInfo> items)
-    {
+    public static IEnumerable<string> ReadFiles(this IEnumerable<FileInfo> items) {
         return items.SelectParallel(item => File.ReadAllText(item.FullName));
     }
 
-    public static IEnumerable<string> ReadLines(this IEnumerable<string> items)
-    {
+    public static IEnumerable<string> ReadLines(this IEnumerable<string> items) {
         return items.SelectMany(c => c.Split(new[] {
                                                        Environment.NewLine,
                                                        "\n",
@@ -89,16 +77,13 @@ public static partial class KoalasExtensions
                                                      string extension = "json",
                                                      int maxDirectoryFiles = 1,
                                                      int maxFileObjects = 1,
-                                                     int? maxParallel = null)
-    {
+                                                     int? maxParallel = null) {
         var list = items.CoerceList();
 
-        if (prefix == null)
-        {
+        if (prefix == null) {
             prefix = $"{DateTime.UtcNow:yyyyMMdd-HHmmss}_";
         }
-        else if (!prefix.EndsWith("_"))
-        {
+        else if (!prefix.EndsWith("_")) {
             prefix = $"{prefix}_";
         }
 
@@ -108,8 +93,7 @@ public static partial class KoalasExtensions
         var directoryPartitions = list.Partition(maxDirectoryFiles).ToList();
         var directoryPartitionCount = directoryPartitions.Count;
 
-        foreach (var directoryPartition in directoryPartitions)
-        {
+        foreach (var directoryPartition in directoryPartitions) {
             var filePartId = 1;
 
             files.AddRange(from filePartition in directoryPartition.Partition(maxFileObjects)
@@ -125,8 +109,7 @@ public static partial class KoalasExtensions
         }
 
         files.ForAllParallel(file => {
-                                 if (file.File.Directory?.Exists == false)
-                                 {
+                                 if (file.File.Directory?.Exists == false) {
                                      file.File.Directory.Create();
                                  }
 
@@ -136,4 +119,10 @@ public static partial class KoalasExtensions
 
         return files.Select(f => f.File).ToList();
     }
+}
+
+public class KoalasFileInfo {
+    public string Content { get; set; }
+
+    public FileInfo File { get; set; }
 }

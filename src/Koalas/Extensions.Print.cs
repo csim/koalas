@@ -5,10 +5,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
+using static Extensions;
 
-using static KoalasExtensions;
-
-public static partial class KoalasExtensions {
+public static partial class Extensions {
     public static IReadOnlyList<T> Print<T>(this IEnumerable<T> items,
                                             Func<T, object> selector = null,
                                             int tail = 5) {
@@ -23,7 +22,7 @@ public static partial class KoalasExtensions {
         foreach (var content in list.Tail(tail).Select(selector).ToList()) {
             content.Print();
         }
-        
+
         "--".Print();
 
         return list;
@@ -145,10 +144,6 @@ public static partial class KoalasExtensions {
         }
 
         return JsonConvert.SerializeObject(obj);
-    }
-
-    private static IReadOnlyList<T> CoerceList<T>(this IEnumerable<T> items) {
-        return items as IReadOnlyList<T> ?? items.ToList();
     }
 
     private static string Format(this object source,
