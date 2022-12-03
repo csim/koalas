@@ -98,7 +98,7 @@ public static partial class Extensions {
     }
 
     public static IEnumerable<T> PrintMessage<T>(this IEnumerable<T> items, string message) {
-        Console.WriteLine(message);
+        message.Print();
         "--".Print();
 
         return items;

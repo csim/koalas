@@ -19,5 +19,7 @@ public static class Program {
              .PrintLiteral();
 
         new[] { "1", "2", "3", "4", "5", "6" }.PrintJson();
+
+        new[] { 1 }.PrintMessage("Done.");
     }
 }
