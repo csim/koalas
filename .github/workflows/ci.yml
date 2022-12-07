@@ -50,7 +50,7 @@ jobs:
       
     - name: Pack
       if: startsWith(github.ref, 'refs/heads/release')
-      run: dotnet pack $SOLUTION --configuration $BUILD_CONFIG -p:Version=$BUILD_VERSION
+      run: dotnet pack .\src\Koalas\Koalas.csproj --configuration $BUILD_CONFIG -p:Version=$BUILD_VERSION
 
     - name: Publish
       if: startsWith(github.ref, 'refs/heads/release')
