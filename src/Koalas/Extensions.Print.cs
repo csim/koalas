@@ -8,19 +8,87 @@ using Newtonsoft.Json;
 using static Extensions;
 
 public static partial class Extensions {
+    public static IReadOnlyList<T> Print<T, TSelect>(this IEnumerable<T> items,
+                                                     int limit = 6,
+                                                     Func<T, TSelect> select = null,
+                                                     Func<T, bool> where = null) {
+        return items.PrintHeadTail(limit, output: i => i.Print(), where: where, select: select);
+    }
+
     public static IReadOnlyList<T> Print<T>(this IEnumerable<T> items,
-                                            Func<T, object> selector = null,
-                                            int tail = 5) {
+                                            int limit = 6,
+                                            Func<T, bool> where = null) {
+        return items.PrintHeadTail(limit, output: i => i.Print(), where: where);
+    }
+
+    public static IReadOnlyList<T> PrintJson<T, TSelect>(this IEnumerable<T> items,
+                                                         int limit = 6,
+                                                         Func<T, TSelect> select = null,
+                                                         Func<T, bool> where = null,
+                                                         Formatting format = Formatting.Indented) {
+        return items.PrintHeadTail(limit, output: i => i.Format(json: true, format: format).Print(), where: where, select: select);
+    }
+
+    public static IReadOnlyList<T> PrintJson<T>(this IEnumerable<T> items,
+                                                int limit = 6,
+                                                Func<T, bool> where = null,
+                                                Formatting format = Formatting.Indented) {
+        return items.PrintHeadTail(limit, output: i => i.Format(json: true, format: format).Print(), where: where);
+    }
+
+    public static IReadOnlyList<T> PrintJsonLine<T, TSelect>(this IEnumerable<T> items,
+                                                             int limit = 6,
+                                                             Func<T, TSelect> select = null,
+                                                             Func<T, bool> where = null) {
+        return items.PrintHeadTail(limit, output: i => i.Format(json: true, format: Formatting.None).Print(), where: where, select: select);
+    }
+
+    public static IReadOnlyList<T> PrintJsonLine<T>(this IEnumerable<T> items,
+                                                    int limit = 6,
+                                                    Func<T, bool> where = null) {
+        return items.PrintHeadTail(limit, output: i => i.Format(json: true, format: Formatting.None).Print(), where: where);
+    }
+
+    public static IReadOnlyList<T> PrintLiteral<T, TSelect>(this IEnumerable<T> items,
+                                                            int limit = 6,
+                                                            Func<T, TSelect> select = null,
+                                                            Func<T, bool> where = null) {
+        return items.PrintHeadTail(limit, output: i => i.ToCSharpLiteral().Print(), where: where, select: select);
+    }
+
+    public static IReadOnlyList<T> PrintLiteral<T>(this IEnumerable<T> items,
+                                                   int limit = 6,
+                                                   Func<T, bool> where = null) {
+        return items.PrintHeadTail(limit, output: i => i.ToCSharpLiteral().Print(), where: where);
+    }
+
+    public static IEnumerable<T> PrintMessage<T>(this IEnumerable<T> items, string message) {
+        message.Print();
+        "--".Print();
+
+        return items;
+    }
+
+    private static IReadOnlyList<T> PrintHeadTail<T>(this IEnumerable<T> items,
+                                                     int limit,
+                                                     Action<T> output,
+                                                     Func<T, bool> where = null) {
+        var size = limit / 2d;
+        var head = Convert.ToInt32(Math.Floor(size));
+        var tail = Convert.ToInt32(Math.Ceiling(size));
+
+        where ??= _ => true;
         var list = items.CoerceList();
-        selector ??= i => i;
+        var sources = list.Where(where).ToList();
 
-        var listTotalCount = list.Count;
-        if (listTotalCount > tail) {
-            $"[skipped {listTotalCount - tail:N0}]".Print();
-        }
+        sources.Head(head)
+               .ForAll(i => output(i));
 
-        foreach (var content in list.Tail(tail).Select(selector).ToList()) {
-            content.Print();
+        if (head < sources.Count) {
+            if (sources.Count > limit) $"[skipped {sources.Count - limit}]".Print();
+
+            sources.Tail(tail)
+                   .ForAll(i => output(i));
         }
 
         "--".Print();
@@ -28,6 +96,38 @@ public static partial class Extensions {
         return list;
     }
 
+    private static IReadOnlyList<T> PrintHeadTail<T, TSelect>(this IEnumerable<T> items,
+                                                              int limit,
+                                                              Action<TSelect> output,
+                                                              Func<T, TSelect> select,
+                                                              Func<T, bool> where = null) {
+        var size = limit / 2d;
+        var head = Convert.ToInt32(Math.Floor(size));
+        var tail = Convert.ToInt32(Math.Ceiling(size));
+
+        where ??= _ => true;
+        var list = items.CoerceList();
+        var sources = list.Where(where)
+                          .Select(select)
+                          .ToList();
+
+        sources.Head(head)
+               .ForAll(i => output(i));
+
+        if (head < sources.Count) {
+            if (sources.Count > limit) $"[skipped {sources.Count - limit}]".Print();
+
+            sources.Tail(tail)
+                   .ForAll(i => output(i));
+        }
+
+        "--".Print();
+
+        return list;
+    }
+}
+
+public static partial class Extensions {
     public static object Print(this string source, string label = null, int? labelWidth = null, int maxTotalWidth = 100) {
         return Print((object)source, label, labelWidth, maxTotalWidth);
     }
@@ -60,48 +160,6 @@ public static partial class Extensions {
         "--".Print();
 
         return list;
-    }
-
-    public static IReadOnlyList<T> PrintJson<T>(this IEnumerable<T> items,
-                                                Func<T, object> selector = null,
-                                                Formatting format = Formatting.Indented,
-                                                int tail = 5) {
-        var list = items.CoerceList();
-        selector ??= i => i;
-        var listTotalCount = list.Count;
-        if (listTotalCount > tail) {
-            $"[skipped {listTotalCount - tail:N0}]".Print();
-        }
-
-        list.Tail(tail)
-            .Select(selector)
-            .Select(item => Format(item, json: true, format: format))
-            .Print(tail: tail);
-
-        return list;
-    }
-
-    public static IReadOnlyList<T> PrintJsonLine<T>(this IEnumerable<T> items,
-                                                    Func<T, object> selector = null,
-                                                    int tail = 5) {
-        return items.PrintJson(selector, Formatting.None, tail);
-    }
-
-    public static IReadOnlyList<T> PrintLiteral<T>(this IEnumerable<T> items,
-                                                   Func<T, object> selector = null,
-                                                   int tail = 5) {
-        var list = items.CoerceList();
-        selector ??= i => i;
-        list.Print(i => Format(selector(i), literal: true), tail: tail);
-
-        return list;
-    }
-
-    public static IEnumerable<T> PrintMessage<T>(this IEnumerable<T> items, string message) {
-        message.Print();
-        "--".Print();
-
-        return items;
     }
 
     public static string ToCSharpCodeLiteral(this object obj) {
@@ -155,6 +213,10 @@ public static partial class Extensions {
                                  int maxTotalWidth = 100) {
         string output;
 
+        if (true) {
+            var x = 1;
+        }
+
         if (json) {
             output = JsonConvert.SerializeObject(source, format);
         }
@@ -164,7 +226,7 @@ public static partial class Extensions {
                          double d   => d.ToCSharpLiteral(),
                          decimal d  => d.ToCSharpLiteral(),
                          DateTime d => d.ToCSharpLiteral(),
-                         _          => source?.ToString()
+                         _          => source?.ToLiteral()
                      };
         }
         else {
