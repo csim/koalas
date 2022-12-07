@@ -80,12 +80,9 @@ public static partial class Extensions {
                                                      int? maxParallel = null) {
         var list = items.CoerceList();
 
-        if (prefix == null) {
+        if (prefix == null)
             prefix = $"{DateTime.UtcNow:yyyyMMdd-HHmmss}_";
-        }
-        else if (!prefix.EndsWith("_")) {
-            prefix = $"{prefix}_";
-        }
+        else if (!prefix.EndsWith("_")) prefix = $"{prefix}_";
 
         var files = new List<KoalasFileInfo>();
         var directoryPartId = 1;
@@ -109,9 +106,7 @@ public static partial class Extensions {
         }
 
         files.ForAllParallel(file => {
-                                 if (file.File.Directory?.Exists == false) {
-                                     file.File.Directory.Create();
-                                 }
+                                 if (file.File.Directory?.Exists == false) file.File.Directory.Create();
 
                                  File.WriteAllText(file.File.FullName, file.Content);
                              },

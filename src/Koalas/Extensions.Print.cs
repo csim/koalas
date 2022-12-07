@@ -213,10 +213,6 @@ public static partial class Extensions {
                                  int maxTotalWidth = 100) {
         string output;
 
-        if (true) {
-            var x = 1;
-        }
-
         if (json) {
             output = JsonConvert.SerializeObject(source, format);
         }
