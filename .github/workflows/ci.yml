@@ -45,7 +45,7 @@ jobs:
     #  run: dotnet test $SOLUTION /p:Configuration=$env:BUILD_CONFIG --no-restore --no-build --verbosity normal
       
     - name: Pack
-      if: startsWith(github.ref, 'refs/heads/release')
+      if: startsWith(github.ref, 'refs/heads/release') || startsWith(github.ref, 'refs/tags/release')
       run: dotnet pack "./src/Koalas/Koalas.csproj" --configuration $BUILD_CONFIG -p:Version=$BUILD_VERSION
 
     - name: Publish
