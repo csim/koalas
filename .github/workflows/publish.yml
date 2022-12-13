@@ -4,8 +4,6 @@ on:
   push:
     branches: 
     - release/**
-    tags:
-    - 'release/*'
 jobs:
   build:
     env:
