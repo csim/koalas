@@ -4,11 +4,13 @@ on:
   create:
     branches: 
       - release/**
+    tags:
+    - release/**
   push:
     branches:
     - main
     tags:
-    - 'release/*'
+    - release/**
   pull_request:
     branches:
     - main
