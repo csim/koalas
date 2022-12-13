@@ -85,7 +85,7 @@ public static partial class Extensions {
                .ForAll(i => output(i));
 
         if (head < sources.Count) {
-            if (sources.Count > limit) $"[skipped {sources.Count - limit}]".Print();
+            if (sources.Count > limit) $"[skipped {sources.Count - limit:N0}]".Print();
 
             sources.Tail(tail)
                    .ForAll(i => output(i));
@@ -115,7 +115,7 @@ public static partial class Extensions {
                .ForAll(i => output(i));
 
         if (head < sources.Count) {
-            if (sources.Count > limit) $"[skipped {sources.Count - limit}]".Print();
+            if (sources.Count > limit) $"[skipped {sources.Count - limit:N0}]".Print();
 
             sources.Tail(tail)
                    .ForAll(i => output(i));
