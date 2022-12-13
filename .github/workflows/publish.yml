@@ -1,11 +1,11 @@
 name: publish
 
 on:
-  create:
+  push:
     branches: 
-      - release/**
+    - release/**
     tags:
-    - 'v*'
+    - 'release/*'
 jobs:
   build:
     env:
