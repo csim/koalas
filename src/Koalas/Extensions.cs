@@ -5,15 +5,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
-public static partial class Extensions {
+public static partial class ExtensionsFiles {
     public static IEnumerable<TTarget> ParseJson<TTarget>(this IEnumerable<string> items) {
-        return items.Select(item => JsonConvert.DeserializeObject<TTarget>(item));
+        return items.Select(JsonConvert.DeserializeObject<TTarget>);
     }
 
     public static IEnumerable<List<T>> Partition<T>(this IEnumerable<T> items, int size) {
-        var list = items.CoerceList();
+        IReadOnlyList<T> list = items.CoerceToList();
 
-        for (int i = 0; i < Math.Ceiling(list.Count / (double)size); i++) {
+        for (var i = 0; i < Math.Ceiling(list.Count / (double)size); i++) {
             yield return new List<T>(list.Skip(size * i).Take(size));
         }
     }
@@ -29,3 +29,5 @@ public static partial class Extensions {
         return items.Select(item => JsonConvert.SerializeObject(item, format));
     }
 }
+
+

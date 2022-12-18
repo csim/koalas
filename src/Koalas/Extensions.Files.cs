@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-public static partial class Extensions {
+public static partial class ExtensionsFiles {
     public static IEnumerable<FileInfo> Files(IEnumerable<string> directoryPaths,
                                               string searchPattern = "",
                                               SearchOption options = SearchOption.TopDirectoryOnly) {
@@ -16,16 +16,6 @@ public static partial class Extensions {
                                               string searchPattern = "",
                                               SearchOption options = SearchOption.TopDirectoryOnly) {
         return Files(new[] { directoryPath }, searchPattern, options);
-    }
-
-    public static IReadOnlyList<T> ForAll<T>(this IEnumerable<T> items,
-                                             Action<T> action) {
-        var list = items.CoerceList();
-        foreach (var item in list) {
-            action(item);
-        }
-
-        return list;
     }
 
     public static IEnumerable<string> ReadDirectoryFiles(string directoryPath,
@@ -78,19 +68,22 @@ public static partial class Extensions {
                                                      int maxDirectoryFiles = 1,
                                                      int maxFileObjects = 1,
                                                      int? maxParallel = null) {
-        var list = items.CoerceList();
+        IReadOnlyList<string> list = items.CoerceToList();
 
-        if (prefix == null)
+        if (prefix == null) {
             prefix = $"{DateTime.UtcNow:yyyyMMdd-HHmmss}_";
-        else if (!prefix.EndsWith("_")) prefix = $"{prefix}_";
+        }
+        else if (!prefix.EndsWith("_")) {
+            prefix = $"{prefix}_";
+        }
 
         var files = new List<KoalasFileInfo>();
         var directoryPartId = 1;
 
         var directoryPartitions = list.Partition(maxDirectoryFiles).ToList();
-        var directoryPartitionCount = directoryPartitions.Count;
+        int directoryPartitionCount = directoryPartitions.Count;
 
-        foreach (var directoryPartition in directoryPartitions) {
+        foreach (List<string> directoryPartition in directoryPartitions) {
             var filePartId = 1;
 
             files.AddRange(from filePartition in directoryPartition.Partition(maxFileObjects)
@@ -121,3 +114,6 @@ public class KoalasFileInfo {
 
     public FileInfo File { get; set; }
 }
+
+
+
