@@ -78,7 +78,7 @@ public static partial class ExtensionsPrint {
         var tail = Convert.ToInt32(Math.Ceiling(size));
 
         where ??= _ => true;
-        IReadOnlyList<T> list = items.CoerceToList();
+        IReadOnlyList<T> list = items.ToReadOnlyList();
         var sources = list.Where(where).ToList();
 
         sources.Head(head)
@@ -108,7 +108,7 @@ public static partial class ExtensionsPrint {
         var tail = Convert.ToInt32(Math.Ceiling(size));
 
         where ??= _ => true;
-        IReadOnlyList<T> list = items.CoerceToList();
+        IReadOnlyList<T> list = items.ToReadOnlyList();
         var sources = list.Where(where)
                           .Select(select)
                           .ToList();
@@ -151,7 +151,7 @@ public static partial class ExtensionsPrint {
     }
 
     public static IReadOnlyList<T> PrintCount<T>(this IEnumerable<T> items, string label = null) {
-        IReadOnlyList<T> list = items.CoerceToList();
+        IReadOnlyList<T> list = items.ToReadOnlyList();
         list.Count.ToString("N0").Print(label);
         "--".Print();
 
@@ -159,7 +159,7 @@ public static partial class ExtensionsPrint {
     }
 
     public static IReadOnlyList<T> PrintDistinctCount<T>(this IEnumerable<T> items, string label = null) {
-        IReadOnlyList<T> list = items.CoerceToList();
+        IReadOnlyList<T> list = items.ToReadOnlyList();
         list.Distinct().Count().ToString("N0").Print(label);
         "--".Print();
 

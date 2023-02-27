@@ -4,6 +4,33 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
+
+public static partial class ExtensionsFiles {
+    public static IEnumerable<TTarget> ParseJson<TTarget>(this IEnumerable<string> items) {
+        return items.Select(JsonConvert.DeserializeObject<TTarget>);
+    }
+
+    public static IEnumerable<IEnumerable<T>> Partition<T>(this IEnumerable<T> items, int size) {
+        items = items as IReadOnlyCollection<T> ?? items.ToList();
+
+        var i = 0;
+        while (true) {
+            IEnumerable<T> ret = items.Skip(size * i).Take(size).ToList();
+            if (ret.FirstOrDefault() == null) {
+                break;
+            }
+
+            yield return ret;
+
+            i++;
+        }
+    }
+
+    public static IEnumerable<string> SerializeJson<T>(this IEnumerable<T> items, Formatting format = Formatting.None) {
+        return items.Select(item => JsonConvert.SerializeObject(item, format));
+    }
+}
 
 public static partial class ExtensionsFiles {
     public static IEnumerable<FileInfo> Files(IEnumerable<string> directoryPaths,
@@ -40,16 +67,25 @@ public static partial class ExtensionsFiles {
     public static IEnumerable<string> ReadFileLines(IEnumerable<string> directoryPaths,
                                                     string searchPattern = "",
                                                     SearchOption options = SearchOption.TopDirectoryOnly) {
-        return directoryPaths.SelectMany(directoryPath => new DirectoryInfo(directoryPath).EnumerateFiles(searchPattern, options))
-                             .SelectMany(file => File.ReadAllLines(file.FullName));
+        IEnumerable<FileInfo> files = directoryPaths.SelectMany(directoryPath => new DirectoryInfo(directoryPath).EnumerateFiles(searchPattern, options));
+
+        foreach (FileInfo file in files) {
+            using StreamReader reader = new(file.FullName);
+            while (!reader.EndOfStream) {
+                yield return reader.ReadLine();
+            }
+        }
+
+        //foreach (var file in files) {
+        //    IEnumerable<string> lines = File.ReadLines(file.FullName);
+        //    foreach (string line in lines) {
+        //        yield return line;
+        //    }
+        //}
     }
 
     public static IEnumerable<string> ReadFileLines(this IEnumerable<FileInfo> contents) {
         return contents.SelectMany(f => File.ReadLines(f.FullName));
-    }
-
-    public static IEnumerable<string> ReadFiles(this IEnumerable<FileInfo> items) {
-        return items.SelectParallel(item => File.ReadAllText(item.FullName));
     }
 
     public static IEnumerable<string> ReadLines(this IEnumerable<string> items) {
@@ -61,59 +97,54 @@ public static partial class ExtensionsFiles {
                                              StringSplitOptions.RemoveEmptyEntries));
     }
 
-    public static IReadOnlyList<FileInfo> WriteFiles(this IEnumerable<string> items,
-                                                     string directoryPath,
-                                                     string prefix = null,
-                                                     string extension = "json",
-                                                     int maxDirectoryFiles = 1,
-                                                     int maxFileObjects = 1,
-                                                     int? maxParallel = null) {
-        IReadOnlyList<string> list = items.CoerceToList();
+    public static IReadOnlyList<FileInfo> WriteLineFiles(this IEnumerable<string> lines,
+                                                         string directoryPath,
+                                                         string prefix = null,
+                                                         string extension = "json",
+                                                         int maxDirectoryLines = 1_000_000,
+                                                         int maxFileLines = 1,
+                                                         int? maxParallel = null) {
+        prefix ??= $"{DateTime.UtcNow:yyyyMMdd-HHmmss}_";
 
-        if (prefix == null) {
-            prefix = $"{DateTime.UtcNow:yyyyMMdd-HHmmss}_";
-        }
-        else if (!prefix.EndsWith("_")) {
+        if (!prefix.EndsWith("_")) {
             prefix = $"{prefix}_";
         }
 
-        var files = new List<KoalasFileInfo>();
-        var directoryPartId = 1;
+        List<FileInfo> files = new();
+        var fileId = 1;
+        var partId = 1;
+        lines = lines as IReadOnlyCollection<string> ?? lines.ToList();
 
-        var directoryPartitions = list.Partition(maxDirectoryFiles).ToList();
-        int directoryPartitionCount = directoryPartitions.Count;
+        while (true) {
+            var directoryPartition = lines.Skip((partId - 1) * maxDirectoryLines).Take(maxDirectoryLines).ToList();
+            if (!directoryPartition.Any()) {
+                break;
+            }
 
-        foreach (List<string> directoryPartition in directoryPartitions) {
-            var filePartId = 1;
+            foreach (IEnumerable<string> filePartition in directoryPartition.Partition(maxFileLines)) {
+                var part = $"part{partId:00000}";
+                string dirPath = lines.Count() < maxDirectoryLines ? directoryPath : Path.Combine(directoryPath, part);
+                //var dirPath = Path.Combine(directoryPath, part);
+                FileInfo file = new(Path.Combine(dirPath, $"{prefix}{part}_file{fileId:00000}.{extension}"));
+                files.Add(file);
 
-            files.AddRange(from filePartition in directoryPartition.Partition(maxFileObjects)
-                           let part = $"part{directoryPartId:00000}"
-                           let filename = $"{prefix}{part}_file{filePartId++:00000}.{extension}"
-                           let dirPath = directoryPartitionCount == 1 ? directoryPath : Path.Combine(directoryPath, part)
-                           select new KoalasFileInfo {
-                                                         Content = string.Join(Environment.NewLine, filePartition),
-                                                         File = new FileInfo(Path.Combine(dirPath, filename))
-                                                     });
+                if (file.Directory?.Exists == false) {
+                    file.Directory.Create();
+                }
 
-            directoryPartId++;
+                File.WriteAllText(file.FullName, string.Join(Environment.NewLine, filePartition.ToList()));
+                fileId++;
+            }
+
+            partId++;
         }
 
-        files.ForAllParallel(file => {
-                                 if (file.File.Directory?.Exists == false) file.File.Directory.Create();
-
-                                 File.WriteAllText(file.File.FullName, file.Content);
-                             },
-                             maxParallel: maxParallel);
-
-        return files.Select(f => f.File).ToList();
+        return files.ToList();
     }
 }
 
-public class KoalasFileInfo {
+public class FileMetaInfo {
     public string Content { get; set; }
 
     public FileInfo File { get; set; }
 }
-
-
-
