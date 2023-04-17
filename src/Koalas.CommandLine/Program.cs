@@ -1,5 +1,7 @@
 ﻿namespace Koalas.CommandLine;
 
+using Koalas.Extensions;
+
 public static class Program {
     public static string X = "11";
 
