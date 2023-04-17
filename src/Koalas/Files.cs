@@ -1,38 +1,12 @@
-﻿namespace Koalas.Extensions;
+﻿namespace Koalas;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
+using Koalas.Extensions;
 
-public static partial class ExtensionsFiles {
-    public static IEnumerable<TTarget> ParseJson<TTarget>(this IEnumerable<string> items) {
-        return items.Select(JsonConvert.DeserializeObject<TTarget>);
-    }
-
-    public static IEnumerable<IEnumerable<T>> Partition<T>(this IEnumerable<T> items, int size) {
-        items = items as IReadOnlyCollection<T> ?? items.ToList();
-
-        var i = 0;
-        while (true) {
-            IEnumerable<T> ret = items.Skip(size * i).Take(size).ToList();
-            if (ret.FirstOrDefault() == null) {
-                break;
-            }
-
-            yield return ret;
-
-            i++;
-        }
-    }
-
-    public static IEnumerable<string> SerializeJson<T>(this IEnumerable<T> items, Formatting format = Formatting.None) {
-        return items.Select(item => JsonConvert.SerializeObject(item, format));
-    }
-}
-
-public static partial class ExtensionsFiles {
+public static class FileHelpers {
     public static IEnumerable<FileInfo> Files(IEnumerable<string> directoryPaths,
                                               string searchPattern = "",
                                               SearchOption options = SearchOption.TopDirectoryOnly) {
@@ -97,7 +71,7 @@ public static partial class ExtensionsFiles {
                                              StringSplitOptions.RemoveEmptyEntries));
     }
 
-    public static IReadOnlyList<FileInfo> WriteLineFiles(this IEnumerable<string> lines,
+    public static IReadOnlyList<FileInfo> WriteFileLines(this IEnumerable<string> lines,
                                                          string directoryPath,
                                                          string prefix = null,
                                                          string extension = "json",
@@ -113,7 +87,7 @@ public static partial class ExtensionsFiles {
         List<FileInfo> files = new();
         var fileId = 1;
         var partId = 1;
-        lines = lines as IReadOnlyCollection<string> ?? lines.ToList();
+        lines = lines.ToReadOnlyList();
 
         while (true) {
             var directoryPartition = lines.Skip((partId - 1) * maxDirectoryLines).Take(maxDirectoryLines).ToList();
@@ -141,10 +115,4 @@ public static partial class ExtensionsFiles {
 
         return files.ToList();
     }
-}
-
-public class FileMetaInfo {
-    public string Content { get; set; }
-
-    public FileInfo File { get; set; }
 }

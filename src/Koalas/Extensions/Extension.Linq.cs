@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 public static partial class Extension {
@@ -91,5 +92,31 @@ public static partial class Extension {
 
     public static IEnumerable<T> Yield<T>(this T subject) {
         yield return subject;
+    }
+}
+
+public static partial class Extension {
+    public static IEnumerable<TTarget> ParseJson<TTarget>(this IEnumerable<string> items) {
+        return items.Select(JsonConvert.DeserializeObject<TTarget>);
+    }
+
+    public static IEnumerable<IEnumerable<T>> Partition<T>(this IEnumerable<T> items, int size) {
+        items = items as IReadOnlyCollection<T> ?? items.ToList();
+
+        var i = 0;
+        while (true) {
+            IEnumerable<T> ret = items.Skip(size * i).Take(size).ToList();
+            if (ret.FirstOrDefault() == null) {
+                break;
+            }
+
+            yield return ret;
+
+            i++;
+        }
+    }
+
+    public static IEnumerable<string> SerializeJson<T>(this IEnumerable<T> items, Formatting format = Formatting.None) {
+        return items.Select(item => JsonConvert.SerializeObject(item, format));
     }
 }
