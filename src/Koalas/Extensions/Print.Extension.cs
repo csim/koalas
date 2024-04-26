@@ -224,12 +224,17 @@ public static partial class PrintExtension {
 
         for (var i = 0; i <= trace.FrameCount - 1; i++) {
             StackFrame frame = trace.GetFrame(i);
-            string filename = frame.GetFileName();
-            if (filename?.Contains("Print.Extension") == true) continue;
+            if (frame.GetMethod().DeclaringType?.Name.Contains(nameof(PrintExtension)) == true) continue;
 
             MethodBase method = frame.GetMethod();
+            if (method.DeclaringType?.Name.Contains("<<Initialize>>") == true) {
+                break;
+            }
 
-            ret = $"{method.DeclaringType?.Name}.{method.Name}():{frame.GetFileLineNumber(),-4}";
+            int lineNumber = frame.GetFileLineNumber();
+            string slineNumber = lineNumber == 0 ? string.Empty : $":{lineNumber:0000}";
+
+            ret = $"{method.DeclaringType?.Name}.{method.Name}(){slineNumber}";
             break;
         }
 
@@ -237,6 +242,9 @@ public static partial class PrintExtension {
     }
 
     private static void PrintEndSeparator() {
+        string callerName = CallerName();
+        if (callerName == null) return;
+
         Console.WriteLine($"--- {CallerName(),_defaultDisplayWidth - 3}");
     }
 }
@@ -248,8 +256,7 @@ public static partial class PrintExtension {
                                  int maxTotalWidth = _defaultDisplayWidth) {
         string newline = Environment.NewLine;
         var output = source?.ToString();
-
-        string callerName = CallerName();
+        
         output ??= "<null>";
 
         if (label == null) {
@@ -273,6 +280,9 @@ public static partial class PrintExtension {
         return $"{label}:{newline}{indent}{AppendCallerName(output)}";
 
         string AppendCallerName(string localOutput) {
+            string callerName = CallerName();
+            if (callerName == null) return localOutput;
+
             return !localOutput.Contains(newline)
                        ? $"{localOutput}{callerName.PadLeft(Math.Max(0, maxTotalWidth - localOutput.Length))}"
                        : $"{localOutput.TrimEnd('\r', '\n')}{newline}--- {callerName.PadLeft(Math.Max(0, maxTotalWidth - 4))}";
