@@ -245,7 +245,7 @@ public static partial class PrintExtension {
         string callerName = CallerName();
         if (callerName == null) return;
 
-        Console.WriteLine($"--- {CallerName(),_defaultDisplayWidth - 3}");
+        Console.WriteLine($"--- {callerName,_defaultDisplayWidth - 3}");
     }
 }
 
