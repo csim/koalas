@@ -4,35 +4,32 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Koalas.Extensions;
 
-public partial class TextTableBuilder : ITextRowBuilder {
-    public TextTableBuilder(TextTableBorder border = TextTableBorder.Default, int? defaultColumnPadding = null, int? defaultColumnMaxWidth = null) {
-        _outerBorders = border.HasFlag(TextTableBorder.Outer);
-        _columnBorders = border.HasFlag(TextTableBorder.Column);
-        _rowBorders = border.HasFlag(TextTableBorder.Row);
-        _defaultColumnPadding = defaultColumnPadding ?? 1;
-        _defaultColumnMaxWidth = defaultColumnMaxWidth ?? int.MaxValue;
-    }
-
-    private readonly bool _columnBorders;
-    private readonly List<ITextColumn> _columns = new();
+public partial class TextTableBuilder(TextTableBorder border = TextTableBorder.Default,
+                                      int? defaultColumnPadding = null,
+                                      int? defaultColumnMaxWidth = null) : ITextRowBuilder {
+    private readonly bool _columnBorders = border.HasFlag(TextTableBorder.Column) || border.HasFlag(TextTableBorder.Inner);
+    private readonly List<ITextColumn> _columns = [];
     private int _currentDataColumnIndex;
-    private readonly int _defaultColumnMaxWidth;
-    private readonly int _defaultColumnPadding;
-    private readonly bool _outerBorders;
-    private readonly bool _rowBorders;
-    private readonly List<ITextRow> _rows = new();
+    private readonly int _defaultColumnMaxWidth = defaultColumnMaxWidth ?? int.MaxValue;
+    private readonly int _defaultColumnPadding = defaultColumnPadding ?? 1;
+    private readonly bool _headingRowBorder = border.HasFlag(TextTableBorder.Inner);
+    private bool _layoutBorderComputed;
+    private readonly bool _outerBorders = border.HasFlag(TextTableBorder.Outer);
+    private readonly bool _rowBorders = border.HasFlag(TextTableBorder.Row);
+    private readonly List<ITextRow> _rows = [];
 
     public static TextTableBuilder Create(TextTableBorder border = TextTableBorder.Default,
                                           int? defaultColumnPadding = null,
                                           int? defaultColumnMaxWidth = null) {
-        return new TextTableBuilder(border, defaultColumnPadding, defaultColumnMaxWidth);
+        return new(border, defaultColumnPadding, defaultColumnMaxWidth);
     }
 }
 
 public partial class TextTableBuilder {
     public TextTableBuilder AddBorderColumn() {
-        _columns.Add(new SingleBorderTextColumn());
+        _columns.Add(new SingleBorderTextColumn { External = true });
 
         return this;
     }
@@ -61,7 +58,7 @@ public partial class TextTableBuilder {
     }
 
     public TextTableBuilder AddDoubleBorderColumn() {
-        _columns.Add(new DoubleBorderTextColumn());
+        _columns.Add(new DoubleBorderTextColumn { External = true });
 
         return this;
     }
@@ -110,41 +107,66 @@ public partial class TextTableBuilder {
 public partial class TextTableBuilder {
     private TextRowBuilder _rowBuilder;
 
-    public TextRowBuilder AddBorderRow() {
-        return RowBuilder().AddBorderRow();
+    /// <inheritdoc />
+    public IReadOnlyList<ITextRow> Rows => _rows;
+
+    private ITextRowBuilder RowBuilder => _rowBuilder ??= new TextRowBuilder(this, _rows, _columns);
+
+    public ITextRowBuilder AddBorderRow() {
+        return RowBuilder.AddBorderRow();
     }
 
-    public TextRowBuilder AddDataRow(params object[] cells) {
-        return RowBuilder().AddDataRow((IReadOnlyList<object>)cells);
+    public ITextRowBuilder AddDataRow(params object[] cells) {
+        return RowBuilder.AddDataRow((IReadOnlyList<object>)cells);
     }
 
-    public TextRowBuilder AddDataRow(IReadOnlyList<object> row, int? rowId = null) {
-        return RowBuilder().AddDataRow(row, rowId);
+    public ITextRowBuilder AddDataRow(IReadOnlyList<object> row, int? rowId = null) {
+        return RowBuilder.AddDataRow(row, rowId);
     }
 
-    public TextRowBuilder AddDataRows(IReadOnlyList<IReadOnlyList<object>> rows, int? startRowId = null) {
-        return RowBuilder().AddDataRows(rows, startRowId);
+    public ITextRowBuilder AddDataRows(IReadOnlyList<IReadOnlyList<object>> rows, int? startRowId = null) {
+        return RowBuilder.AddDataRows(rows, startRowId);
     }
 
-    public TextRowBuilder AddDoubleBorderRow() {
-        return RowBuilder().AddDoubleBorderRow();
+    public ITextRowBuilder AddDoubleBorderRow() {
+        return RowBuilder.AddDoubleBorderRow();
     }
 
-    public TextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0) {
-        return RowBuilder().AddEllipsisRow(indicator, indicatorColumnIndex);
+    public ITextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0) {
+        return RowBuilder.AddEllipsisRow(indicator, indicatorColumnIndex);
     }
 
-    public TextRowBuilder AddHeadingRow() {
-        return RowBuilder().AddHeadingRow();
+    public ITextRowBuilder AddHeadingRow() {
+        return RowBuilder.AddHeadingRow();
     }
 
-    private TextRowBuilder RowBuilder() {
-        return _rowBuilder ??= new TextRowBuilder(this, _rows, _columns);
+    public ITextRowBuilder AddHeadingRow(params string[] headingOverrides) {
+        _rows.Add(new HeadingTextRow(headingOverrides));
+
+        return this;
+    }
+
+    public ITextRowBuilder ClearRows() {
+        return RowBuilder.ClearRows();
+    }
+
+    /// <inheritdoc />
+    public ITextRowBuilder InsertRow(int index, ITextRow row) {
+        return RowBuilder.InsertRow(index, row);
+    }
+
+    /// <inheritdoc />
+    public ITextRowBuilder RemoveRow(int index) {
+        return RowBuilder.RemoveRow(index);
     }
 }
 
 public partial class TextTableBuilder {
     public string Render() {
+        return Render(null);
+    }
+
+    public string Render(int? rowLimit) {
         if (!_columns.Any() || !_rows.Any()) {
             return string.Empty;
         }
@@ -153,11 +175,35 @@ public partial class TextTableBuilder {
 
         StringBuilder output = new();
 
+        bool hasRowLimit = rowLimit != null;
+        var dataRowCount = 0;
+        var limitReached = false;
+
         foreach (ITextRow row in _rows) {
+            if (hasRowLimit && row is DataTextRow && ++dataRowCount > rowLimit.Value) {
+                limitReached = true;
+                break;
+            }
+
             row.Render(output, _columns);
         }
 
-        return output.ToString();
+        string ret = output.ToString().TrimEnd('\r', '\n') + Environment.NewLine;
+
+        if (!limitReached) {
+            return ret;
+        }
+
+        int totalDataRowCount = _rows.Count(r => r is DataTextRow);
+        ret += $"[{totalDataRowCount - rowLimit.Value:N0} more]{Environment.NewLine}";
+
+        return ret;
+    }
+
+    public void ResetLayout() {
+        _layoutBorderComputed = false;
+        _columns.RemoveAll(c => c is PaddingTextColumn or IBorderTextColumn { External: false });
+        _rows.RemoveAll(c => c is IBorderTextRow { External: false });
     }
 
     public override string ToString() {
@@ -172,7 +218,7 @@ public partial class TextTableBuilder {
 
     private void ComputeLayout() {
         // Resolve inner borders
-        if (_columnBorders) {
+        if (!_layoutBorderComputed && _columnBorders) {
             ComputeMeta();
             IEnumerable<int> dataColumnIndexes = from col in _columns
                                                  where col is IDynamicWidthTextColumn
@@ -185,7 +231,7 @@ public partial class TextTableBuilder {
             }
         }
 
-        if (_rowBorders) {
+        if (!_layoutBorderComputed && _rowBorders) {
             ComputeMeta();
             IEnumerable<int> dataRowIndexes = from row in _rows
                                               where row is DataTextRow
@@ -198,34 +244,57 @@ public partial class TextTableBuilder {
             }
         }
 
+        if (!_layoutBorderComputed && _headingRowBorder) {
+            ComputeMeta();
+            IEnumerable<int> insertIndexes = from row in _rows
+                                             where row is HeadingTextRow
+                                             from index in row.Last
+                                                               ? row.Index.Yield()
+                                                               : row.First
+                                                                   ? (row.Index + 1).Yield()
+                                                                   : new[] {
+                                                                               row.Index,
+                                                                               row.Index + 1
+                                                                           }
+                                             orderby index descending
+                                             select index;
+            foreach (int index in insertIndexes.ToList()) {
+                _rows.Insert(index, new SingleBorderTextRow());
+            }
+        }
+
         // Resolve padding
         ComputeMeta();
-        IReadOnlyList<IDynamicWidthTextColumn> dynamicColumns = (from col in _columns
-                                                                 where col is IDynamicWidthTextColumn
-                                                                 let dynamicCol = (IDynamicWidthTextColumn)col
-                                                                 orderby dynamicCol.Index descending
-                                                                 select dynamicCol).ToList();
-        foreach (IDynamicWidthTextColumn column in dynamicColumns.Where(col => col.LeftPadding == null)
-                                                                 .ToList()) {
-            column.LeftPadding = column.First && !_outerBorders
-                                     ? 0
-                                     : _defaultColumnPadding;
-        }
-
-        foreach (IDynamicWidthTextColumn column in dynamicColumns.Where(col => col.RightPadding == null)
-                                                                 .ToList()) {
-            column.RightPadding = column.Last && !_outerBorders
-                                      ? 0
-                                      : _defaultColumnPadding;
-        }
-
-        foreach (IDynamicWidthTextColumn dynamicColumn in dynamicColumns) {
-            if (dynamicColumn.RightPadding is > 0) {
-                _columns.Insert(dynamicColumn.Index + 1, new PaddingTextColumn(dynamicColumn.RightPadding.Value));
+        if (!_layoutBorderComputed) {
+            IReadOnlyList<IDynamicWidthTextColumn> dynamicColumns = (from col in _columns
+                                                                     where col is IDynamicWidthTextColumn
+                                                                     let dynamicCol = (IDynamicWidthTextColumn)col
+                                                                     orderby dynamicCol.Index descending
+                                                                     select dynamicCol).ToList();
+            foreach (IDynamicWidthTextColumn column in dynamicColumns.Where(col => col.LeftPadding == null)
+                                                                     .ToList()) {
+                column.LeftPadding = column.First && !_outerBorders
+                                         ? 0
+                                         : _defaultColumnPadding;
             }
 
-            if (dynamicColumn.LeftPadding > 0) {
-                _columns.Insert(dynamicColumn.Index, new PaddingTextColumn(dynamicColumn.LeftPadding.Value));
+            foreach (IDynamicWidthTextColumn column in dynamicColumns.Where(col => col.RightPadding == null)
+                                                                     .ToList()) {
+                column.RightPadding = column.Last && !_outerBorders
+                                          ? 0
+                                          : _defaultColumnPadding;
+            }
+
+
+            foreach (IDynamicWidthTextColumn dynamicColumn in dynamicColumns) {
+                if (dynamicColumn.RightPadding is > 0) {
+                    _columns.Insert(dynamicColumn.Index + 1, new PaddingTextColumn(dynamicColumn.RightPadding.Value));
+                }
+
+                // ReSharper disable once InvertIf
+                if (dynamicColumn.LeftPadding > 0) {
+                    _columns.Insert(dynamicColumn.Index, new PaddingTextColumn(dynamicColumn.LeftPadding.Value));
+                }
             }
         }
 
@@ -237,9 +306,11 @@ public partial class TextTableBuilder {
                                                    from partition in col.Lines(row)
                                                    select partition.Length).ToList();
             int dataWidth = partitionLengths.Any() ? partitionLengths.Max() : 0;
+            bool hasHeading = Rows.Any(r => r is HeadingTextRow);
             if (col is IDynamicWidthTextColumn dynamicCol) {
                 dynamicCol.MaximumWidth ??= _defaultColumnMaxWidth;
-                dynamicCol.Width = Math.Max(dynamicCol.MinimumWidth, Math.Max(dynamicCol.Heading?.Length ?? 0, dataWidth));
+                int headingWidth = hasHeading ? dynamicCol.Heading?.Length ?? 0 : 0;
+                dynamicCol.Width = Math.Max(dynamicCol.MinimumWidth, Math.Max(headingWidth, dataWidth));
             }
             else {
                 col.Width = dataWidth;
@@ -248,7 +319,7 @@ public partial class TextTableBuilder {
 
         // Resolve outer border
         ComputeMeta();
-        if (_outerBorders) {
+        if (!_layoutBorderComputed && _outerBorders) {
             if (_columns[0] is not IBorderTextColumn) {
                 _columns.Insert(0, new SingleBorderTextColumn());
             }
@@ -267,6 +338,8 @@ public partial class TextTableBuilder {
         }
 
         ComputeMeta();
+
+        _layoutBorderComputed = true;
     }
 
     private void ComputeMeta() {
@@ -286,35 +359,35 @@ public partial class TextTableBuilder {
     }
 }
 
-public class TextRowBuilder {
-    public TextRowBuilder(TextTableBuilder table, List<ITextRow> rows, IReadOnlyList<ITextColumn> columns) {
+public class TextRowBuilder : ITextRowBuilder {
+    public TextRowBuilder(TextTableBuilder table, List<ITextRow> rows, IEnumerable<ITextColumn> columns) {
         _table = table;
         _rows = rows;
-        _columns = columns;
 
-        var textColumns = _columns.OfType<TextColumn>().ToList();
+        var textColumns = columns.OfType<TextColumn>().ToList();
         _dataColumnCount = textColumns.Any() ? textColumns.Max(i => i.DataColumnIndex) + 1 : 0;
     }
 
-    private readonly IReadOnlyList<ITextColumn> _columns;
     private readonly int _dataColumnCount;
     private int _rowId = 1;
     private readonly List<ITextRow> _rows;
     private readonly TextTableBuilder _table;
 
-    public TextRowBuilder AddBorderRow() {
-        _rows.Add(new SingleBorderTextRow());
+    public IReadOnlyList<ITextRow> Rows => _rows;
+
+    public ITextRowBuilder AddBorderRow() {
+        _rows.Add(new SingleBorderTextRow { External = true });
 
         return this;
     }
 
-    public TextRowBuilder AddDataRow(params object[] cells) {
+    public ITextRowBuilder AddDataRow(params object[] cells) {
         return AddDataRow((IReadOnlyList<object>)cells);
     }
 
-    public TextRowBuilder AddDataRow(IReadOnlyList<object> row, int? rowId = null) {
+    public ITextRowBuilder AddDataRow(IReadOnlyList<object> row, int? rowId = null) {
         if (row.Count != _dataColumnCount) {
-            throw new Exception($"row columns ({row.Count}) does not match scheme columns ({_columns.Count})");
+            throw new Exception($"row columns ({row.Count}) does not match scheme columns ({_dataColumnCount})");
         }
 
         _rows.Add(new DataTextRow(rowId ?? _rowId++, row));
@@ -322,7 +395,7 @@ public class TextRowBuilder {
         return this;
     }
 
-    public TextRowBuilder AddDataRows(IReadOnlyList<IReadOnlyList<object>> rows, int? startRowId = null) {
+    public ITextRowBuilder AddDataRows(IReadOnlyList<IReadOnlyList<object>> rows, int? startRowId = null) {
         foreach (IReadOnlyList<object> row in rows) {
             AddDataRow(row, startRowId == null ? null : startRowId++);
         }
@@ -330,13 +403,13 @@ public class TextRowBuilder {
         return this;
     }
 
-    public TextRowBuilder AddDoubleBorderRow() {
-        _rows.Add(new DoubleBorderTextRow());
+    public ITextRowBuilder AddDoubleBorderRow() {
+        _rows.Add(new DoubleBorderTextRow { External = true });
 
         return this;
     }
 
-    public TextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0) {
+    public ITextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0) {
         _rows.Add(new EllipsisTextRow {
                                           Indicator = indicator,
                                           ColumnIndex = indicatorColumnIndex
@@ -345,8 +418,35 @@ public class TextRowBuilder {
         return this;
     }
 
-    public TextRowBuilder AddHeadingRow() {
+    public ITextRowBuilder AddHeadingRow() {
         _rows.Add(new HeadingTextRow());
+
+        return this;
+    }
+
+    public ITextRowBuilder AddHeadingRow(params string[] headingOverrides) {
+        _table.AddHeadingRow(headingOverrides);
+
+        return this;
+    }
+
+    public ITextRowBuilder ClearRows() {
+        _rows.RemoveAll(r => r is DataTextRow);
+        ResetLayout();
+
+        return this;
+    }
+
+    public ITextRowBuilder InsertRow(int index, ITextRow row) {
+        _rows.Insert(index, row);
+        ResetLayout();
+
+        return this;
+    }
+
+    public ITextRowBuilder RemoveRow(int index) {
+        _rows.RemoveAt(index);
+        ResetLayout();
 
         return this;
     }
@@ -358,22 +458,41 @@ public class TextRowBuilder {
     public override string ToString() {
         return _table.ToString();
     }
+
+    private void ResetLayout() {
+        _table.ResetLayout();
+        _rowId = 1;
+        _rows.Where(r => r is DataTextRow)
+             .ForEach(r => r.Id = _rowId++);
+    }
 }
 
 public interface ITextRowBuilder {
-    TextRowBuilder AddBorderRow();
+    public IReadOnlyList<ITextRow> Rows { get; }
 
-    TextRowBuilder AddDataRow(params object[] cells);
+    ITextRowBuilder AddBorderRow();
 
-    TextRowBuilder AddDataRow(IReadOnlyList<object> row, int? rowId = null);
+    ITextRowBuilder AddDataRow(params object[] cells);
 
-    TextRowBuilder AddDataRows(IReadOnlyList<IReadOnlyList<object>> rows, int? startRowId = null);
+    ITextRowBuilder AddDataRow(IReadOnlyList<object> row, int? rowId = null);
 
-    TextRowBuilder AddDoubleBorderRow();
+    ITextRowBuilder AddDataRows(IReadOnlyList<IReadOnlyList<object>> rows, int? startRowId = null);
 
-    TextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0);
+    ITextRowBuilder AddDoubleBorderRow();
 
-    TextRowBuilder AddHeadingRow();
+    ITextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0);
+
+    ITextRowBuilder AddHeadingRow();
+
+    ITextRowBuilder AddHeadingRow(params string[] headingOverrides);
+
+    ITextRowBuilder ClearRows();
+
+    public ITextRowBuilder InsertRow(int index, ITextRow row);
+
+    public ITextRowBuilder RemoveRow(int index);
+
+    string Render();
 }
 
 /*************************************************************
@@ -392,6 +511,8 @@ public interface ITextColumn {
     IReadOnlyList<string> Lines(ITextRow row);
 
     void Render(StringBuilder output, ITextRow row, int partitionIndex);
+
+    void RenderHeading(StringBuilder output, string headingOverride = null);
 }
 
 public interface IDynamicWidthTextColumn : ITextColumn {
@@ -406,7 +527,9 @@ public interface IDynamicWidthTextColumn : ITextColumn {
     int? RightPadding { get; set; }
 }
 
-public interface IBorderTextColumn : ITextColumn { }
+public interface IBorderTextColumn : ITextColumn {
+    public bool External { get; }
+}
 
 public abstract class TextColumnBase : ITextColumn {
     public static char Space = ' ';
@@ -445,9 +568,13 @@ public abstract class TextColumnBase : ITextColumn {
 
         output.Append(AlignRight
                           ? line.PadLeft(Width)
-                          : Last
-                              ? line
-                              : line.PadRight(Width));
+                          : line.PadRight(Width));
+    }
+
+    public virtual void RenderHeading(StringBuilder output, string headingOverride = null) {
+        string heading = headingOverride ?? Heading ?? string.Empty;
+
+        output.Append(AlignRight ? heading.PadLeft(Width) : heading.PadRight(Width));
     }
 }
 
@@ -487,8 +614,8 @@ public class TextColumn : TextColumnBase, IDynamicWidthTextColumn {
         string formattedContent = FormatValue(row);
 
         string[] rawLines = formattedContent.Contains(Environment.NewLine)
-                                ? formattedContent.Split(new[] { Environment.NewLine }, StringSplitOptions.None)
-                                : new[] { formattedContent };
+                                ? formattedContent.Split([Environment.NewLine], StringSplitOptions.None)
+                                : [formattedContent];
 
         if (MaximumWidth == null) {
             return _lineCache[row] = rawLines;
@@ -501,8 +628,8 @@ public class TextColumn : TextColumnBase, IDynamicWidthTextColumn {
         return _lineCache[row] = rawLines.SelectMany(line => Partition(line, MaximumWidth.Value)).ToList();
     }
 
-    private static IReadOnlyList<string> Partition(string text, int maxLength) {
-        List<string> chunks = new();
+    private static IEnumerable<string> Partition(string text, int maxLength) {
+        List<string> chunks = [];
 
         if (string.IsNullOrEmpty(text)) {
             chunks.Add(string.Empty);
@@ -544,6 +671,8 @@ public class SingleBorderTextColumn : TextColumnBase, IBorderTextColumn {
     private const char _verticalBar = '│';
     private IReadOnlyList<string> _lines;
 
+    public bool External { get; init; }
+
     public string FormatValue(ITextRow row) {
         return _verticalBar.ToString();
     }
@@ -561,11 +690,17 @@ public class SingleBorderTextColumn : TextColumnBase, IBorderTextColumn {
 
         output.Append(_verticalBar);
     }
+
+    public override void RenderHeading(StringBuilder output, string headingOverride = null) {
+        output.Append(_verticalBar);
+    }
 }
 
 public class DoubleBorderTextColumn : TextColumnBase, IBorderTextColumn {
     private const char _verticalBar = '║';
     private IReadOnlyList<string> _lines;
+
+    public bool External { get; init; }
 
     public virtual string FormatValue(ITextRow row) {
         return _verticalBar.ToString();
@@ -582,6 +717,10 @@ public class DoubleBorderTextColumn : TextColumnBase, IBorderTextColumn {
             return;
         }
 
+        output.Append(_verticalBar);
+    }
+
+    public override void RenderHeading(StringBuilder output, string headingOverride = null) {
         output.Append(_verticalBar);
     }
 }
@@ -604,15 +743,9 @@ public class IdentityTextColumn : TextColumnBase, IDynamicWidthTextColumn {
     }
 }
 
-public class PaddingTextColumn : TextColumnBase {
-    public PaddingTextColumn(int width) {
-        _width = width;
-    }
-
-    private readonly int _width;
-
+public class PaddingTextColumn(int width) : TextColumnBase {
     public override IReadOnlyList<string> Lines(ITextRow row) {
-        return new[] { new string(Space, _width) };
+        return new[] { new string(Space, width) };
     }
 
     public override void Render(StringBuilder output, ITextRow row, int lineIndex) {
@@ -622,7 +755,7 @@ public class PaddingTextColumn : TextColumnBase {
             return;
         }
 
-        output.Append(Space, _width);
+        output.Append(Space, width);
     }
 }
 
@@ -676,7 +809,7 @@ public class StaticTextColumn : TextColumnBase {
 public interface ITextRow {
     bool First { get; set; }
 
-    int? Id { get; }
+    int? Id { get; set; }
 
     int Index { get; set; }
 
@@ -688,19 +821,17 @@ public interface ITextRow {
 public interface IBorderTextRow : ITextRow {
     char Dash { get; }
 
+    public bool External { get; init; }
+
     public char DoubleJunction(ITextColumn col, ITextRow row);
 
     public char SingleJunction(ITextColumn col, ITextRow row);
 }
 
-public class DataTextRow : List<object>, ITextRow {
-    public DataTextRow(int id, IEnumerable<object> values) : base(values) {
-        Id = id;
-    }
-
+public class DataTextRow(int id, IEnumerable<object> values) : List<object>(values), ITextRow {
     public bool First { get; set; }
 
-    public int? Id { get; }
+    public int? Id { get; set; } = id;
 
     public int Index { get; set; }
 
@@ -720,21 +851,40 @@ public class DataTextRow : List<object>, ITextRow {
 }
 
 public class HeadingTextRow : ITextRow {
+    public HeadingTextRow() { }
+
+    public HeadingTextRow(string[] headingOverrides) {
+        _headingOverrides = headingOverrides;
+    }
+
+    private readonly string[] _headingOverrides;
+
     public bool First { get; set; }
 
-    public int? Id => null;
+    public int? Id {
+        get => null;
+        set { }
+    }
 
     public int Index { get; set; }
 
     public bool Last { get; set; }
 
     public void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns) {
-        if (columns.OfType<TextColumnBase>().All(c => string.IsNullOrEmpty(c.Heading))) {
+        if (columns.OfType<TextColumnBase>().All(c => string.IsNullOrEmpty(c.Heading))
+            && !_headingOverrides.Any()) {
             return;
         }
 
+        var index = 0;
         foreach (ITextColumn col in columns) {
-            col.Render(output, this, 0);
+            if (col is IDynamicWidthTextColumn) {
+                col.RenderHeading(output, _headingOverrides?.ElementAtOrDefault(index));
+                index++;
+            }
+            else {
+                col.RenderHeading(output);
+            }
         }
 
         output.AppendLine();
@@ -746,7 +896,10 @@ public class EllipsisTextRow : ITextRow {
 
     public bool First { get; set; }
 
-    public int? Id => null;
+    public int? Id {
+        get => null;
+        set { }
+    }
 
     public int Index { get; set; }
 
@@ -771,41 +924,46 @@ public class EllipsisTextRow : ITextRow {
 public class SingleBorderTextRow : IBorderTextRow {
     public const char _dashChar = '─';
     private static readonly char[,] _doubleJunctionChars = {
-                                                               {
-                                                                   '╓',
-                                                                   '╥',
-                                                                   '╖'
-                                                               }, {
-                                                                   '╟',
-                                                                   '╫',
-                                                                   '╢'
-                                                               }, {
-                                                                   '╙',
-                                                                   '╨',
-                                                                   '╜'
-                                                               }
-                                                           };
+                                                              {
+                                                                  '╓',
+                                                                  '╥',
+                                                                  '╖'
+                                                              }, {
+                                                                  '╟',
+                                                                  '╫',
+                                                                  '╢'
+                                                              }, {
+                                                                  '╙',
+                                                                  '╨',
+                                                                  '╜'
+                                                              }
+                                                          };
     private static readonly char[,] _singleJunctionChars = {
-                                                               {
-                                                                   '┌',
-                                                                   '┬',
-                                                                   '┐'
-                                                               }, {
-                                                                   '├',
-                                                                   '┼',
-                                                                   '┤'
-                                                               }, {
-                                                                   '└',
-                                                                   '┴',
-                                                                   '┘'
-                                                               }
-                                                           };
+                                                              {
+                                                                  '┌',
+                                                                  '┬',
+                                                                  '┐'
+                                                              }, {
+                                                                  '├',
+                                                                  '┼',
+                                                                  '┤'
+                                                              }, {
+                                                                  '└',
+                                                                  '┴',
+                                                                  '┘'
+                                                              }
+                                                          };
 
     public char Dash => _dashChar;
 
+    public bool External { get; init; }
+
     public bool First { get; set; }
 
-    public int? Id => null;
+    public int? Id {
+        get => null;
+        set { }
+    }
 
     public int Index { get; set; }
 
@@ -813,15 +971,15 @@ public class SingleBorderTextRow : IBorderTextRow {
 
     public char DoubleJunction(ITextColumn col, ITextRow row) {
         return _doubleJunctionChars[row.First
-                                        ? 0
-                                        : row.Last
-                                            ? 2
-                                            : 1,
-                                    col.First
-                                        ? 0
-                                        : col.Last
-                                            ? 2
-                                            : 1];
+                                       ? 0
+                                       : row.Last
+                                           ? 2
+                                           : 1,
+                                   col.First
+                                       ? 0
+                                       : col.Last
+                                           ? 2
+                                           : 1];
     }
 
     public void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns) {
@@ -834,56 +992,61 @@ public class SingleBorderTextRow : IBorderTextRow {
 
     public char SingleJunction(ITextColumn col, ITextRow row) {
         return _singleJunctionChars[row.First
-                                        ? 0
-                                        : row.Last
-                                            ? 2
-                                            : 1,
-                                    col.First
-                                        ? 0
-                                        : col.Last
-                                            ? 2
-                                            : 1];
+                                       ? 0
+                                       : row.Last
+                                           ? 2
+                                           : 1,
+                                   col.First
+                                       ? 0
+                                       : col.Last
+                                           ? 2
+                                           : 1];
     }
 }
 
 public class DoubleBorderTextRow : IBorderTextRow {
     public const char _dashChar = '═';
     private static readonly char[,] _doubleJunctionChars = {
-                                                               {
-                                                                   '╔',
-                                                                   '╦',
-                                                                   '╗'
-                                                               }, {
-                                                                   '╠',
-                                                                   '╬',
-                                                                   '╣'
-                                                               }, {
-                                                                   '╚',
-                                                                   '╩',
-                                                                   '╝'
-                                                               }
-                                                           };
+                                                              {
+                                                                  '╔',
+                                                                  '╦',
+                                                                  '╗'
+                                                              }, {
+                                                                  '╠',
+                                                                  '╬',
+                                                                  '╣'
+                                                              }, {
+                                                                  '╚',
+                                                                  '╩',
+                                                                  '╝'
+                                                              }
+                                                          };
     private static readonly char[,] _singleJunctionChars = {
-                                                               {
-                                                                   '╒',
-                                                                   '╤',
-                                                                   '╕'
-                                                               }, {
-                                                                   '╞',
-                                                                   '╪',
-                                                                   '╡'
-                                                               }, {
-                                                                   '╘',
-                                                                   '╧',
-                                                                   '╛'
-                                                               }
-                                                           };
+                                                              {
+                                                                  '╒',
+                                                                  '╤',
+                                                                  '╕'
+                                                              }, {
+                                                                  '╞',
+                                                                  '╪',
+                                                                  '╡'
+                                                              }, {
+                                                                  '╘',
+                                                                  '╧',
+                                                                  '╛'
+                                                              }
+                                                          };
 
     public char Dash => _dashChar;
 
+    public bool External { get; init; }
+
     public bool First { get; set; }
 
-    public int? Id => null;
+    public int? Id {
+        get => null;
+        set { }
+    }
 
     public int Index { get; set; }
 
@@ -891,15 +1054,15 @@ public class DoubleBorderTextRow : IBorderTextRow {
 
     public char DoubleJunction(ITextColumn col, ITextRow row) {
         return _doubleJunctionChars[row.First
-                                        ? 0
-                                        : row.Last
-                                            ? 2
-                                            : 1,
-                                    col.First
-                                        ? 0
-                                        : col.Last
-                                            ? 2
-                                            : 1];
+                                       ? 0
+                                       : row.Last
+                                           ? 2
+                                           : 1,
+                                   col.First
+                                       ? 0
+                                       : col.Last
+                                           ? 2
+                                           : 1];
     }
 
     public void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns) {
@@ -912,15 +1075,15 @@ public class DoubleBorderTextRow : IBorderTextRow {
 
     public char SingleJunction(ITextColumn col, ITextRow row) {
         return _singleJunctionChars[row.First
-                                        ? 0
-                                        : row.Last
-                                            ? 2
-                                            : 1,
-                                    col.First
-                                        ? 0
-                                        : col.Last
-                                            ? 2
-                                            : 1];
+                                       ? 0
+                                       : row.Last
+                                           ? 2
+                                           : 1,
+                                   col.First
+                                       ? 0
+                                       : col.Last
+                                           ? 2
+                                           : 1];
     }
 }
 
@@ -930,7 +1093,8 @@ public enum TextTableBorder {
     Column = 1 << 2,
     Row = 1 << 3,
     Outer = 1 << 4,
-    Inner = Row | Column,
+    InnerFull = Row | Column,
+    Inner = 1 << 5,
     Default = None,
     All = int.MaxValue
 }

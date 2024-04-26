@@ -63,11 +63,11 @@ public static class FileHelpers {
     }
 
     public static IEnumerable<string> ReadLines(this IEnumerable<string> items) {
-        return items.SelectMany(c => c.Split(new[] {
-                                                       Environment.NewLine,
-                                                       "\n",
-                                                       "\r"
-                                                   },
+        return items.SelectMany(c => c.Split([
+                                                 Environment.NewLine,
+                                                 "\n",
+                                                 "\r"
+                                             ],
                                              StringSplitOptions.RemoveEmptyEntries));
     }
 
@@ -84,7 +84,7 @@ public static class FileHelpers {
             prefix = $"{prefix}_";
         }
 
-        List<FileInfo> files = new();
+        List<FileInfo> files = [];
         var fileId = 1;
         var partId = 1;
         lines = lines.ToReadOnlyList();

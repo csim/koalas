@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <LangVersion>10.0</LangVersion>
-    <Title>Notebook ready C# data science tools inspired by Python pandas module.</Title>
+    <LangVersion>12.0</LangVersion>
+    <Title>Notebook ready C# data science tools and utilities inspired by Python pandas module.</Title>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
