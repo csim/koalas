@@ -224,17 +224,12 @@ public static partial class PrintExtension {
 
         for (var i = 0; i <= trace.FrameCount - 1; i++) {
             StackFrame frame = trace.GetFrame(i);
-            if (frame.GetMethod().DeclaringType?.Name.Contains(nameof(PrintExtension)) == true) continue;
+            string filename = frame.GetFileName();
+            if (filename?.Contains("Print.Extension") == true) continue;
 
             MethodBase method = frame.GetMethod();
-            if (method.DeclaringType?.Name.Contains("<<Initialize>>") == true) {
-                break;
-            }
 
-            int lineNumber = frame.GetFileLineNumber();
-            string slineNumber = lineNumber == 0 ? string.Empty : $":{lineNumber:0000}";
-
-            ret = $"{method.DeclaringType?.Name}.{method.Name}(){slineNumber}";
+            ret = $"{method.DeclaringType?.Name}.{method.Name}():{frame.GetFileLineNumber(),-4}";
             break;
         }
 
@@ -242,10 +237,7 @@ public static partial class PrintExtension {
     }
 
     private static void PrintEndSeparator() {
-        string callerName = CallerName();
-        if (callerName == null) return;
-
-        Console.WriteLine($"--- {callerName,_defaultDisplayWidth - 3}");
+        Console.WriteLine($"--- {CallerName(),_defaultDisplayWidth - 3}");
     }
 }
 
@@ -253,10 +245,12 @@ public static partial class PrintExtension {
     private static string Format(object source,
                                  string label = null,
                                  int? labelWidth = null,
-                                 int maxTotalWidth = _defaultDisplayWidth) {
+                                 int maxTotalWidth = _defaultDisplayWidth,
+                                 bool includeFileLocation = true) {
         string newline = Environment.NewLine;
         var output = source?.ToString();
-        
+
+        string callerName = CallerName();
         output ??= "<null>";
 
         if (label == null) {
@@ -280,12 +274,17 @@ public static partial class PrintExtension {
         return $"{label}:{newline}{indent}{AppendCallerName(output)}";
 
         string AppendCallerName(string localOutput) {
-            string callerName = CallerName();
-            if (callerName == null) return localOutput;
+            if (!localOutput.Contains(newline)) {
+                return includeFileLocation
+                           ? $"{localOutput}{callerName.PadLeft(Math.Max(0, maxTotalWidth - localOutput.Length))}"
+                           : localOutput;
+            }
 
-            return !localOutput.Contains(newline)
-                       ? $"{localOutput}{callerName.PadLeft(Math.Max(0, maxTotalWidth - localOutput.Length))}"
-                       : $"{localOutput.TrimEnd('\r', '\n')}{newline}--- {callerName.PadLeft(Math.Max(0, maxTotalWidth - 4))}";
+            string formatted = $"{localOutput.TrimEnd('\r', '\n')}{newline}";
+
+            return includeFileLocation
+                       ? $"{formatted}--- {callerName.PadLeft(Math.Max(0, maxTotalWidth - 4))}"
+                       : formatted;
         }
     }
 
@@ -298,7 +297,7 @@ public static partial class PrintExtension {
                             ? json.ToJson().ToString(format)
                             : JsonConvert.SerializeObject(source, format);
 
-        return Format(output, label, labelWidth, maxTotalWidth);
+        return Format(output, label, labelWidth, maxTotalWidth, includeFileLocation: false);
     }
 }
 
