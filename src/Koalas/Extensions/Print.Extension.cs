@@ -103,8 +103,8 @@ public static partial class PrintExtension {
 }
 
 public static partial class PrintExtension {
-    public static void PrintJson(this object subject, Formatting format = Formatting.Indented) {
-        FormatJson(subject, format: format).Print();
+    public static void PrintJson(this object subject, string label = null, int? labelWidth = null, Formatting format = Formatting.Indented) {
+        FormatJson(subject, label, labelWidth, format: format).Print();
     }
 
     public static IReadOnlyList<TSelect> PrintJson<T, TSelect>(this IEnumerable<T> items,
@@ -247,45 +247,33 @@ public static partial class PrintExtension {
                                  int? labelWidth = null,
                                  int maxTotalWidth = _defaultDisplayWidth,
                                  bool includeFileLocation = true) {
-        string newline = Environment.NewLine;
-        var output = source?.ToString();
+        string envNewline = Environment.NewLine;
+        const char linefeed = '\r';
+        const char newline = '\n';
+        string output = source?.ToString();
 
         string callerName = CallerName();
         output ??= "<null>";
 
-        if (label == null) {
-            return AppendCallerName(output);
+        bool containsNewline = output.Contains(newline) || output.Contains(envNewline);
+
+        if (label != null) {
+            if (labelWidth != null) label = label.PadRight(labelWidth.Value);
+
+            output = $"{label}: {output.Indent(label.Length + 2, skipFirstLine: true)}";
         }
 
-        if (labelWidth != null) {
-            label = label.PadRight(labelWidth.Value);
-        }
-
-        if (output.Contains(newline) == false) {
-            int totalWidth = Math.Max(label.Length + 1, labelWidth ?? 0) + output.Length;
-            if (totalWidth < maxTotalWidth) {
-                return AppendCallerName($"{label}: {output}");
-            }
-        }
-
-        string indent = new(' ', 4);
-        output = output.Replace(newline, $"{newline}{indent}");
-
-        return $"{label}:{newline}{indent}{AppendCallerName(output)}";
-
-        string AppendCallerName(string localOutput) {
-            if (!localOutput.Contains(newline)) {
-                return includeFileLocation
-                           ? $"{localOutput}{callerName.PadLeft(Math.Max(0, maxTotalWidth - localOutput.Length))}"
-                           : localOutput;
-            }
-
-            string formatted = $"{localOutput.TrimEnd('\r', '\n')}{newline}";
-
+        if (!containsNewline) {
             return includeFileLocation
-                       ? $"{formatted}--- {callerName.PadLeft(Math.Max(0, maxTotalWidth - 4))}"
-                       : formatted;
+                       ? $"{output}{callerName.PadLeft(Math.Max(0, maxTotalWidth - output.Length))}"
+                       : output;
         }
+
+        string formatted = $"{output.TrimEnd(linefeed, newline)}{envNewline}";
+
+        return includeFileLocation
+                   ? $"{formatted}--- {callerName.PadLeft(Math.Max(0, maxTotalWidth - 4))}"
+                   : formatted;
     }
 
     private static string FormatJson(object source,
