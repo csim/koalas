@@ -9,31 +9,38 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-public static partial class PrintExtension {
+public static partial class PrintExtension
+{
     private const int _defaultDisplayWidth = 120;
     private const int _defaultItemLimit = 500;
 
-    public static object Print(this string source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth) {
+    public static object Print(this string source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth)
+    {
         return Print(source, label, labelWidth, literal: false, maxTotalWidth);
     }
 
-    public static object Print(this int source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth) {
+    public static object Print(this int source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth)
+    {
         return Print(source, label, labelWidth, literal: false, maxTotalWidth);
     }
 
-    public static object Print(this float source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth) {
+    public static object Print(this float source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth)
+    {
         return Print(source, label, labelWidth, literal: true, maxTotalWidth);
     }
 
-    public static object Print(this double source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth) {
+    public static object Print(this double source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth)
+    {
         return Print(source, label, labelWidth, literal: true, maxTotalWidth);
     }
 
-    public static object Print(this decimal source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth) {
+    public static object Print(this decimal source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth)
+    {
         return Print(source, label, labelWidth, literal: true, maxTotalWidth);
     }
 
-    public static object Print(this DateTime source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth) {
+    public static object Print(this DateTime source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth)
+    {
         return Print(source, label, labelWidth, literal: true, maxTotalWidth);
     }
 
@@ -41,21 +48,18 @@ public static partial class PrintExtension {
                                string label = null,
                                int? labelWidth = null,
                                bool literal = false,
-                               int maxTotalWidth = _defaultDisplayWidth) {
-        if (literal) {
-            source = source.ToCSharpLiteral();
-        }
+                               int maxTotalWidth = _defaultDisplayWidth)
+    {
+        if (literal) source = source.ToCSharpLiteral();
 
         string formatted = Format(source, label, labelWidth, maxTotalWidth: maxTotalWidth);
 
         Debug.WriteLine(formatted);
 
-        if (formatted.EndsWith(Environment.NewLine)) {
+        if (formatted.EndsWith(Environment.NewLine))
             Console.Write(formatted);
-        }
-        else {
+        else
             Console.WriteLine(formatted);
-        }
 
         return source;
     }
@@ -63,7 +67,8 @@ public static partial class PrintExtension {
     public static IReadOnlyList<T> Print<T, TSelect>(this IEnumerable<T> items,
                                                      [NotNull] Func<T, TSelect> select,
                                                      Func<TSelect, bool> where = null,
-                                                     int limit = _defaultItemLimit) {
+                                                     int limit = _defaultItemLimit)
+    {
         IReadOnlyList<T> list = items.ToReadOnlyList();
 
         list.PrintHeadTail(i => i.Print(), select, where, limit);
@@ -73,28 +78,33 @@ public static partial class PrintExtension {
 
     public static IReadOnlyList<T> Print<T>(this IEnumerable<T> items,
                                             Func<T, bool> where = null,
-                                            int limit = _defaultItemLimit) {
+                                            int limit = _defaultItemLimit)
+    {
         return items.PrintHeadTail(i => Console.WriteLine(i), where, limit);
     }
 
-    public static object PrintLiteral(this string source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth) {
+    public static object PrintLiteral(this string source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth)
+    {
         return Print(source, label, labelWidth, literal: true, maxTotalWidth);
     }
 
     public static IReadOnlyList<T> PrintLiteral<T, TSelect>(this IEnumerable<T> items,
                                                             [NotNull] Func<T, TSelect> select,
                                                             Func<TSelect, bool> where = null,
-                                                            int limit = _defaultItemLimit) {
+                                                            int limit = _defaultItemLimit)
+    {
         return items.PrintHeadTail(i => i.ToCSharpLiteral().Print(), select, where, limit);
     }
 
     public static IReadOnlyList<T> PrintLiteral<T>(this IEnumerable<T> items,
                                                    Func<T, bool> where = null,
-                                                   int limit = _defaultItemLimit) {
+                                                   int limit = _defaultItemLimit)
+    {
         return items.PrintHeadTail(i => i.ToCSharpLiteral().Print(), where, limit);
     }
 
-    public static IEnumerable<T> PrintMessage<T>(this IEnumerable<T> items, string message) {
+    public static IEnumerable<T> PrintMessage<T>(this IEnumerable<T> items, string message)
+    {
         message.Print();
         PrintEndSeparator();
 
@@ -102,15 +112,18 @@ public static partial class PrintExtension {
     }
 }
 
-public static partial class PrintExtension {
-    public static void PrintJson(this object subject, string label = null, int? labelWidth = null, Formatting format = Formatting.Indented) {
+public static partial class PrintExtension
+{
+    public static void PrintJson(this object subject, string label = null, int? labelWidth = null, Formatting format = Formatting.Indented)
+    {
         FormatJson(subject, label, labelWidth, format: format).Print();
     }
 
     public static IReadOnlyList<TSelect> PrintJson<T, TSelect>(this IEnumerable<T> items,
                                                                [NotNull] Func<T, TSelect> select,
                                                                Func<TSelect, bool> where = null,
-                                                               int limit = _defaultItemLimit) {
+                                                               int limit = _defaultItemLimit)
+    {
         return items.Select(select)
                     .PrintJson(limit: limit, where: where);
     }
@@ -118,7 +131,8 @@ public static partial class PrintExtension {
     public static IReadOnlyList<T> PrintJson<T>(this IEnumerable<T> items,
                                                 Func<T, bool> where = null,
                                                 Formatting format = Formatting.Indented,
-                                                int limit = _defaultItemLimit) {
+                                                int limit = _defaultItemLimit)
+    {
         IReadOnlyList<T> list = where == null
                                     ? items.ToReadOnlyList()
                                     : items.Where(where).ToReadOnlyList();
@@ -126,9 +140,7 @@ public static partial class PrintExtension {
 
         FormatJson(list.Take(limit), format: format).Print();
 
-        if (list.Count > limit) {
-            $" ... {list.Count - limit:N0} more ...".Print();
-        }
+        if (list.Count > limit) $" ... {list.Count - limit:N0} more ...".Print();
 
         PrintEndSeparator();
 
@@ -138,20 +150,24 @@ public static partial class PrintExtension {
     public static IReadOnlyList<TSelect> PrintJsonLine<T, TSelect>(this IEnumerable<T> items,
                                                                    [NotNull] Func<T, TSelect> select,
                                                                    Func<TSelect, bool> where = null,
-                                                                   int limit = _defaultItemLimit) {
+                                                                   int limit = _defaultItemLimit)
+    {
         return items.Select(select)
                     .PrintJsonLine(limit: limit, where: where);
     }
 
     public static IReadOnlyList<T> PrintJsonLine<T>(this IEnumerable<T> items,
                                                     Func<T, bool> where = null,
-                                                    int limit = _defaultItemLimit) {
+                                                    int limit = _defaultItemLimit)
+    {
         return items.PrintJson(where, Formatting.None, limit);
     }
 }
 
-public static partial class PrintExtension {
-    public static IReadOnlyList<T> PrintCount<T>(this IEnumerable<T> items, string label = null) {
+public static partial class PrintExtension
+{
+    public static IReadOnlyList<T> PrintCount<T>(this IEnumerable<T> items, string label = null)
+    {
         IReadOnlyList<T> list = items.ToReadOnlyList();
         list.Count.ToString("N0").Print(label);
         PrintEndSeparator();
@@ -159,7 +175,8 @@ public static partial class PrintExtension {
         return list;
     }
 
-    public static IReadOnlyList<T> PrintDistinctCount<T>(this IEnumerable<T> items, string label = null) {
+    public static IReadOnlyList<T> PrintDistinctCount<T>(this IEnumerable<T> items, string label = null)
+    {
         IReadOnlyList<T> list = items.ToReadOnlyList();
         list.Distinct().Count().ToString("N0").Print(label);
         PrintEndSeparator();
@@ -168,17 +185,20 @@ public static partial class PrintExtension {
     }
 }
 
-public static partial class PrintExtension {
+public static partial class PrintExtension
+{
     private static IReadOnlyList<T> PrintHeadTail<T>(this IEnumerable<T> items,
                                                      Action<T> output,
                                                      Func<T, bool> where = null,
-                                                     int limit = _defaultItemLimit) {
+                                                     int limit = _defaultItemLimit)
+    {
         IReadOnlyList<T> list = items.ToReadOnlyList();
 
         int headCount = list.Count;
-        var tailCount = 0;
+        int tailCount = 0;
 
-        if (list.Count > limit) {
+        if (list.Count > limit)
+        {
             double size = limit / 2d;
             headCount = Convert.ToInt32(Math.Ceiling(size));
             tailCount = Convert.ToInt32(Math.Floor(size));
@@ -190,10 +210,9 @@ public static partial class PrintExtension {
 
         sources.Head(headCount).ForEach(output);
 
-        if (tailCount > 0) {
-            if (sources.Count > limit) {
-                $" ... {sources.Count - limit:N0} skipped ...".Print();
-            }
+        if (tailCount > 0)
+        {
+            if (sources.Count > limit) $" ... {sources.Count - limit:N0} skipped ...".Print();
 
             sources.Tail(tailCount).ForEach(output);
         }
@@ -207,7 +226,8 @@ public static partial class PrintExtension {
                                                               Action<TSelect> output,
                                                               [NotNull] Func<T, TSelect> select,
                                                               Func<TSelect, bool> where = null,
-                                                              int limit = _defaultItemLimit) {
+                                                              int limit = _defaultItemLimit)
+    {
         IReadOnlyList<T> list = items.ToReadOnlyList();
 
         list.Select(select)
@@ -217,36 +237,44 @@ public static partial class PrintExtension {
     }
 }
 
-public static partial class PrintExtension {
-    private static string CallerName() {
-        string ret = null;
-        var trace = new StackTrace(0, true);
+public static partial class PrintExtension
+{
+    private static string CallerName()
+    {
+#if !DEBUG
+        return string.Empty;
+#endif
 
-        for (var i = 0; i <= trace.FrameCount - 1; i++) {
+        StackTrace trace = new(0, true);
+
+        for (int i = 0; i < trace.FrameCount; i++)
+        {
             StackFrame frame = trace.GetFrame(i);
-            string filename = frame.GetFileName();
-            if (filename?.Contains("Print.Extension") == true) continue;
+            MethodBase method = frame?.GetMethod();
+            Type declaringType = method?.DeclaringType;
 
-            MethodBase method = frame.GetMethod();
+            if (declaringType == typeof(PrintExtension)) continue;
 
-            ret = $"{method.DeclaringType?.Name}.{method.Name}():{frame.GetFileLineNumber(),-4}";
-            break;
+            return $"{declaringType?.Name}.{method?.Name}:{frame?.GetFileLineNumber(),-4}";
         }
 
-        return ret;
+        return string.Empty;
     }
 
-    private static void PrintEndSeparator() {
+    private static void PrintEndSeparator()
+    {
         Console.WriteLine($"--- {CallerName(),_defaultDisplayWidth - 3}");
     }
 }
 
-public static partial class PrintExtension {
+public static partial class PrintExtension
+{
     private static string Format(object source,
                                  string label = null,
                                  int? labelWidth = null,
                                  int maxTotalWidth = _defaultDisplayWidth,
-                                 bool includeFileLocation = true) {
+                                 bool includeFileLocation = true)
+    {
         string envNewline = Environment.NewLine;
         const char linefeed = '\r';
         const char newline = '\n';
@@ -257,13 +285,15 @@ public static partial class PrintExtension {
 
         bool containsNewline = output.Contains(newline) || output.Contains(envNewline);
 
-        if (label != null) {
+        if (label != null)
+        {
             if (labelWidth != null) label = label.PadRight(labelWidth.Value);
 
             output = $"{label}: {output.Indent(label.Length + 2, skipFirstLine: true)}";
         }
 
-        if (!containsNewline) {
+        if (!containsNewline)
+        {
             return includeFileLocation
                        ? $"{output}{callerName.PadLeft(Math.Max(0, maxTotalWidth - output.Length))}"
                        : output;
@@ -280,7 +310,8 @@ public static partial class PrintExtension {
                                      string label = null,
                                      int? labelWidth = null,
                                      Formatting format = Formatting.Indented,
-                                     int maxTotalWidth = 100) {
+                                     int maxTotalWidth = 100)
+    {
         string output = source is IToJson json
                             ? json.ToJson().ToString(format)
                             : JsonConvert.SerializeObject(source, format);
@@ -289,6 +320,7 @@ public static partial class PrintExtension {
     }
 }
 
-public interface IToJson {
+public interface IToJson
+{
     JObject ToJson();
 }
