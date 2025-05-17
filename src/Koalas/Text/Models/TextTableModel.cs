@@ -166,11 +166,11 @@ public record class TextTableModel(List<ITextColumn> Columns,
         {
             if (Columns[0] is not IBorderTextColumn) Columns.Insert(0, new SingleBorderTextColumn());
 
-            if (Columns[Columns.Count - 1] is not IBorderTextColumn) Columns.Add(new SingleBorderTextColumn());
+            if (Columns[^1] is not IBorderTextColumn) Columns.Add(new SingleBorderTextColumn());
 
             if (Rows[0] is not IBorderTextRow) Rows.Insert(0, new SingleBorderTextRow());
 
-            if (Rows[Rows.Count - 1] is not IBorderTextRow) Rows.Add(new SingleBorderTextRow());
+            if (Rows[^1] is not IBorderTextRow) Rows.Add(new SingleBorderTextRow());
         }
 
         ComputeMeta();

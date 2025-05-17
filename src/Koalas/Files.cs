@@ -13,14 +13,14 @@ public static class FileHelpers
                                               string searchPattern = "",
                                               SearchOption options = SearchOption.TopDirectoryOnly)
     {
-        return Files(new[] { directoryPath }, searchPattern, options);
+        return Files([directoryPath], searchPattern, options);
     }
 
     public static IEnumerable<string> ReadDirectoryFiles(string directoryPath,
                                                          string searchPattern = "",
                                                          SearchOption options = SearchOption.TopDirectoryOnly)
     {
-        return ReadDirectoryFiles(new[] { directoryPath }, searchPattern, options);
+        return ReadDirectoryFiles([directoryPath], searchPattern, options);
     }
 
     public static IEnumerable<string> ReadDirectoryFiles(IEnumerable<string> directoryPaths,
@@ -35,7 +35,7 @@ public static class FileHelpers
                                                     string searchPattern = "",
                                                     SearchOption options = SearchOption.TopDirectoryOnly)
     {
-        return ReadFileLines(new[] { directoryPath }, searchPattern, options);
+        return ReadFileLines([directoryPath], searchPattern, options);
     }
 
     public static IEnumerable<string> ReadFileLines(IEnumerable<string> directoryPaths,

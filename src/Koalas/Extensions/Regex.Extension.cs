@@ -43,6 +43,8 @@ public static class RegexUtils
                 if (match.Success) break;
             }
 
+            if (match == null) yield break;
+
             if (match.Success)
             {
                 pos = match.Index + (match.Length == 0 ? 1 : match.Length);

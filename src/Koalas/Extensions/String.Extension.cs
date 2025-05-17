@@ -164,6 +164,7 @@ public static partial class StringExtension
 {
     public static string PadLinesLeft(this string subject, int width)
     {
+        // ReSharper disable once UseNullPropagation
         if (subject == null) return null;
 
         int maxLength = subject.Lines()
@@ -290,7 +291,7 @@ public static partial class StringExtension
             List<string> lines = text.Lines().ToList();
             if (lines.Count > 1)
             {
-                List<string> wrappedLines = new();
+                List<string> wrappedLines = [];
                 foreach (string line in lines)
                 {
                     wrappedLines.AddRange(line.Wrap(maxLength, overflowIndentSize, showGlyph));
