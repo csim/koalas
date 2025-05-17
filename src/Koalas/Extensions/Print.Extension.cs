@@ -1,17 +1,14 @@
 ﻿namespace Koalas.Extensions;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
 public static partial class PrintExtension
 {
     private const int _defaultDisplayWidth = 120;
     private const int _defaultItemLimit = 500;
+
+    public static void Print(this IRender builder)
+    {
+        builder.Render().Print();
+    }
 
     public static void Print(this string source, string label = null, int? labelWidth = null, int maxTotalWidth = _defaultDisplayWidth)
     {

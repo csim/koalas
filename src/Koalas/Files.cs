@@ -1,11 +1,5 @@
 ﻿namespace Koalas;
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Koalas.Extensions;
-
 public static class FileHelpers
 {
     public static IEnumerable<FileInfo> Files(IEnumerable<string> directoryPaths,
