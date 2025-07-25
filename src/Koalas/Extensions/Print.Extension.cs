@@ -193,7 +193,7 @@ public static partial class PrintExtension
                    ? output
                    : $"""
                       {label}: 
-                      {output.Indent()}
+                      {output.Indent(2)}
                       """;
     }
 
