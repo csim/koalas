@@ -1,5 +1,6 @@
 ﻿namespace Koalas.CommandLine;
 
+using System.Linq;
 using Koalas.Extensions;
 
 public static class Program {
@@ -25,7 +26,8 @@ public static class Program {
             //.Print(limit: 6, where: i => i.Name.Contains("7"), select: i => i.Name)
             //.PrintJsonLine(limit: 6, where: i => i.Name.Contains("7"), select: i => new { i.Name })
             //.PrintJsonLine()
-            .PrintJsonLine(where: i => i.Count > 5)
+            .Where(i => i.Count > 5)
+            .PrintJsonLine()
             ;
 
         //new[] { "1", "2", "3", "4", "5", "6" }.PrintJson();
