@@ -22,7 +22,7 @@ public static partial class ObjectExtension
                    double item   => item.Render(),
                    float item    => item.Render(),
                    IRender item  => item.Render(),
-                   IToJson item  => item.ToJson(Formatting.Indented),
+                   IToJson item  => item.ToJson().ToString(Formatting.Indented),
                    _             => subject.ToLiteral()
                };
     }
