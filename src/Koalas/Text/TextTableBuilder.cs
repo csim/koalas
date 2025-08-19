@@ -1,6 +1,6 @@
 ﻿namespace Koalas.Text;
 
-public partial class TextTableBuilder : IRender, ITextBuilder, ITextRowBuilder
+public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
 {
     internal TextTableBuilder(TextBuilder parent)
     {
@@ -24,7 +24,7 @@ public partial class TextTableBuilder : IRender, ITextBuilder, ITextRowBuilder
         return this;
     }
 
-    public ITextModel Build()
+    public IRender Build()
     {
         return new TextTableModel(Columns: _columns,
                                   Rows: _rows,
@@ -116,9 +116,7 @@ public partial class TextTableBuilder : IRender, ITextBuilder, ITextRowBuilder
 
     public string Render()
     {
-        if (!_saved) SaveTable();
-
-        return _parent.Render();
+        return Build().Render();
     }
 
     public TextTableBuilder RowLimit(int? rowLimit)
@@ -433,7 +431,7 @@ public class TextRowBuilder : ITextRowBuilder
     }
 }
 
-public interface ITextRowBuilder
+public interface ITextRowBuilder : IRender
 {
     public IReadOnlyList<ITextRow> Rows { get; }
 
@@ -458,8 +456,6 @@ public interface ITextRowBuilder
     public ITextRowBuilder InsertRow(int index, ITextRow row);
 
     public ITextRowBuilder RemoveRow(int index);
-
-    string Render();
 
     public TextBuilder SaveTable();
 }

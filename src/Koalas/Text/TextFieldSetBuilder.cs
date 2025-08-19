@@ -1,6 +1,6 @@
 ﻿namespace Koalas.Text;
 
-public partial class TextFieldSetBuilder : IRender, ITextBuilder
+public partial class TextFieldSetBuilder : ITextBuilder
 {
     internal TextFieldSetBuilder(TextBuilder parent)
     {
@@ -23,7 +23,7 @@ public partial class TextFieldSetBuilder : IRender, ITextBuilder
 
     public int Count => _items.Count;
 
-    public ITextModel Build()
+    public IRender Build()
     {
         return new TextFieldSetModel(Items: _items,
                                      Separator: _separator,
@@ -61,9 +61,7 @@ public partial class TextFieldSetBuilder : IRender, ITextBuilder
 
     public string Render()
     {
-        if (!_saved) SaveFieldSet();
-
-        return _parent.Render();
+        return Build().Render();
     }
 
     public TextBuilder SaveFieldSet()
@@ -72,7 +70,10 @@ public partial class TextFieldSetBuilder : IRender, ITextBuilder
 
         _saved = true;
 
-        return _parent.Add(this);
+
+        return _items.Count > 0
+                   ? _parent.Add(this)
+                   : _parent;
     }
 
     public TextFieldSetItemBuilder StartField()
@@ -168,31 +169,32 @@ public partial class TextFieldSetBuilder
                            .SaveField();
     }
 
-    public TextFieldSetBuilder AddField(string label, bool? value)
+    public TextFieldSetBuilder AddField(string label, bool? value, int trailingBlankLines = 0)
     {
-        return AddField(label, (object) value);
+        return AddField(label, (object) value, trailingBlankLines: trailingBlankLines);
     }
 
-    public TextFieldSetBuilder AddField(string label, int? value, string format = "N0")
-    {
-        return AddField(label, (object) value, format);
-    }
-
-    public TextFieldSetBuilder AddField(string label, double? value, string format = "N3")
+    public TextFieldSetBuilder AddField(string label, int? value, string format = "N0", int trailingBlankLines = 0)
     {
         return AddField(label, (object) value, format);
     }
 
-    public TextFieldSetBuilder AddField(string label, decimal? value, string format = "N3")
+    public TextFieldSetBuilder AddField(string label, double? value, string format = "N3", int trailingBlankLines = 0)
     {
-        return AddField(label, (object) value, format);
+        return AddField(label, (object) value, format, trailingBlankLines: trailingBlankLines);
     }
 
-    public TextFieldSetBuilder AddField(string label, object value, string format = null)
+    public TextFieldSetBuilder AddField(string label, decimal? value, string format = "N3", int trailingBlankLines = 0)
+    {
+        return AddField(label, (object) value, format, trailingBlankLines: trailingBlankLines);
+    }
+
+    public TextFieldSetBuilder AddField(string label, object value, string format = null, int trailingBlankLines = 0)
     {
         value ??= "--";
         format ??= value switch {
                        int     => "N0",
+                       float   => "N3",
                        double  => "N3",
                        decimal => "N6",
                        _       => null
@@ -202,8 +204,22 @@ public partial class TextFieldSetBuilder
                                     ? value.ToString().TrimEnd()
                                     : string.Format($"{{0:{format}}}", value);
 
+        IRender valueModel = new TextLineModel(formattedValue);
+
+        // ReSharper disable once InvertIf
+        if (trailingBlankLines > 0)
+        {
+            List<IRender> childValueModels = [valueModel];
+            for (int i = 0; i < trailingBlankLines; i++)
+            {
+                childValueModels.Add(new TextLineModel(string.Empty));
+            }
+
+            valueModel = new TextRegionModel(childValueModels, IndentSize: 0);
+        }
+
         return AddField(new TextFieldModel(Label: label,
-                                           Value: new TextLineModel(formattedValue),
+                                           Value: valueModel,
                                            Format: format));
     }
 

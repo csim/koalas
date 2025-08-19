@@ -1,6 +1,6 @@
 ﻿namespace Koalas.Text;
 
-public partial class TextHangSectionBuilder : IRender, ITextBuilder
+public partial class TextHangSectionBuilder : ITextBuilder
 {
     internal TextHangSectionBuilder(TextBuilder parent)
     {
@@ -13,7 +13,7 @@ public partial class TextHangSectionBuilder : IRender, ITextBuilder
     private readonly TextBuilder _parent;
     private bool _saved;
 
-    public ITextModel Build()
+    public IRender Build()
     {
         return new TextHangSectionModel(Heading: _heading,
                                         Body: _bodyBuilder.Build());
@@ -26,9 +26,7 @@ public partial class TextHangSectionBuilder : IRender, ITextBuilder
 
     public string Render()
     {
-        if (!_saved) SaveHangSection();
-
-        return _parent.Render();
+        return Build().Render();
     }
 
     public TextBuilder SaveHangSection()
@@ -51,6 +49,7 @@ public partial class TextHangSectionBuilder
     public TextHangSectionBuilder Heading(string heading)
     {
         _heading = heading;
+
         return this;
     }
 }
@@ -99,6 +98,25 @@ public partial class TextHangSectionBuilder
                                    valueRightAlign: valueRightAlign,
                                    valueOverflowIndent: valueOverflowIndent);
 
+        return this;
+    }
+
+    public TextHangSectionBuilder AddHangSection(string heading,
+                                                 string body,
+                                                 int? maxWidth = null,
+                                                 int trailingBlankLines = 1)
+    {
+        _bodyBuilder.AddHangSection(heading, body, maxWidth: maxWidth, trailingBlankLines: trailingBlankLines);
+
+        return this;
+    }
+
+    public TextHangSectionBuilder AddHangSection(string heading,
+                                                 ITextBuilder body,
+                                                 int? maxWidth = null,
+                                                 int trailingBlankLines = 1)
+    {
+        _bodyBuilder.AddHangSection(heading, body, maxWidth: maxWidth, trailingBlankLines: trailingBlankLines);
 
         return this;
     }
@@ -110,11 +128,28 @@ public partial class TextHangSectionBuilder
         return this;
     }
 
+    public TextHangSectionBuilder AddLine(object source)
+    {
+        return AddLine(source.Render());
+    }
+
     public TextHangSectionBuilder AddList(IEnumerable<string> items, string separator = ":")
     {
         _bodyBuilder.AddList(items, separator);
 
         return this;
+    }
+
+    public TextHangSectionBuilder AddOptionalLine(string content, int trailingBlankLines = 0)
+    {
+        return string.IsNullOrEmpty(content)
+                   ? this
+                   : AddLine(content).AddBlankLine(trailingBlankLines);
+    }
+
+    public TextHangSectionBuilder AddOptionalLine(object source, int trailingBlankLines = 0)
+    {
+        return AddOptionalLine(source.Render(), trailingBlankLines: trailingBlankLines);
     }
 
     public TextHangSectionBuilder AddTable(IEnumerable<IEnumerable<object>> values,
@@ -155,3 +190,6 @@ public partial class TextHangSectionBuilder
         return this;
     }
 }
+
+public partial class TextHangSectionBuilder
+{ }

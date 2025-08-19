@@ -1,7 +1,6 @@
 ﻿namespace Koalas.Text.Models;
 
-public record class TextListModel(IReadOnlyList<TextListItemModel> Items,
-                                  string Separator = ":") : ITextModel
+public record class TextListModel(IReadOnlyList<TextListItemModel> Items) : IRender
 {
     public string Render()
     {
@@ -22,7 +21,7 @@ public record class TextListModel(IReadOnlyList<TextListItemModel> Items,
 
             table.AddDataRow(item.Indicator ?? string.Empty,
                              item.Id ?? currentDefaultId.ToString(),
-                             Separator,
+                             item.Separator,
                              body);
         }
 

@@ -124,14 +124,14 @@ public interface IBorderTextColumn : ITextColumn
 
 public class SingleBorderTextColumn : TextColumnBase, IBorderTextColumn
 {
-    private const char _verticalBar = '│';
+    private const char VerticalBar = '│';
     private IReadOnlyList<string> _lines;
 
     public bool External { get; init; }
 
     public string FormatValue(ITextRow row)
     {
-        return _verticalBar.ToString();
+        return VerticalBar.ToString();
     }
 
     public override IReadOnlyList<string> Lines(ITextRow row)
@@ -148,25 +148,25 @@ public class SingleBorderTextColumn : TextColumnBase, IBorderTextColumn
             return;
         }
 
-        output.Append(_verticalBar);
+        output.Append(VerticalBar);
     }
 
     public override void RenderHeading(StringBuilder output, string headingOverride = null)
     {
-        output.Append(_verticalBar);
+        output.Append(VerticalBar);
     }
 }
 
 public class DoubleBorderTextColumn : TextColumnBase, IBorderTextColumn
 {
-    private const char _verticalBar = '║';
+    private const char VerticalBar = '║';
     private IReadOnlyList<string> _lines;
 
     public bool External { get; init; }
 
     public virtual string FormatValue(ITextRow row)
     {
-        return _verticalBar.ToString();
+        return VerticalBar.ToString();
     }
 
     public override IReadOnlyList<string> Lines(ITextRow row)
@@ -183,12 +183,12 @@ public class DoubleBorderTextColumn : TextColumnBase, IBorderTextColumn
             return;
         }
 
-        output.Append(_verticalBar);
+        output.Append(VerticalBar);
     }
 
     public override void RenderHeading(StringBuilder output, string headingOverride = null)
     {
-        output.Append(_verticalBar);
+        output.Append(VerticalBar);
     }
 }
 

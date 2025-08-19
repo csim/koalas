@@ -1,7 +1,7 @@
 ﻿namespace Koalas.Text.Models;
 
 public record class TextHangSectionModel(string Heading,
-                                         ITextModel Body) : ITextModel
+                                         IRender Body) : IRender
 {
     public string Render()
     {

@@ -12,8 +12,9 @@ public partial class TextListItemBuilder : IRender
     private string _indicator;
     private readonly TextListBuilder _parent;
     private bool _saved;
+    private string _separator;
 
-    public TextListItemBuilder Add(ITextBuilder subject)
+    public TextListItemBuilder Add(IRender subject)
     {
         _bodyBuilder.Add(subject);
 
@@ -45,6 +46,7 @@ public partial class TextListItemBuilder : IRender
     {
         return new TextListItemModel(Body: _bodyBuilder.Build(),
                                      Id: _id,
+                                     Separator: _separator,
                                      Indicator: _indicator);
     }
 }
@@ -61,6 +63,13 @@ public partial class TextListItemBuilder
     public TextListItemBuilder Indicator(string indicator)
     {
         _indicator = indicator;
+
+        return this;
+    }
+
+    public TextListItemBuilder Separator(string separator)
+    {
+        _separator = separator;
 
         return this;
     }
@@ -92,16 +101,22 @@ public partial class TextListItemBuilder
                                            bool valueRightAlign = false,
                                            int valueOverflowIndent = 0)
     {
-        _bodyBuilder.StartFieldSet(minLabelWidth: minLabelWidth,
-                                   minValueWidth: minValueWidth,
-                                   maxValueWidth: maxValueWidth,
-                                   fieldSeparator: fieldSeparator,
-                                   labelRightPadding: labelRightPadding,
-                                   valueLeftPadding: valueLeftPadding,
-                                   labelRightAlign: labelRightAlign,
-                                   valueRightAlign: valueRightAlign,
-                                   valueOverflowIndent: valueOverflowIndent);
+        TextFieldSetBuilder fieldset = _bodyBuilder.StartFieldSet(minLabelWidth: minLabelWidth,
+                                                                  minValueWidth: minValueWidth,
+                                                                  maxValueWidth: maxValueWidth,
+                                                                  fieldSeparator: fieldSeparator,
+                                                                  labelRightPadding: labelRightPadding,
+                                                                  valueLeftPadding: valueLeftPadding,
+                                                                  labelRightAlign: labelRightAlign,
+                                                                  valueRightAlign: valueRightAlign,
+                                                                  valueOverflowIndent: valueOverflowIndent);
 
+        foreach (KeyValuePair<string, string> item in items)
+        {
+            fieldset.AddField(item.Key, item.Value);
+        }
+
+        fieldset.SaveFieldSet();
 
         return this;
     }
@@ -133,11 +148,9 @@ public partial class TextListItemBuilder
         return this;
     }
 
-    public TextListItemBuilder AddLine(Action<TextBuilder> bodyFactory)
+    public TextListItemBuilder AddLine(object source)
     {
-        _bodyBuilder.AddLine(bodyFactory);
-
-        return this;
+        return AddLine(source.Render());
     }
 
     public TextListItemBuilder AddList(IEnumerable<string> items, string separator = ":")

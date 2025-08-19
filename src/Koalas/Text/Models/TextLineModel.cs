@@ -1,6 +1,6 @@
 ﻿namespace Koalas.Text.Models;
 
-public record class TextLineModel(string Text) : ITextModel
+public record class TextLineModel(string Text) : IRender
 {
     public string Render()
     {

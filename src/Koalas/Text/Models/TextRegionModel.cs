@@ -1,13 +1,13 @@
 ﻿namespace Koalas.Text.Models;
 
-public record class TextRegionModel(IReadOnlyList<ITextModel> Children,
-                                    int IndentSize) : ITextModel
+public record class TextRegionModel(IReadOnlyList<IRender> Children,
+                                    int IndentSize) : IRender
 {
     public string Render()
     {
         List<string> output = [];
 
-        foreach (ITextModel child in Children)
+        foreach (IRender child in Children)
         {
             string childOutput = child.Render();
 

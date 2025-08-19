@@ -132,7 +132,7 @@ public class EllipsisTextRow : ITextRow
 public class SingleBorderTextRow : IBorderTextRow
 {
     public const char DashChar = '─';
-    private static readonly char[,] _doubleJunctionChars = {
+    private static readonly char[,] DoubleJunctionChars = {
                                                               {
                                                                   '╓',
                                                                   '╥',
@@ -147,7 +147,7 @@ public class SingleBorderTextRow : IBorderTextRow
                                                                   '╜'
                                                               }
                                                           };
-    private static readonly char[,] _singleJunctionChars = {
+    private static readonly char[,] SingleJunctionChars = {
                                                               {
                                                                   '┌',
                                                                   '┬',
@@ -180,7 +180,7 @@ public class SingleBorderTextRow : IBorderTextRow
 
     public char DoubleJunction(ITextColumn col, ITextRow row)
     {
-        return _doubleJunctionChars[row.First
+        return DoubleJunctionChars[row.First
                                        ? 0
                                        : row.Last
                                            ? 2
@@ -204,7 +204,7 @@ public class SingleBorderTextRow : IBorderTextRow
 
     public char SingleJunction(ITextColumn col, ITextRow row)
     {
-        return _singleJunctionChars[row.First
+        return SingleJunctionChars[row.First
                                        ? 0
                                        : row.Last
                                            ? 2
@@ -220,7 +220,7 @@ public class SingleBorderTextRow : IBorderTextRow
 public class DoubleBorderTextRow : IBorderTextRow
 {
     public const char DashChar = '═';
-    private static readonly char[,] _doubleJunctionChars = {
+    private static readonly char[,] DoubleJunctionChars = {
                                                               {
                                                                   '╔',
                                                                   '╦',
@@ -235,7 +235,7 @@ public class DoubleBorderTextRow : IBorderTextRow
                                                                   '╝'
                                                               }
                                                           };
-    private static readonly char[,] _singleJunctionChars = {
+    private static readonly char[,] SingleJunctionChars = {
                                                               {
                                                                   '╒',
                                                                   '╤',
@@ -268,7 +268,7 @@ public class DoubleBorderTextRow : IBorderTextRow
 
     public char DoubleJunction(ITextColumn col, ITextRow row)
     {
-        return _doubleJunctionChars[row.First
+        return DoubleJunctionChars[row.First
                                        ? 0
                                        : row.Last
                                            ? 2
@@ -292,7 +292,7 @@ public class DoubleBorderTextRow : IBorderTextRow
 
     public char SingleJunction(ITextColumn col, ITextRow row)
     {
-        return _singleJunctionChars[row.First
+        return SingleJunctionChars[row.First
                                        ? 0
                                        : row.Last
                                            ? 2

@@ -13,7 +13,7 @@ public partial class TextFieldSetItemBuilder : IRender
     private bool _saved;
     private TextBuilder _valueBuilder = TextBuilder.Create();
 
-    public TextBuilder Add(ITextBuilder subject)
+    public TextBuilder Add(IRender subject)
     {
         return _valueBuilder.Add(subject);
     }
@@ -146,6 +146,11 @@ public partial class TextFieldSetItemBuilder
         _valueBuilder.AddLine(text);
 
         return this;
+    }
+
+    public TextFieldSetItemBuilder AddLine(object source)
+    {
+        return AddLine(source.Render());
     }
 
     public TextFieldSetItemBuilder AddList(IEnumerable<string> items, string separator = ":")

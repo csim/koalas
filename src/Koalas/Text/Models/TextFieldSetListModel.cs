@@ -10,7 +10,7 @@ public record class TextFieldSetModel(IReadOnlyList<TextFieldModel> Items,
                                       int ValueLeftPadding,
                                       bool ValueRightAlign,
                                       int ValueOverflowIndent,
-                                      string NullProjection) : ITextModel
+                                      string NullProjection) : IRender
 {
     public string Render()
     {

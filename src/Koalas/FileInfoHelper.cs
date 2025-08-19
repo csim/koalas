@@ -1,6 +1,6 @@
 ﻿namespace Koalas;
 
-public static class FileHelpers
+public static class FileInfoHelper
 {
     public static IEnumerable<FileInfo> Files(IEnumerable<string> directoryPaths,
                                               string searchPattern = "",

@@ -1,8 +1,8 @@
 ﻿namespace Koalas.Text.Models;
 
 public record class TextFieldModel(string Label,
-                                   ITextModel Value,
-                                   string Format) : ITextModel
+                                   IRender Value,
+                                   string Format) : IRender
 {
     public string Render()
     {

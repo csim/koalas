@@ -1,6 +1,6 @@
 ﻿namespace Koalas.Text;
 
-public partial class TextSectionBuilder : IRender, ITextBuilder
+public partial class TextSectionBuilder : ITextBuilder
 {
     internal TextSectionBuilder(TextBuilder parent)
     {
@@ -21,7 +21,7 @@ public partial class TextSectionBuilder : IRender, ITextBuilder
         return this;
     }
 
-    public ITextModel Build()
+    public IRender Build()
     {
         return new TextSectionModel(Heading: _heading,
                                     Body: _bodyBuilder.Build(),
@@ -35,9 +35,7 @@ public partial class TextSectionBuilder : IRender, ITextBuilder
 
     public string Render()
     {
-        if (!_saved) SaveSection();
-
-        return _parent.Render();
+        return Build().Render();
     }
 
     public TextBuilder SaveSection()
@@ -136,6 +134,11 @@ public partial class TextSectionBuilder
         _bodyBuilder.AddLine(text);
 
         return this;
+    }
+
+    public TextSectionBuilder AddLine(object source)
+    {
+        return AddLine(source.Render());
     }
 
     public TextSectionBuilder AddList(IEnumerable<string> items, string separator = ":")

@@ -1,15 +1,67 @@
-﻿namespace Koalas.Extensions;
+﻿#nullable enable
+namespace Koalas.Extensions;
 
-public static partial class StringExtension
+public static partial class StringExtensions
 {
+    public static T ParseJson<T>(this string source)
+    {
+        return JsonConvert.DeserializeObject<T>(source)
+               ?? throw new Exception($"Unable to deserialize: {typeof(T).Name}");
+    }
+
+    public static string ToAnonymizedString(this string? source)
+    {
+        if (source == null) return "<null>";
+
+        IEnumerable<char> chars = from c in source
+                                  select CharUnicodeInfo.GetUnicodeCategory(c) switch {
+                                             UnicodeCategory.UppercaseLetter
+                                                 => 'A',
+                                             UnicodeCategory.LowercaseLetter
+                                                 => 'a',
+                                             UnicodeCategory.DecimalDigitNumber
+                                              or UnicodeCategory.LetterNumber
+                                              or UnicodeCategory.OtherNumber
+                                                 => '9',
+                                             UnicodeCategory.ClosePunctuation
+                                              or UnicodeCategory.ConnectorPunctuation
+                                              or UnicodeCategory.CurrencySymbol
+                                              or UnicodeCategory.DashPunctuation
+                                              or UnicodeCategory.FinalQuotePunctuation
+                                              or UnicodeCategory.InitialQuotePunctuation
+                                              or UnicodeCategory.LineSeparator
+                                              or UnicodeCategory.MathSymbol
+                                              or UnicodeCategory.ModifierSymbol
+                                              or UnicodeCategory.OpenPunctuation
+                                              or UnicodeCategory.OtherPunctuation
+                                              or UnicodeCategory.OtherSymbol
+                                              or UnicodeCategory.ParagraphSeparator
+                                              or UnicodeCategory.SpaceSeparator
+                                                 => c,
+                                             _ when c is '\r' or '\n'
+                                                 => c,
+                                             _
+                                                 => 'x'
+                                         };
+
+        string ret = new(chars.ToArray());
+
+        return ret.Replace("\r", "\\r")
+                  .Replace("\n", "\\n");
+    }
+}
+
+public static partial class StringExtensions
+{
+    // ReSharper disable once InconsistentNaming
     private static readonly Regex _indentRegex = new(@"^(\s*)(?:.*)$",
                                                      RegexOptions.Compiled
                                                      | RegexOptions.CultureInvariant
                                                      | RegexOptions.Multiline);
 
-    public static string After(this string subject, string findText)
+    public static string After(this string? subject, string findText)
     {
-        if (subject == null || string.IsNullOrEmpty(findText)) return null;
+        if (subject == null || string.IsNullOrEmpty(findText)) return string.Empty;
 
         int index = subject.IndexOf(findText, StringComparison.Ordinal);
         return index >= 0
@@ -17,9 +69,9 @@ public static partial class StringExtension
                    : subject;
     }
 
-    public static string Before(this string subject, string findText)
+    public static string Before(this string? subject, string findText)
     {
-        if (subject == null || string.IsNullOrEmpty(findText)) return null;
+        if (subject == null || string.IsNullOrEmpty(findText)) return string.Empty;
 
         int index = subject.IndexOf(findText, StringComparison.Ordinal);
         return index >= 0
@@ -52,7 +104,7 @@ public static partial class StringExtension
         return subject.IndexOf(target, StringComparison.Ordinal);
     }
 
-    public static bool IsNullOrEmpty(this string subject)
+    public static bool IsNullOrEmpty(this string? subject)
     {
         return string.IsNullOrEmpty(subject);
     }
@@ -106,25 +158,39 @@ public static partial class StringExtension
 
         return char.ToLowerInvariant(str[0]) + str.Substring(1);
     }
+
+    public static string ToValidFilename(this string input, char replacement = '_')
+    {
+        char[] invalidChars = Path.GetInvalidFileNameChars();
+        char[] result = new char[input.Length];
+
+        for (int i = 0; i < input.Length; i++)
+        {
+            char c = input[i];
+            result[i] = Array.IndexOf(invalidChars, c) >= 0 ? replacement : c;
+        }
+
+        return new string(result);
+    }
 }
 
-public static partial class StringExtension
+public static partial class StringExtensions
 {
-    public static string HangIndent(this string subject, string body, string suffix = null)
+    public static string HangIndent(this string? subject, string? body, string? suffix = null)
     {
         if (string.IsNullOrEmpty(subject)) return subject ?? string.Empty;
 
-        return $"{subject}{body.IndentSkipFirstLine(subject.Length)}{suffix}";
+        return $"{subject}{body?.IndentSkipFirstLine(subject.Length)}{suffix}";
     }
 
-    public static IEnumerable<string> Indent(this IEnumerable<string> subject, int size = 4, bool skipFirstLine = false)
+    public static IEnumerable<string> Indent(this IEnumerable<string>? subject, int size = 4, bool skipFirstLine = false)
     {
         return subject == null
                    ? []
                    : subject.Select((s, index) => skipFirstLine && index == 0 ? s : s.Indent(size));
     }
 
-    public static string Indent(this string subject, int size = 4, bool skipFirstLine = false)
+    public static string Indent(this string? subject, int size = 4, bool skipFirstLine = false)
     {
         if (string.IsNullOrEmpty(subject) || size == 0) return subject ?? string.Empty;
 
@@ -145,26 +211,30 @@ public static partial class StringExtension
         return subject.Indent(size, skipFirstLine: true);
     }
 
-    public static string LeadingBlankLines(this string subject, int count)
+    public static string LeadingBlankLines(this string? subject, int count)
     {
         if (subject == null) return string.Empty;
 
-        return Environment.NewLine.Repeat(count + 1) + subject.TrimStart();
+        return Environment.NewLine.Repeat(count + 1) + subject.TrimStart('\r', '\n');
     }
 
-    public static string TrailingBlankLines(this string subject, int count)
+    public static string RemoveTrailingBlankLines(this string? subject)
+    {
+        return subject?.TrailingBlankLines(0) ?? string.Empty;
+    }
+
+    public static string TrailingBlankLines(this string? subject, int count)
     {
         subject ??= string.Empty;
 
-        return subject.TrimEnd() + Environment.NewLine.Repeat(count + 1);
+        return subject.TrimEnd('\r', '\n') + Environment.NewLine.Repeat(count + 1);
     }
 }
 
-public static partial class StringExtension
+public static partial class StringExtensions
 {
-    public static string PadLinesLeft(this string subject, int width)
+    public static string? PadLinesLeft(this string? subject, int width)
     {
-        // ReSharper disable once UseNullPropagation
         if (subject == null) return null;
 
         int maxLength = subject.Lines()
@@ -173,7 +243,7 @@ public static partial class StringExtension
         return subject.Indent(width - maxLength);
     }
 
-    public static string PadLinesRight(this string subject, int width)
+    public static string PadLinesRight(this string? subject, int width)
     {
         return subject?.Lines()
                        .Select(l => l.PadRight(width))
@@ -181,22 +251,36 @@ public static partial class StringExtension
                ?? string.Empty;
     }
 
-    public static string RenderNumbered(this IEnumerable<string> items, int startId = 1)
+    public static string Render(this IEnumerable<string?>? items, string separator = ":")
     {
         if (items == null) return string.Empty;
 
         items = items.ToReadOnlyList();
         if (!items.Any()) return "<none>";
 
-        return TextTableBuilder.Create()
-                               .AddIdentityColumn(leftPadding: 0, rightPadding: 0)
-                               .AddStaticColumn(":")
-                               .AddColumn()
-                               .AddDataRows(items.Select(i => i.Yield().ToReadOnlyList()).ToReadOnlyList())
-                               .Render();
+        return TextBuilder.Create()
+                          .AddList(items, separator: separator)
+                          .Render();
     }
 
-    public static IEnumerable<string> TrimEnd(this IEnumerable<string> items)
+    public static string RenderNumbered(this IEnumerable<string?> items, string separator = ":", int startId = 1)
+    {
+        if (startId == 1) return items.Render(separator: separator);
+
+        TextListBuilder builder = TextListBuilder.Create()
+                                                 .Separator(separator);
+
+        int id = startId;
+        foreach (string? item in items)
+        {
+            builder.AddItem(body: item, id: $"{id++}");
+        }
+
+        return builder.SaveList()
+                      .Render();
+    }
+
+    public static IEnumerable<string> TrimEnd(this IEnumerable<string>? items)
     {
         return items == null
                    ? []
@@ -204,7 +288,7 @@ public static partial class StringExtension
     }
 }
 
-public static partial class StringExtension
+public static partial class StringExtensions
 {
     public static string Compress(this string content)
     {
@@ -222,15 +306,17 @@ public static partial class StringExtension
     }
 }
 
-public static partial class StringExtension
+public static partial class StringExtensions
 {
-    public static IEnumerable<string> Lines(this string subject)
+    public static IEnumerable<string> Lines(this string? subject)
     {
+        if (string.IsNullOrEmpty(subject)) yield break;
+
         using StringReader reader = new(subject);
 
         while (reader.Peek() != -1)
         {
-            yield return reader.ReadLine();
+            yield return reader.ReadLine() ?? string.Empty;
         }
     }
 
@@ -252,9 +338,9 @@ public static partial class StringExtension
         return Environment.NewLine.Repeat(lineCount - actualLineCount) + subject;
     }
 
-    public static string ToWrapString(this string text, int? maxLength, int overflowIndentSize = 0, bool showGlyph = false)
+    public static string ToWrapString(this string? text, int? maxLength, int overflowIndentSize = 0, bool showGlyph = false)
     {
-        if (maxLength == null || string.IsNullOrEmpty(text)) return text ?? string.Empty;
+        if (maxLength == null || text == null || text == string.Empty) return text ?? string.Empty;
 
         return text.Wrap(maxLength: maxLength.Value, overflowIndentSize: overflowIndentSize, showGlyph: showGlyph)
                    .ToJoinNewlineString();

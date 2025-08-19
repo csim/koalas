@@ -1,6 +1,6 @@
 ﻿namespace Koalas.Text;
 
-public interface ITextBuilder
+public interface ITextBuilder : IRender
 {
-    ITextModel Build();
+    IRender Build();
 }

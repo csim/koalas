@@ -1,8 +1,8 @@
 ﻿namespace Koalas.Text.Models;
 
 public record class TextSectionModel(string Heading,
-                                     ITextModel Body,
-                                     string HeadingSuffix) : ITextModel
+                                     IRender Body,
+                                     string HeadingSuffix) : IRender
 {
     public string Render()
     {

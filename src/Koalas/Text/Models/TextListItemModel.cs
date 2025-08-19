@@ -2,7 +2,8 @@
 
 public record class TextListItemModel(string Indicator,
                                       string Id,
-                                      ITextModel Body) : ITextModel
+                                      string Separator,
+                                      IRender Body) : IRender
 {
     public string Render()
     {

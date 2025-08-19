@@ -1,24 +1,34 @@
 ﻿namespace Koalas.Text;
 
-public partial class TextBuilder : IRender, ITextBuilder
+public partial class TextBuilder : ITextBuilder
 {
     private TextBuilder(int indentSize)
     {
         _defaultIndentSize = indentSize;
     }
 
-    private readonly List<ITextModel> _children = [];
+    private readonly List<IRender> _children = [];
     private readonly int _defaultIndentSize;
     private readonly List<int> _indentStack = [];
 
     public int IndentSize { get; private set; }
 
-    public TextBuilder Add(ITextBuilder subject)
+    public TextBuilder Add(IRender model)
     {
-        return Add(subject.Build());
+        if (IndentSize > 0)
+        {
+            _children.Add(new TextRegionModel(Children: [model],
+                                              IndentSize: IndentSize));
+
+            return this;
+        }
+
+        _children.Add(model);
+
+        return this;
     }
 
-    public ITextModel Build()
+    public IRender Build()
     {
         return new TextRegionModel(Children: _children,
                                    IndentSize: 0);
@@ -37,21 +47,6 @@ public partial class TextBuilder : IRender, ITextBuilder
     public override string ToString()
     {
         return Render();
-    }
-
-    private TextBuilder Add(ITextModel model)
-    {
-        if (IndentSize > 0)
-        {
-            _children.Add(new TextRegionModel(Children: [model],
-                                              IndentSize: IndentSize));
-
-            return this;
-        }
-
-        _children.Add(model);
-
-        return this;
     }
 }
 
@@ -83,9 +78,10 @@ public partial class TextBuilder
         return new TextHangSectionBuilder(this).Heading(heading);
     }
 
-    public TextListBuilder StartList(string separator = ":")
+    public TextListBuilder StartList(string separator = ":", int defaultTrailingBlankLines = 0)
     {
-        return new TextListBuilder(this).Separator(separator);
+        return new TextListBuilder(this).Separator(separator)
+                                        .DefaultTrailingBlankLines(defaultTrailingBlankLines);
     }
 
     public TextSectionBuilder StartSection(string heading = null)
@@ -186,14 +182,9 @@ public partial class TextBuilder
         return Add(new TextLineModel(Text: text?.TrimEnd() ?? string.Empty));
     }
 
-    public TextBuilder AddLine(Action<TextBuilder> bodyFactory)
+    public TextBuilder AddLine(object source)
     {
-        TextBuilder bodyBuilder = Create();
-        bodyFactory(bodyBuilder);
-
-        Add(bodyBuilder);
-
-        return this;
+        return AddLine(source.Render());
     }
 
     public TextBuilder AddList(IEnumerable<string> items, string separator = ":")
@@ -223,11 +214,21 @@ public partial class TextBuilder
                               trailingBlankLines: trailingBlankLines);
     }
 
-    public TextBuilder AddOptionalLine(string content, int trailingBlankLines = 2)
+    public TextBuilder AddOptionalLine(string content, int trailingBlankLines = 0)
     {
         return string.IsNullOrEmpty(content)
                    ? this
                    : AddLine(content).AddBlankLine(trailingBlankLines);
+    }
+
+    public TextBuilder AddOptionalLine(IRender source, int trailingBlankLines = 0)
+    {
+        return AddOptionalLine(source.Render(), trailingBlankLines: trailingBlankLines);
+    }
+
+    public TextBuilder AddOptionalLine(object source, int trailingBlankLines = 0)
+    {
+        return AddOptionalLine(source.Render(), trailingBlankLines: trailingBlankLines);
     }
 
     public TextBuilder AddOptionalSection(string heading,
