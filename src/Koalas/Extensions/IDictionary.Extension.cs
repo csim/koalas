@@ -19,11 +19,12 @@ public static class IDictionaryExtension
 
         foreach (KeyValuePair<TKey, TValue> pair in subject)
         {
+            string value = pair.Value?.ToString() ?? string.Empty;
             string values = pair.Value is IEnumerable<object> enumerable
                                 ? enumerable.Select(o => o.ToString()).ToJoinNewlineString()
-                                : pair.Value.ToString();
+                                : value;
 
-            table.AddDataRow(pair.Key.ToString(), values)
+            table.AddDataRow(value, values)
                  .AddBorderRow();
         }
 
@@ -37,7 +38,7 @@ public static class IDictionaryExtension
 
     public static IDictionary<TKey, TValue> Set<TKey, TValue>(this IDictionary<TKey, TValue> subject, TKey key, TValue value)
     {
-        if (subject == null) return null;
+        if (subject == null) return new Dictionary<TKey, TValue>();
 
         subject[key] = value;
 
@@ -46,7 +47,7 @@ public static class IDictionaryExtension
 
     public static Dictionary<TKey, TValue> Set<TKey, TValue>(this Dictionary<TKey, TValue> subject, TKey key, TValue value)
     {
-        return (Dictionary<TKey, TValue>) Set((IDictionary<TKey, TValue>) subject, key, value);
+        return (Dictionary<TKey, TValue>)Set((IDictionary<TKey, TValue>)subject, key, value);
     }
 
     public static Dictionary<TKey, IReadOnlyList<TValue>>

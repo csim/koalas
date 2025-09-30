@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Koalas.Text;
+﻿namespace Koalas.Text;
 
 public partial class TextBuilder : ITextBuilder
 {

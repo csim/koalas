@@ -1,4 +1,5 @@
 ﻿#nullable enable
+
 namespace Koalas.Extensions;
 
 public static class PrintExtensions
@@ -218,7 +219,7 @@ public static class PrintExtensions
         output = label == null
                      ? output
                      : $"""
-                        {label}: 
+                        {label}:
                         {output.Indent(2)}
                         """;
 

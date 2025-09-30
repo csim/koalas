@@ -14,17 +14,9 @@ public static partial class LinqExtension
         return items;
     }
 
-    public static IEnumerable<T> Yield<T>(this T subject)
-    {
-        yield return subject;
-    }
-}
-
-public static partial class LinqExtension
-{
     public static bool Any<T>(this IEnumerable<T> items, T item)
     {
-        return items.Any(i => i.Equals(item));
+        return items.Any(i => (i == null && item == null) || i?.Equals(item) == true);
     }
 
     public static void ForEach<TSource>(this IEnumerable<TSource> subject, Action<TSource> onNext)
@@ -73,6 +65,11 @@ public static partial class LinqExtension
         return Convert.ToInt32(Math.Ceiling(items.Count() / Convert.ToDouble(pageSize)));
     }
 
+    public static IEnumerable<TTarget> ParseJson<TTarget>(this IEnumerable<string> items)
+    {
+        return items.Select(JsonConvert.DeserializeObject<TTarget>);
+    }
+
     public static IEnumerable<IEnumerable<T>> Partition<T>(this IEnumerable<T> items, int size)
     {
         items = items as IReadOnlyCollection<T> ?? items.ToList();
@@ -89,6 +86,11 @@ public static partial class LinqExtension
 
             partitionIndex++;
         }
+    }
+
+    public static IEnumerable<string> SerializeJson<T>(this IEnumerable<T> items, Formatting format = Formatting.None)
+    {
+        return items.Select(item => JsonConvert.SerializeObject(item, format));
     }
 
     public static IEnumerable<T> SkipTake<T>(this IEnumerable<T> items, int skip, int take)
@@ -137,7 +139,7 @@ public static partial class LinqExtension
 
     public static IReadOnlyList<T> ToReadOnlyList<T>(this IEnumerable<T> subject)
     {
-        return subject as IReadOnlyList<T> ?? (IReadOnlyList<T>) subject?.ToList() ?? new T[0];
+        return subject as IReadOnlyList<T> ?? (IReadOnlyList<T>)subject?.ToList() ?? new T[0];
     }
 
     public static bool TryFirst<T>(this IEnumerable<T> subject, out T item)
@@ -169,17 +171,9 @@ public static partial class LinqExtension
 
         return false;
     }
-}
 
-public static partial class LinqExtension
-{
-    public static IEnumerable<TTarget> ParseJson<TTarget>(this IEnumerable<string> items)
+    public static IEnumerable<T> Yield<T>(this T subject)
     {
-        return items.Select(JsonConvert.DeserializeObject<TTarget>);
-    }
-
-    public static IEnumerable<string> SerializeJson<T>(this IEnumerable<T> items, Formatting format = Formatting.None)
-    {
-        return items.Select(item => JsonConvert.SerializeObject(item, format));
+        yield return subject;
     }
 }

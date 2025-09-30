@@ -1,4 +1,5 @@
 ﻿#nullable enable
+
 namespace Koalas.Extensions;
 
 public static class NumberExtensions
@@ -68,7 +69,7 @@ public static class NumberExtensions
 
     public static int Ceiling(this double subject)
     {
-        return (int) Math.Ceiling(subject);
+        return (int)Math.Ceiling(subject);
     }
 
     public static int DigitCount(this int subject)
@@ -116,7 +117,7 @@ public static class NumberExtensions
 
     public static int Floor(this double subject)
     {
-        return (int) Math.Ceiling(subject);
+        return (int)Math.Ceiling(subject);
     }
 
     public static bool HasFlags(this long subject, long mask)
@@ -176,9 +177,9 @@ public static class NumberExtensions
         decimal roundSubject = Math.Round(subject, scale);
 
         // ReSharper disable once ConvertIfStatementToSwitchExpression
-        if (subject > 0 && roundSubject > subject) return roundSubject - new decimal(1, 0, 0, false, (byte) scale);
+        if (subject > 0 && roundSubject > subject) return roundSubject - new decimal(1, 0, 0, false, (byte)scale);
 
-        if (subject < 0 && roundSubject < subject) return roundSubject + new decimal(1, 0, 0, false, (byte) scale);
+        if (subject < 0 && roundSubject < subject) return roundSubject + new decimal(1, 0, 0, false, (byte)scale);
 
         return roundSubject;
     }

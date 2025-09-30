@@ -5,7 +5,8 @@
     <LangVersion>latest</LangVersion>
     <Title>Notebook ready C# data science tools and utilities inspired by Python pandas module.</Title>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <!--<Nullable>enable</Nullable>-->
+    <!-- <Nullable>enable</Nullable> -->
+    <UseArtifactsOutput>true</UseArtifactsOutput>
   </PropertyGroup>
 
   <ItemGroup>

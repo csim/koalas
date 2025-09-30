@@ -1,7 +1,7 @@
-﻿namespace Koalas.Extensions;
-
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Security.Cryptography;
+
+namespace Koalas.Extensions;
 
 public static class ByteExtension
 {
@@ -32,7 +32,7 @@ public static class ByteExtension
 
     public static string Sha256(this byte[] content)
     {
-        HashAlgorithm algo = (HashAlgorithm) CryptoConfig.CreateFromName("SHA256")
+        HashAlgorithm algo = (HashAlgorithm)CryptoConfig.CreateFromName("SHA256")
                              ?? throw new Exception("Invalid hash algorithm SHA256");
         byte[] hash = algo.ComputeHash(content);
 

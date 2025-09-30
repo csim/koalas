@@ -1,7 +1,65 @@
-﻿namespace Koalas.Extensions;
+﻿#nullable enable
 
-#nullable enable
 using System.Security.Cryptography;
+
+namespace Koalas.Extensions;
+
+/// <summary>
+///     Renders the subject as a string suitable for use in C# code.
+/// </summary>
+/// <param name="subject"></param>
+/// <returns></returns>
+/// <summary>
+///     Renders the subject as a string suitable for use in C# code.
+/// </summary>
+/// <param name="subject"></param>
+/// <returns></returns>
+/// <summary>
+///     Renders the subject as a string suitable for use in C# code.
+/// </summary>
+/// <param name="subject"></param>
+/// <returns></returns>
+public static partial class Extension
+{
+    public static string RenderNumbered(this IEnumerable<object>? items, int startNumber = 1)
+    {
+        if (items == null) return string.Empty;
+
+        items = items.ToReadOnlyList();
+        if (!items.Any()) return "<none>";
+
+        int maxPositionLength = items.Select((_, idx) => (idx + startNumber).ToString().Length).Max();
+        int indent = maxPositionLength + 2;
+        IEnumerable<string> lines = items.Select((item, idx) =>
+        {
+            int position = idx + startNumber;
+            string num = maxPositionLength > 1
+                             ? position.ToString().PadLeft(maxPositionLength)
+                             : position.ToString();
+
+            return $"{num}: {item.ToString().IndentSkipFirstLine(indent)}";
+        });
+
+        return lines.ToJoinNewlineString();
+    }
+
+    public static string ToLiteral(this object? obj)
+    {
+        if (obj is DateTime dt)
+        {
+            return dt.ToString(dt == dt.Date
+                                   ? "yyyy-MM-dd"
+                                   : dt is { Second: 0, Millisecond: 0 }
+                                       ? "yyyy-MM-ddTHH:mm"
+                                       : dt.Millisecond == 0
+                                           ? "s"
+                                           : "yyyy-MM-ddTHH:mm:ss.fff",
+                               CultureInfo.InvariantCulture);
+        }
+
+        return JsonConvert.SerializeObject(obj);
+    }
+}
 
 public static partial class ObjectExtension
 {
@@ -12,19 +70,20 @@ public static partial class ObjectExtension
     /// <returns></returns>
     public static string Render(this object? subject)
     {
-        return subject switch {
-                   null          => "null",
-                   string item   => item.Render(),
-                   DateTime item => item.Render(),
-                   int item      => item.Render(),
-                   uint item     => item.Render(),
-                   decimal item  => item.Render(),
-                   double item   => item.Render(),
-                   float item    => item.Render(),
-                   IRender item  => item.Render(),
-                   IToJson item  => item.ToJson().ToString(Formatting.Indented),
-                   _             => subject.ToLiteral()
-               };
+        return subject switch
+        {
+            null => "null",
+            string item => item.Render(),
+            DateTime item => item.Render(),
+            int item => item.Render(),
+            uint item => item.Render(),
+            decimal item => item.Render(),
+            double item => item.Render(),
+            float item => item.Render(),
+            IRender item => item.Render(),
+            IToJson item => item.ToJson().ToString(Formatting.Indented),
+            _ => subject.ToLiteral()
+        };
     }
 
     public static string Render(this string? subject)
@@ -65,10 +124,13 @@ public static partial class ObjectExtension
     {
         return $"{subject.ToString("#,##0.#####################################################", CultureInfo.InvariantCulture).Replace(",", "_")}m";
     }
-}
 
-public static partial class ObjectExtension
-{
+    public static bool SequenceValueEquals<T>(this IEnumerable<T>? left, IEnumerable<T>? right)
+    {
+        return (left == null && right == null)
+               || (right != null && left?.SequenceEqual(right) == true);
+    }
+
     /// <summary>
     ///     Renders the subject as a string suitable for use in C# code.
     /// </summary>
@@ -76,11 +138,12 @@ public static partial class ObjectExtension
     /// <returns></returns>
     public static string ToCSharpLiteral(this object? subject)
     {
-        return subject switch {
-                   string item   => item.ToCSharpLiteral(),
-                   DateTime item => item.ToCSharpLiteral(),
-                   _             => subject.Render()
-               };
+        return subject switch
+        {
+            string item => item.ToCSharpLiteral(),
+            DateTime item => item.ToCSharpLiteral(),
+            _ => subject.Render()
+        };
     }
 
     /// <summary>
@@ -102,10 +165,7 @@ public static partial class ObjectExtension
     {
         return $"DateTime.Parse(\"{subject.ToLiteral()}\")";
     }
-}
 
-public static partial class ObjectExtension
-{
     public static string ToJsonHash(this object request)
     {
         string requestJson = JsonConvert.SerializeObject(request, Formatting.None)
@@ -152,63 +212,10 @@ public static partial class ObjectExtension
     {
         return JsonConvert.SerializeObject(source, formatting, settings);
     }
-}
-
-public static partial class ObjectExtension
-{
-    public static bool SequenceValueEquals<T>(this IEnumerable<T>? left, IEnumerable<T>? right)
-    {
-        return (left == null && right == null)
-               || (right != null && left?.SequenceEqual(right) == true);
-    }
 
     public static bool ValueEquals<T>(this T? left, T? right)
     {
         return (left == null && right == null)
                || (right != null && left?.Equals(right) == true);
-    }
-}
-
-public static partial class Extension
-{
-    public static string ToLiteral(this object? obj)
-    {
-        if (obj is DateTime dt)
-        {
-            return dt.ToString(dt == dt.Date
-                                   ? "yyyy-MM-dd"
-                                   : dt is { Second: 0, Millisecond: 0 }
-                                       ? "yyyy-MM-ddTHH:mm"
-                                       : dt.Millisecond == 0
-                                           ? "s"
-                                           : "yyyy-MM-ddTHH:mm:ss.fff",
-                               CultureInfo.InvariantCulture);
-        }
-
-        return JsonConvert.SerializeObject(obj);
-    }
-}
-
-public static partial class Extension
-{
-    public static string RenderNumbered(this IEnumerable<object>? items, int startNumber = 1)
-    {
-        if (items == null) return string.Empty;
-
-        items = items.ToReadOnlyList();
-        if (!items.Any()) return "<none>";
-
-        int maxPositionLength = items.Select((_, idx) => (idx + startNumber).ToString().Length).Max();
-        int indent = maxPositionLength + 2;
-        IEnumerable<string> lines = items.Select((item, idx) => {
-                                                     int position = idx + startNumber;
-                                                     string num = maxPositionLength > 1
-                                                                      ? position.ToString().PadLeft(maxPositionLength)
-                                                                      : position.ToString();
-
-                                                     return $"{num}: {item.ToString().IndentSkipFirstLine(indent)}";
-                                                 });
-
-        return lines.ToJoinNewlineString();
     }
 }

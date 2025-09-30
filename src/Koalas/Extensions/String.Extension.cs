@@ -1,55 +1,6 @@
 ﻿#nullable enable
+
 namespace Koalas.Extensions;
-
-public static partial class StringExtensions
-{
-    public static T ParseJson<T>(this string source)
-    {
-        return JsonConvert.DeserializeObject<T>(source)
-               ?? throw new Exception($"Unable to deserialize: {typeof(T).Name}");
-    }
-
-    public static string ToAnonymizedString(this string? source)
-    {
-        if (source == null) return "<null>";
-
-        IEnumerable<char> chars = from c in source
-                                  select CharUnicodeInfo.GetUnicodeCategory(c) switch {
-                                             UnicodeCategory.UppercaseLetter
-                                                 => 'A',
-                                             UnicodeCategory.LowercaseLetter
-                                                 => 'a',
-                                             UnicodeCategory.DecimalDigitNumber
-                                              or UnicodeCategory.LetterNumber
-                                              or UnicodeCategory.OtherNumber
-                                                 => '9',
-                                             UnicodeCategory.ClosePunctuation
-                                              or UnicodeCategory.ConnectorPunctuation
-                                              or UnicodeCategory.CurrencySymbol
-                                              or UnicodeCategory.DashPunctuation
-                                              or UnicodeCategory.FinalQuotePunctuation
-                                              or UnicodeCategory.InitialQuotePunctuation
-                                              or UnicodeCategory.LineSeparator
-                                              or UnicodeCategory.MathSymbol
-                                              or UnicodeCategory.ModifierSymbol
-                                              or UnicodeCategory.OpenPunctuation
-                                              or UnicodeCategory.OtherPunctuation
-                                              or UnicodeCategory.OtherSymbol
-                                              or UnicodeCategory.ParagraphSeparator
-                                              or UnicodeCategory.SpaceSeparator
-                                                 => c,
-                                             _ when c is '\r' or '\n'
-                                                 => c,
-                                             _
-                                                 => 'x'
-                                         };
-
-        string ret = new(chars.ToArray());
-
-        return ret.Replace("\r", "\\r")
-                  .Replace("\n", "\\n");
-    }
-}
 
 public static partial class StringExtensions
 {
@@ -79,6 +30,11 @@ public static partial class StringExtensions
                    : subject;
     }
 
+    public static string Compress(this string content)
+    {
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes(content).Compress());
+    }
+
     public static string Concat(this string subject, string value)
     {
         return string.Concat(subject, value);
@@ -94,88 +50,11 @@ public static partial class StringExtensions
         return subject.IndexOf(target, StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
-    public static int IndexOfIgnoreCase(this string subject, string target)
+    public static string Decompress(this string base64Content)
     {
-        return subject.IndexOf(target, StringComparison.OrdinalIgnoreCase);
+        return Encoding.UTF8.GetString(Convert.FromBase64String(base64Content).Decompress());
     }
 
-    public static int IndexOfOrdinal(this string subject, string target)
-    {
-        return subject.IndexOf(target, StringComparison.Ordinal);
-    }
-
-    public static bool IsNullOrEmpty(this string? subject)
-    {
-        return string.IsNullOrEmpty(subject);
-    }
-
-    public static string Repeat(this char subject, int count)
-    {
-        return new string(subject, count);
-    }
-
-    public static string Repeat(this string subject, int count)
-    {
-        return string.Concat(Enumerable.Repeat(subject, count));
-    }
-
-    public static string Splice(this string subject, int startIndex, string replacement)
-    {
-        return Splice(subject, startIndex, replacement, replacement.Length);
-    }
-
-    public static string Splice(this string subject, int startIndex, string replacement, int removeCount)
-    {
-        return subject.Remove(startIndex, removeCount).Insert(startIndex, replacement);
-    }
-
-    public static string StripAllIndent(this string subject)
-    {
-        return subject.Lines()
-                      .Select(l => l.TrimStart())
-                      .ToJoinNewlineString();
-    }
-
-    public static string StripIndent(this string subject)
-    {
-        IReadOnlyList<string> indentLines = _indentRegex.NonCachingMatches(subject)
-                                                        .Select(m => m.Groups[1].Value)
-                                                        .ToReadOnlyList();
-        if (indentLines.None()) return subject;
-
-        int minIndent = indentLines.Min(i => i.Length);
-
-        return subject.Lines()
-                      .Select(line => line.Length <= minIndent
-                                          ? line
-                                          : line.Substring(minIndent))
-                      .ToJoinNewlineString();
-    }
-
-    public static string ToCamelCase(this string str)
-    {
-        if (string.IsNullOrEmpty(str) || str.Length < 2) return str;
-
-        return char.ToLowerInvariant(str[0]) + str.Substring(1);
-    }
-
-    public static string ToValidFilename(this string input, char replacement = '_')
-    {
-        char[] invalidChars = Path.GetInvalidFileNameChars();
-        char[] result = new char[input.Length];
-
-        for (int i = 0; i < input.Length; i++)
-        {
-            char c = input[i];
-            result[i] = Array.IndexOf(invalidChars, c) >= 0 ? replacement : c;
-        }
-
-        return new string(result);
-    }
-}
-
-public static partial class StringExtensions
-{
     public static string HangIndent(this string? subject, string? body, string? suffix = null)
     {
         if (string.IsNullOrEmpty(subject)) return subject ?? string.Empty;
@@ -211,6 +90,21 @@ public static partial class StringExtensions
         return subject.Indent(size, skipFirstLine: true);
     }
 
+    public static int IndexOfIgnoreCase(this string subject, string target)
+    {
+        return subject.IndexOf(target, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static int IndexOfOrdinal(this string subject, string target)
+    {
+        return subject.IndexOf(target, StringComparison.Ordinal);
+    }
+
+    public static bool IsNullOrEmpty(this string? subject)
+    {
+        return string.IsNullOrEmpty(subject);
+    }
+
     public static string LeadingBlankLines(this string? subject, int count)
     {
         if (subject == null) return string.Empty;
@@ -218,21 +112,27 @@ public static partial class StringExtensions
         return Environment.NewLine.Repeat(count + 1) + subject.TrimStart('\r', '\n');
     }
 
-    public static string RemoveTrailingBlankLines(this string? subject)
+    public static IEnumerable<string> Lines(this string? subject)
     {
-        return subject?.TrailingBlankLines(0) ?? string.Empty;
+        if (string.IsNullOrEmpty(subject)) yield break;
+
+        using StringReader reader = new(subject);
+
+        while (reader.Peek() != -1)
+        {
+            yield return reader.ReadLine() ?? string.Empty;
+        }
     }
 
-    public static string TrailingBlankLines(this string? subject, int count)
+    public static string PadBottom(this string subject, int lineCount)
     {
-        subject ??= string.Empty;
+        int actualLineCount = subject.Lines().Count();
 
-        return subject.TrimEnd('\r', '\n') + Environment.NewLine.Repeat(count + 1);
+        if (actualLineCount > lineCount) return subject;
+
+        return subject + Environment.NewLine.Repeat(lineCount - actualLineCount);
     }
-}
 
-public static partial class StringExtensions
-{
     public static string? PadLinesLeft(this string? subject, int width)
     {
         if (subject == null) return null;
@@ -249,6 +149,26 @@ public static partial class StringExtensions
                        .Select(l => l.PadRight(width))
                        .ToJoinNewlineString()
                ?? string.Empty;
+    }
+
+    public static string PadTop(this string subject, int lineCount)
+    {
+        int actualLineCount = subject.Lines().Count();
+
+        if (actualLineCount > lineCount) return subject;
+
+        return Environment.NewLine.Repeat(lineCount - actualLineCount) + subject;
+    }
+
+    public static T ParseJson<T>(this string source)
+    {
+        return JsonConvert.DeserializeObject<T>(source)
+               ?? throw new Exception($"Unable to deserialize: {typeof(T).Name}");
+    }
+
+    public static string RemoveTrailingBlankLines(this string? subject)
+    {
+        return subject?.TrailingBlankLines(0) ?? string.Empty;
     }
 
     public static string Render(this IEnumerable<string?>? items, string separator = ":")
@@ -280,62 +200,115 @@ public static partial class StringExtensions
                       .Render();
     }
 
-    public static IEnumerable<string> TrimEnd(this IEnumerable<string>? items)
+    public static string Repeat(this char subject, int count)
     {
-        return items == null
-                   ? []
-                   : items.Select(i => i.TrimEnd());
-    }
-}
-
-public static partial class StringExtensions
-{
-    public static string Compress(this string content)
-    {
-        return Convert.ToBase64String(Encoding.UTF8.GetBytes(content).Compress());
+        return new string(subject, count);
     }
 
-    public static string Decompress(this string base64Content)
+    public static string Repeat(this string subject, int count)
     {
-        return Encoding.UTF8.GetString(Convert.FromBase64String(base64Content).Decompress());
+        return string.Concat(Enumerable.Repeat(subject, count));
     }
 
     public static string Sha256(this string content)
     {
         return Encoding.UTF8.GetBytes(content).Sha256();
     }
-}
 
-public static partial class StringExtensions
-{
-    public static IEnumerable<string> Lines(this string? subject)
+    public static string Splice(this string subject, int startIndex, string replacement)
     {
-        if (string.IsNullOrEmpty(subject)) yield break;
+        return Splice(subject, startIndex, replacement, replacement.Length);
+    }
 
-        using StringReader reader = new(subject);
+    public static string Splice(this string subject, int startIndex, string replacement, int removeCount)
+    {
+        return subject.Remove(startIndex, removeCount).Insert(startIndex, replacement);
+    }
 
-        while (reader.Peek() != -1)
+    public static string StripAllIndent(this string subject)
+    {
+        return subject.Lines()
+                      .Select(l => l.TrimStart())
+                      .ToJoinNewlineString();
+    }
+
+    public static string StripIndent(this string subject)
+    {
+        IReadOnlyList<string> indentLines = _indentRegex.NonCachingMatches(subject)
+                                                        .Select(m => m.Groups[1].Value)
+                                                        .ToReadOnlyList();
+        if (indentLines.None()) return subject;
+
+        int minIndent = indentLines.Min(i => i.Length);
+
+        return subject.Lines()
+                      .Select(line => line.Length <= minIndent
+                                          ? line
+                                          : line.Substring(minIndent))
+                      .ToJoinNewlineString();
+    }
+
+    public static string ToAnonymizedString(this string? source)
+    {
+        if (source == null) return "<null>";
+
+        IEnumerable<char> chars = from c in source
+                                  select CharUnicodeInfo.GetUnicodeCategory(c) switch
+                                  {
+                                      UnicodeCategory.UppercaseLetter
+                                          => 'A',
+                                      UnicodeCategory.LowercaseLetter
+                                          => 'a',
+                                      UnicodeCategory.DecimalDigitNumber
+                                       or UnicodeCategory.LetterNumber
+                                       or UnicodeCategory.OtherNumber
+                                          => '9',
+                                      UnicodeCategory.ClosePunctuation
+                                       or UnicodeCategory.ConnectorPunctuation
+                                       or UnicodeCategory.CurrencySymbol
+                                       or UnicodeCategory.DashPunctuation
+                                       or UnicodeCategory.FinalQuotePunctuation
+                                       or UnicodeCategory.InitialQuotePunctuation
+                                       or UnicodeCategory.LineSeparator
+                                       or UnicodeCategory.MathSymbol
+                                       or UnicodeCategory.ModifierSymbol
+                                       or UnicodeCategory.OpenPunctuation
+                                       or UnicodeCategory.OtherPunctuation
+                                       or UnicodeCategory.OtherSymbol
+                                       or UnicodeCategory.ParagraphSeparator
+                                       or UnicodeCategory.SpaceSeparator
+                                          => c,
+                                      _ when c is '\r' or '\n'
+                                          => c,
+                                      _
+                                          => 'x'
+                                  };
+
+        string ret = new(chars.ToArray());
+
+        return ret.Replace("\r", "\\r")
+                  .Replace("\n", "\\n");
+    }
+
+    public static string ToCamelCase(this string str)
+    {
+        if (string.IsNullOrEmpty(str) || str.Length < 2) return str;
+
+        return char.ToLowerInvariant(str[0]) + str.Substring(1);
+    }
+
+    public static string ToValidFilename(this string input, char replacement = '_')
+    {
+        char[] invalidChars = Path.GetInvalidFileNameChars();
+        char[] result = new char[input.Length];
+
+        for (int i = 0; i < input.Length; i++)
         {
-            yield return reader.ReadLine() ?? string.Empty;
+            char c = input[i];
+            result[i] = Array.IndexOf(invalidChars, c) >= 0 ? replacement : c;
         }
-    }
 
-    public static string PadBottom(this string subject, int lineCount)
-    {
-        int actualLineCount = subject.Lines().Count();
-
-        if (actualLineCount > lineCount) return subject;
-
-        return subject + Environment.NewLine.Repeat(lineCount - actualLineCount);
-    }
-
-    public static string PadTop(this string subject, int lineCount)
-    {
-        int actualLineCount = subject.Lines().Count();
-
-        if (actualLineCount > lineCount) return subject;
-
-        return Environment.NewLine.Repeat(lineCount - actualLineCount) + subject;
+        return new string(result);
     }
 
     public static string ToWrapString(this string? text, int? maxLength, int overflowIndentSize = 0, bool showGlyph = false)
@@ -344,6 +317,20 @@ public static partial class StringExtensions
 
         return text.Wrap(maxLength: maxLength.Value, overflowIndentSize: overflowIndentSize, showGlyph: showGlyph)
                    .ToJoinNewlineString();
+    }
+
+    public static string TrailingBlankLines(this string? subject, int count)
+    {
+        subject ??= string.Empty;
+
+        return subject.TrimEnd('\r', '\n') + Environment.NewLine.Repeat(count + 1);
+    }
+
+    public static IEnumerable<string> TrimEnd(this IEnumerable<string>? items)
+    {
+        return items == null
+                   ? []
+                   : items.Select(i => i.TrimEnd());
     }
 
     public static string TruncateLines(this string subject, int lineCount)
@@ -432,3 +419,9 @@ public static partial class StringExtensions
         }
     }
 }
+// ReSharper disable once InconsistentNaming
+// handle newlines
+// If remaining string is less than length, add to list and break out of loop
+// Get maxLength chunk from string.
+// If next char is a space, we can use the whole chunk and remove the space for the next line
+// If space exists in string,

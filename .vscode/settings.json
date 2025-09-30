@@ -1,0 +1,33 @@
+{
+  // Ensure EditorConfig is enabled
+  "editorconfig.generateAuto": false,
+  // C# Dev Kit specific settings
+  "dotnet.enableEditorConfigSupport": true,
+  "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
+  // Code analysis settings to enforce method body blocks and other rules
+  "dotnet.codeAnalysis.analyzerSeverity": {
+    "IDE0022": "warning", // Use block body for methods
+    "IDE0025": "warning", // Use block body for properties
+    "IDE0027": "warning", // Use block body for accessors
+    "IDE0021": "warning", // Use block body for constructors
+    "IDE0023": "warning", // Use block body for conversion operators
+    "IDE0024": "warning", // Use block body for operators
+    "IDE0160": "warning", // Convert to file-scoped namespace
+    "IDE0044": "warning", // Add readonly modifier to private fields that are never assigned to
+    "CA1707": "none" // Remove underscores from member names - suppressed for test methods
+  },
+  // Enable code analysis for C# Dev Kit
+  "dotnet.codeLens.enableReferencesCodeLens": true,
+  "dotnet.inlayHints.enableInlayHintsForParameters": true,
+  "dotnet.inlayHints.enableInlayHintsForLiteralParameters": true,
+  "dotnet.inlayHints.enableInlayHintsForIndexerParameters": true,
+  "dotnet.inlayHints.enableInlayHintsForObjectCreationParameters": true,
+  "dotnet.inlayHints.enableInlayHintsForOtherParameters": true,
+  "dotnet.inlayHints.suppressInlayHintsForParametersThatDifferOnlyBySuffix": true,
+  "dotnet.inlayHints.suppressInlayHintsForParametersThatMatchMethodIntent": true,
+  "dotnet.inlayHints.suppressInlayHintsForParametersThatMatchArgumentName": true,
+  // Ensure files.associations for .editorconfig
+  "files.associations": {
+    ".editorconfig": "ini"
+  }
+}
