@@ -6,7 +6,5 @@ public record class TextListItemModel(string Indicator,
                                       IRender Body) : IRender
 {
     public string Render()
-    {
-        return string.Empty;
-    }
+        => string.Empty;
 }

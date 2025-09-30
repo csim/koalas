@@ -1,4 +1,8 @@
-﻿namespace Koalas.Text.Models;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Koalas.Text.Models;
 
 public interface ITextRow
 {
@@ -53,8 +57,7 @@ public class DataTextRow(int id,
 
 public class HeadingTextRow : ITextRow
 {
-    public HeadingTextRow()
-    { }
+    public HeadingTextRow() { }
 
     public HeadingTextRow(string[] headingOverrides)
     {
@@ -65,10 +68,7 @@ public class HeadingTextRow : ITextRow
 
     public bool First { get; set; }
 
-    public int? Id {
-        get => null;
-        set { }
-    }
+    public int? Id { get => null; set { } }
 
     public int Index { get; set; }
 
@@ -78,7 +78,9 @@ public class HeadingTextRow : ITextRow
     {
         if (columns.OfType<TextColumnBase>().All(c => string.IsNullOrEmpty(c.Heading))
             && _headingOverrides?.Any() is false or null)
+        {
             return;
+        }
 
         int index = 0;
         foreach (ITextColumn col in columns)
@@ -89,7 +91,9 @@ public class HeadingTextRow : ITextRow
                 index++;
             }
             else
+            {
                 col.RenderHeading(output);
+            }
         }
 
         output.AppendLine();
@@ -102,10 +106,7 @@ public class EllipsisTextRow : ITextRow
 
     public bool First { get; set; }
 
-    public int? Id {
-        get => null;
-        set { }
-    }
+    public int? Id { get => null; set { } }
 
     public int Index { get; set; }
 
@@ -169,28 +170,23 @@ public class SingleBorderTextRow : IBorderTextRow
 
     public bool First { get; set; }
 
-    public int? Id {
-        get => null;
-        set { }
-    }
+    public int? Id { get => null; set { } }
 
     public int Index { get; set; }
 
     public bool Last { get; set; }
 
     public char DoubleJunction(ITextColumn col, ITextRow row)
-    {
-        return DoubleJunctionChars[row.First
-                                       ? 0
-                                       : row.Last
-                                           ? 2
-                                           : 1,
-                                   col.First
-                                       ? 0
-                                       : col.Last
-                                           ? 2
-                                           : 1];
-    }
+        => DoubleJunctionChars[row.First
+                                   ? 0
+                                   : row.Last
+                                       ? 2
+                                       : 1,
+                               col.First
+                                   ? 0
+                                   : col.Last
+                                       ? 2
+                                       : 1];
 
     public void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns)
     {
@@ -203,18 +199,16 @@ public class SingleBorderTextRow : IBorderTextRow
     }
 
     public char SingleJunction(ITextColumn col, ITextRow row)
-    {
-        return SingleJunctionChars[row.First
-                                       ? 0
-                                       : row.Last
-                                           ? 2
-                                           : 1,
-                                   col.First
-                                       ? 0
-                                       : col.Last
-                                           ? 2
-                                           : 1];
-    }
+        => SingleJunctionChars[row.First
+                                   ? 0
+                                   : row.Last
+                                       ? 2
+                                       : 1,
+                               col.First
+                                   ? 0
+                                   : col.Last
+                                       ? 2
+                                       : 1];
 }
 
 public class DoubleBorderTextRow : IBorderTextRow
@@ -257,28 +251,23 @@ public class DoubleBorderTextRow : IBorderTextRow
 
     public bool First { get; set; }
 
-    public int? Id {
-        get => null;
-        set { }
-    }
+    public int? Id { get => null; set { } }
 
     public int Index { get; set; }
 
     public bool Last { get; set; }
 
     public char DoubleJunction(ITextColumn col, ITextRow row)
-    {
-        return DoubleJunctionChars[row.First
-                                       ? 0
-                                       : row.Last
-                                           ? 2
-                                           : 1,
-                                   col.First
-                                       ? 0
-                                       : col.Last
-                                           ? 2
-                                           : 1];
-    }
+        => DoubleJunctionChars[row.First
+                                   ? 0
+                                   : row.Last
+                                       ? 2
+                                       : 1,
+                               col.First
+                                   ? 0
+                                   : col.Last
+                                       ? 2
+                                       : 1];
 
     public void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns)
     {
@@ -291,16 +280,14 @@ public class DoubleBorderTextRow : IBorderTextRow
     }
 
     public char SingleJunction(ITextColumn col, ITextRow row)
-    {
-        return SingleJunctionChars[row.First
-                                       ? 0
-                                       : row.Last
-                                           ? 2
-                                           : 1,
-                                   col.First
-                                       ? 0
-                                       : col.Last
-                                           ? 2
-                                           : 1];
-    }
+        => SingleJunctionChars[row.First
+                                   ? 0
+                                   : row.Last
+                                       ? 2
+                                       : 1,
+                               col.First
+                                   ? 0
+                                   : col.Last
+                                       ? 2
+                                       : 1];
 }

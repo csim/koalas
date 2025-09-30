@@ -23,14 +23,20 @@ public partial class TextListItemBuilder : IRender
 
     public string Render()
     {
-        if (!_saved) SaveItem();
+        if (!_saved)
+        {
+            SaveItem();
+        }
 
         return _parent.Render();
     }
 
     public TextListBuilder SaveItem()
     {
-        if (_saved) throw new Exception($"Cannot {nameof(SaveItem)}, {nameof(TextListItemBuilder)} already saved.");
+        if (_saved)
+        {
+            throw new Exception($"Cannot {nameof(SaveItem)}, {nameof(TextListItemBuilder)} already saved.");
+        }
 
         _saved = true;
 
@@ -38,17 +44,13 @@ public partial class TextListItemBuilder : IRender
     }
 
     public override string ToString()
-    {
-        return Render();
-    }
+        => Render();
 
     private TextListItemModel Build()
-    {
-        return new TextListItemModel(Body: _bodyBuilder.Build(),
-                                     Id: _id,
-                                     Separator: _separator,
-                                     Indicator: _indicator);
-    }
+        => new(Body: _bodyBuilder.Build(),
+               Id: _id,
+               Separator: _separator,
+               Indicator: _indicator);
 }
 
 public partial class TextListItemBuilder
@@ -141,6 +143,16 @@ public partial class TextListItemBuilder
         return this;
     }
 
+    public TextListItemBuilder AddHangSection(string heading,
+                                              object body,
+                                              int? maxWidth = null,
+                                              int trailingBlankLines = 1)
+    {
+        _bodyBuilder.AddHangSection(heading, body, maxWidth: maxWidth, trailingBlankLines: trailingBlankLines);
+
+        return this;
+    }
+
     public TextListItemBuilder AddLine(string text)
     {
         _bodyBuilder.AddLine(text: text);
@@ -149,9 +161,7 @@ public partial class TextListItemBuilder
     }
 
     public TextListItemBuilder AddLine(object source)
-    {
-        return AddLine(source.Render());
-    }
+        => AddLine(source.Render());
 
     public TextListItemBuilder AddList(IEnumerable<string> items, string separator = ":")
     {
@@ -190,6 +200,21 @@ public partial class TextListItemBuilder
         return this;
     }
 
+    public TextListItemBuilder AddSection(string heading,
+                                          object body,
+                                          string headingSuffix = "",
+                                          int? maxWidth = null,
+                                          int trailingBlankLines = 2)
+    {
+        _bodyBuilder.AddSection(heading: heading,
+                                body: body,
+                                headingSuffix: headingSuffix,
+                                maxWidth: maxWidth,
+                                trailingBlankLines: trailingBlankLines);
+
+        return this;
+    }
+
     public TextListItemBuilder AddTable(IEnumerable<IEnumerable<object>> values,
                                         TextTableBorder border = TextTableBorder.Inner,
                                         IEnumerable<string> columnNames = null,
@@ -197,15 +222,13 @@ public partial class TextListItemBuilder
                                         int? defaultColumnMaxWidth = 50,
                                         Func<object, string> formatCellValue = null,
                                         bool includeIdentityColumn = false)
-    {
-        return Add(TextTableBuilder.Create(values: values,
-                                           border: border,
-                                           columnNames: columnNames,
-                                           defaultColumnPadding: defaultColumnPadding,
-                                           defaultColumnMaxWidth: defaultColumnMaxWidth,
-                                           formatCellValue: formatCellValue,
-                                           includeIdentityColumn: includeIdentityColumn));
-    }
+        => Add(TextTableBuilder.Create(values: values,
+                                       border: border,
+                                       columnNames: columnNames,
+                                       defaultColumnPadding: defaultColumnPadding,
+                                       defaultColumnMaxWidth: defaultColumnMaxWidth,
+                                       formatCellValue: formatCellValue,
+                                       includeIdentityColumn: includeIdentityColumn));
 
     public TextListItemBuilder ClearIndent()
     {

@@ -12,24 +12,40 @@ public partial class TextListBuilder : ITextBuilder
     private bool _saved;
 
     public IRender Build()
-    {
-        return new TextListModel(Items: _items);
-    }
+        => new TextListModel(Items: _items);
 
-    public static TextListBuilder Create(string separator = ":", int indentSize = 2, int defaultTrailingBlankLines = 0)
+    public static TextListBuilder Create(string separator = ":",
+                                         int indentSize = 2,
+                                         int defaultTrailingBlankLines = 0)
+        => new TextListBuilder(TextBuilder.Create(indentSize: indentSize)).DefaultTrailingBlankLines(defaultTrailingBlankLines)
+                                                                          .Separator(separator);
+
+    public static TextListBuilder Create(IEnumerable<string> items,
+                                         string separator = ":",
+                                         int indentSize = 2,
+                                         int defaultTrailingBlankLines = 0)
     {
-        return new TextListBuilder(TextBuilder.Create(indentSize: indentSize)).DefaultTrailingBlankLines(defaultTrailingBlankLines)
-                                                                              .Separator(separator);
+        TextListBuilder builder = Create(separator: separator,
+                                         indentSize: indentSize,
+                                         defaultTrailingBlankLines: defaultTrailingBlankLines);
+
+        foreach (string item in items)
+        {
+            builder.AddItem(item);
+        }
+
+        return builder;
     }
 
     public string Render()
-    {
-        return Build().Render();
-    }
+        => Build().Render();
 
     public TextBuilder SaveList()
     {
-        if (_saved) throw new Exception($"Cannot {nameof(SaveList)}, {nameof(TextListBuilder)} already saved.");
+        if (_saved)
+        {
+            throw new Exception($"Cannot {nameof(SaveList)}, {nameof(TextListBuilder)} already saved.");
+        }
 
         _saved = true;
 
@@ -39,16 +55,12 @@ public partial class TextListBuilder : ITextBuilder
     }
 
     public TextListItemBuilder StartItem(string id = null, string indicator = null, string separator = ":")
-    {
-        return new TextListItemBuilder(this).Id(id)
-                                            .Indicator(indicator)
-                                            .Separator(separator);
-    }
+        => new TextListItemBuilder(this).Id(id)
+                                        .Indicator(indicator)
+                                        .Separator(separator);
 
     public override string ToString()
-    {
-        return Render();
-    }
+        => Render();
 }
 
 public partial class TextListBuilder
@@ -85,88 +97,90 @@ public partial class TextListBuilder
                                    string indicator = null,
                                    string separator = null,
                                    int? trailingBlankLines = null)
-    {
-        return StartItem().Id(id)
-                          .Indicator(indicator)
-                          .Separator(separator ?? _separator)
-                          .Add(builder)
-                          .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
-                          .SaveItem();
-    }
+        => StartItem().Id(id)
+                      .Indicator(indicator)
+                      .Separator(separator ?? _separator)
+                      .Add(builder)
+                      .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
+                      .SaveItem();
 
     public TextListBuilder AddItem(TextHangSectionBuilder builder,
                                    string id = null,
                                    string indicator = null,
                                    string separator = null,
                                    int? trailingBlankLines = null)
-    {
-        return StartItem().Id(id)
-                          .Indicator(indicator)
-                          .Separator(separator ?? _separator)
-                          .Add(builder)
-                          .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
-                          .SaveItem();
-    }
+        => StartItem().Id(id)
+                      .Indicator(indicator)
+                      .Separator(separator ?? _separator)
+                      .Add(builder)
+                      .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
+                      .SaveItem();
 
-    public TextListBuilder AddItem(TextListBuilder builder, string id = null, string indicator = null, string separator = null, int? trailingBlankLines = null)
-    {
-        return StartItem().Id(id)
-                          .Indicator(indicator)
-                          .Add(builder)
-                          .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
-                          .SaveItem();
-    }
+    public TextListBuilder AddItem(TextListBuilder builder,
+                                   string id = null,
+                                   string indicator = null,
+                                   string separator = null,
+                                   int? trailingBlankLines = null)
+        => StartItem().Id(id)
+                      .Indicator(indicator)
+                      .Add(builder)
+                      .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
+                      .SaveItem();
 
     public TextListBuilder AddItem(TextFieldSetBuilder builder,
                                    string id = null,
                                    string indicator = null,
                                    string separator = null,
                                    int? trailingBlankLines = null)
-    {
-        return StartItem().Id(id)
-                          .Indicator(indicator)
-                          .Separator(separator ?? _separator)
-                          .Add(builder)
-                          .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
-                          .SaveItem();
-    }
+        => StartItem().Id(id)
+                      .Indicator(indicator)
+                      .Separator(separator ?? _separator)
+                      .Add(builder)
+                      .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
+                      .SaveItem();
 
-    public TextListBuilder AddItem(TextTableBuilder builder, string id = null, string indicator = null, string separator = null, int? trailingBlankLines = null)
-    {
-        return StartItem().Id(id)
-                          .Indicator(indicator)
-                          .Separator(separator ?? _separator)
-                          .AddLine(builder.Render())
-                          .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
-                          .SaveItem();
-    }
+    public TextListBuilder AddItem(TextTableBuilder builder,
+                                   string id = null,
+                                   string indicator = null,
+                                   string separator = null,
+                                   int? trailingBlankLines = null)
+        => StartItem().Id(id)
+                      .Indicator(indicator)
+                      .Separator(separator ?? _separator)
+                      .AddLine(builder.Render())
+                      .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
+                      .SaveItem();
 
-    public TextListBuilder AddItem(string body, string id = null, string indicator = null, string separator = null, int? trailingBlankLines = null)
-    {
-        return StartItem().Id(id)
-                          .Indicator(indicator)
-                          .Separator(separator ?? _separator)
-                          .AddLine(body)
-                          .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
-                          .SaveItem();
-    }
+    public TextListBuilder AddItem(string body,
+                                   string id = null,
+                                   string indicator = null,
+                                   string separator = null,
+                                   int? trailingBlankLines = null)
+        => StartItem().Id(id)
+                      .Indicator(indicator)
+                      .Separator(separator ?? _separator)
+                      .AddLine(body)
+                      .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
+                      .SaveItem();
 
-    public TextListBuilder AddItem(ITextBuilder body, string id = null, string indicator = null, string separator = null, int? trailingBlankLines = null)
-    {
-        return StartItem().Id(id)
-                          .Indicator(indicator)
-                          .Separator(separator ?? _separator)
-                          .Add(body)
-                          .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
-                          .SaveItem();
-    }
+    public TextListBuilder AddItem(ITextBuilder body,
+                                   string id = null,
+                                   string indicator = null,
+                                   string separator = null,
+                                   int? trailingBlankLines = null)
+        => StartItem().Id(id)
+                      .Indicator(indicator)
+                      .Separator(separator ?? _separator)
+                      .Add(body)
+                      .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
+                      .SaveItem();
 
     public TextListBuilder AddItem(Action<TextBuilder> bodyFactory,
                                    string id = null,
                                    string indicator = null,
                                    string separator = null)
     {
-        TextBuilder bodyBuilder = TextBuilder.Create();
+        var bodyBuilder = TextBuilder.Create();
         bodyFactory(bodyBuilder);
 
         AddItem(new TextListItemModel(Indicator: indicator,

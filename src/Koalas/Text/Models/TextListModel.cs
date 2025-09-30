@@ -1,4 +1,6 @@
-﻿namespace Koalas.Text.Models;
+﻿using System.Collections.Generic;
+
+namespace Koalas.Text.Models;
 
 public record class TextListModel(IReadOnlyList<TextListItemModel> Items) : IRender
 {

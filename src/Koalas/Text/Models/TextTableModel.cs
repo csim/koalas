@@ -1,4 +1,9 @@
-﻿namespace Koalas.Text.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Koalas.Text.Models;
 
 public record class TextTableModel(List<ITextColumn> Columns,
                                    List<ITextRow> Rows,
@@ -15,7 +20,10 @@ public record class TextTableModel(List<ITextColumn> Columns,
 
     public string Render()
     {
-        if (!Columns.Any() || !Rows.Any()) return string.Empty;
+        if (!Columns.Any() || !Rows.Any())
+        {
+            return string.Empty;
+        }
 
         ComputeLayout();
 
@@ -38,7 +46,10 @@ public record class TextTableModel(List<ITextColumn> Columns,
 
         string ret = output.ToString().TrimEnd('\r', '\n') + Environment.NewLine;
 
-        if (!limitReached) return ret;
+        if (!limitReached)
+        {
+            return ret;
+        }
 
         int totalDataRowCount = Rows.Count(r => r is DataTextRow);
         ret += $"[{totalDataRowCount - RowLimit.Value:N0} more]{Environment.NewLine}";
@@ -106,7 +117,7 @@ public record class TextTableModel(List<ITextColumn> Columns,
         {
             IReadOnlyList<IDynamicWidthTextColumn> dynamicColumns = (from col in Columns
                                                                      where col is IDynamicWidthTextColumn
-                                                                     let dynamicCol = (IDynamicWidthTextColumn) col
+                                                                     let dynamicCol = (IDynamicWidthTextColumn)col
                                                                      orderby dynamicCol.Index descending
                                                                      select dynamicCol).ToList();
             foreach (IDynamicWidthTextColumn column in dynamicColumns.Where(col => col.LeftPadding == null)
@@ -128,10 +139,16 @@ public record class TextTableModel(List<ITextColumn> Columns,
 
             foreach (IDynamicWidthTextColumn dynamicColumn in dynamicColumns)
             {
-                if (dynamicColumn.RightPadding is > 0) Columns.Insert(dynamicColumn.Index + 1, new PaddingTextColumn(dynamicColumn.RightPadding.Value));
+                if (dynamicColumn.RightPadding is > 0)
+                {
+                    Columns.Insert(dynamicColumn.Index + 1, new PaddingTextColumn(dynamicColumn.RightPadding.Value));
+                }
 
                 // ReSharper disable once InvertIf
-                if (dynamicColumn.LeftPadding > 0) Columns.Insert(dynamicColumn.Index, new PaddingTextColumn(dynamicColumn.LeftPadding.Value));
+                if (dynamicColumn.LeftPadding > 0)
+                {
+                    Columns.Insert(dynamicColumn.Index, new PaddingTextColumn(dynamicColumn.LeftPadding.Value));
+                }
             }
         }
 
@@ -143,7 +160,10 @@ public record class TextTableModel(List<ITextColumn> Columns,
                                     from partition in col.Lines(row)
                                     select partition;
 
-            if (x.Any(y => y == null)) Console.Write("x");
+            if (x.Any(y => y == null))
+            {
+                Console.Write("x");
+            }
 
             IReadOnlyList<int> partitionLengths = (from row in Rows
                                                    from partition in col.Lines(row)
@@ -157,20 +177,34 @@ public record class TextTableModel(List<ITextColumn> Columns,
                 dynamicCol.Width = Math.Max(dynamicCol.MinimumWidth, Math.Max(headingWidth, dataWidth));
             }
             else
+            {
                 col.Width = dataWidth;
+            }
         }
 
         // Resolve outer border
         ComputeMeta();
         if (!_layoutBorderComputed && _outerBorders)
         {
-            if (Columns[0] is not IBorderTextColumn) Columns.Insert(0, new SingleBorderTextColumn());
+            if (Columns[0] is not IBorderTextColumn)
+            {
+                Columns.Insert(0, new SingleBorderTextColumn());
+            }
 
-            if (Columns[Columns.Count - 1] is not IBorderTextColumn) Columns.Add(new SingleBorderTextColumn());
+            if (Columns[Columns.Count - 1] is not IBorderTextColumn)
+            {
+                Columns.Add(new SingleBorderTextColumn());
+            }
 
-            if (Rows[0] is not IBorderTextRow) Rows.Insert(0, new SingleBorderTextRow());
+            if (Rows[0] is not IBorderTextRow)
+            {
+                Rows.Insert(0, new SingleBorderTextRow());
+            }
 
-            if (Rows[Rows.Count - 1] is not IBorderTextRow) Rows.Add(new SingleBorderTextRow());
+            if (Rows[Rows.Count - 1] is not IBorderTextRow)
+            {
+                Rows.Add(new SingleBorderTextRow());
+            }
         }
 
         ComputeMeta();

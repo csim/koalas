@@ -5,7 +5,5 @@ public record class TextFieldModel(string Label,
                                    string Format) : IRender
 {
     public string Render()
-    {
-        return string.Empty;
-    }
+        => string.Empty;
 }

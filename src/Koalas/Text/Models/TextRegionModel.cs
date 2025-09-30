@@ -1,4 +1,7 @@
-﻿namespace Koalas.Text.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace Koalas.Text.Models;
 
 public record class TextRegionModel(IReadOnlyList<IRender> Children,
                                     int IndentSize) : IRender
@@ -11,7 +14,10 @@ public record class TextRegionModel(IReadOnlyList<IRender> Children,
         {
             string childOutput = child.Render();
 
-            if (!childOutput.EndsWith(Environment.NewLine)) childOutput += Environment.NewLine;
+            if (!childOutput.EndsWith(Environment.NewLine))
+            {
+                childOutput += Environment.NewLine;
+            }
 
             output.Add(childOutput.Indent(IndentSize));
         }
