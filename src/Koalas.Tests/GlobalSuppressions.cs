@@ -3,6 +3,8 @@
 // Project-level suppressions either have no target or are given
 // a specific target and scoped to a namespace, type, member, etc.
 
+using System.Diagnostics.CodeAnalysis;
+
 [assembly: SuppressMessage("Usage", "CA2201:Do not raise reserved exception types", Justification = "<Pending>")]
 [assembly: SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "<Pending>")]
 [assembly: SuppressMessage("Globalization", "CA1304:Specify CultureInfo", Justification = "<Pending>")]

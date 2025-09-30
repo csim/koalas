@@ -1,6 +1,7 @@
 <Project>
   <PropertyGroup>
     <UseArtifactsOutput>true</UseArtifactsOutput>
+    <Root>$(MSBuildThisFileDirectory)/</Root>
     <ArtifactsPath>$([MSBuild]::NormalizePath($(Root), 'artifacts'))</ArtifactsPath>
 
     <!-- Enable EditorConfig analyzer support -->
