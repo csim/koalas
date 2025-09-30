@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Koalas.CommandLine", "Koala
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Koalas", "Koalas\Koalas.csproj", "{66EE36BB-18CF-4C97-847B-8F260CD0792A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Koalas.Tests", "Koalas.Tests\Koalas.Tests.csproj", "{8F5E0EAD-F2A4-4D59-A5B3-9C1E7A4F7557}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{66EE36BB-18CF-4C97-847B-8F260CD0792A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66EE36BB-18CF-4C97-847B-8F260CD0792A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66EE36BB-18CF-4C97-847B-8F260CD0792A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F5E0EAD-F2A4-4D59-A5B3-9C1E7A4F7557}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F5E0EAD-F2A4-4D59-A5B3-9C1E7A4F7557}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F5E0EAD-F2A4-4D59-A5B3-9C1E7A4F7557}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F5E0EAD-F2A4-4D59-A5B3-9C1E7A4F7557}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
