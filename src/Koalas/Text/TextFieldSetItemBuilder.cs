@@ -2,86 +2,20 @@
 
 public partial class TextFieldSetItemBuilder : IRender
 {
-    internal TextFieldSetItemBuilder(TextFieldSetBuilder parent)
-    {
-        _parent = parent;
-    }
-
     private string _format;
     private string _label;
     private readonly TextFieldSetBuilder _parent;
     private bool _saved;
     private TextBuilder _valueBuilder = TextBuilder.Create();
 
+    internal TextFieldSetItemBuilder(TextFieldSetBuilder parent)
+    {
+        _parent = parent;
+    }
+
     public TextBuilder Add(IRender subject)
         => _valueBuilder.Add(subject);
 
-    public string Render()
-    {
-        if (!_saved)
-        {
-            SaveField();
-        }
-
-        return _parent.Render();
-    }
-
-    public TextFieldSetBuilder SaveField()
-    {
-        if (_saved)
-        {
-            throw new Exception($"Cannot {nameof(SaveField)}, {nameof(TextFieldSetItemBuilder)} already saved.");
-        }
-
-        _saved = true;
-
-        return _parent.AddField(Build());
-    }
-
-    public override string ToString()
-        => Render();
-
-    private TextFieldModel Build()
-        => new(Label: _label,
-               Value: _valueBuilder.Build(),
-               Format: _format);
-}
-
-public partial class TextFieldSetItemBuilder
-{
-    public TextFieldSetItemBuilder Format(string format)
-    {
-        _format = format;
-
-        return this;
-    }
-
-    public TextFieldSetItemBuilder Label(string label)
-    {
-        _label = label;
-
-        return this;
-    }
-
-    public TextFieldSetItemBuilder Value(string value)
-    {
-        _valueBuilder = TextBuilder.Create()
-                                   .AddLine(value);
-
-        return this;
-    }
-
-    public TextFieldSetItemBuilder Value(ITextBuilder builder)
-    {
-        _valueBuilder = TextBuilder.Create()
-                                   .Add(builder);
-
-        return this;
-    }
-}
-
-public partial class TextFieldSetItemBuilder
-{
     public TextFieldSetItemBuilder AddBlankLine()
     {
         _valueBuilder.AddBlankLine();
@@ -238,6 +172,20 @@ public partial class TextFieldSetItemBuilder
         return this;
     }
 
+    public TextFieldSetItemBuilder Format(string format)
+    {
+        _format = format;
+
+        return this;
+    }
+
+    public TextFieldSetItemBuilder Label(string label)
+    {
+        _label = label;
+
+        return this;
+    }
+
     public TextFieldSetItemBuilder PopIndent(int count = 1)
     {
         _valueBuilder.PopIndent(count);
@@ -251,4 +199,50 @@ public partial class TextFieldSetItemBuilder
 
         return this;
     }
+
+    public string Render()
+    {
+        if (!_saved)
+        {
+            SaveField();
+        }
+
+        return _parent.Render();
+    }
+
+    public TextFieldSetBuilder SaveField()
+    {
+        if (_saved)
+        {
+            throw new Exception($"Cannot {nameof(SaveField)}, {nameof(TextFieldSetItemBuilder)} already saved.");
+        }
+
+        _saved = true;
+
+        return _parent.AddField(Build());
+    }
+
+    public override string ToString()
+        => Render();
+
+    public TextFieldSetItemBuilder Value(string value)
+    {
+        _valueBuilder = TextBuilder.Create()
+                                   .AddLine(value);
+
+        return this;
+    }
+
+    public TextFieldSetItemBuilder Value(ITextBuilder builder)
+    {
+        _valueBuilder = TextBuilder.Create()
+                                   .Add(builder);
+
+        return this;
+    }
+
+    private TextFieldModel Build()
+        => new(Label: _label,
+               Value: _valueBuilder.Build(),
+               Format: _format);
 }

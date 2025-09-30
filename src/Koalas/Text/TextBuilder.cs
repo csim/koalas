@@ -6,16 +6,16 @@ namespace Koalas.Text;
 
 public partial class TextBuilder : ITextBuilder
 {
-    private TextBuilder(int indentSize)
-    {
-        _defaultIndentSize = indentSize;
-    }
+    public int IndentSize { get; private set; }
 
     private readonly List<IRender> _children = [];
     private readonly int _defaultIndentSize;
     private readonly List<int> _indentStack = [];
 
-    public int IndentSize { get; private set; }
+    private TextBuilder(int indentSize)
+    {
+        _defaultIndentSize = indentSize;
+    }
 
     public TextBuilder Add(IRender model)
     {
@@ -32,61 +32,6 @@ public partial class TextBuilder : ITextBuilder
         return this;
     }
 
-    public IRender Build()
-        => new TextRegionModel(Children: _children,
-                               IndentSize: 0);
-
-    public static TextBuilder Create(int indentSize = 2)
-        => new(indentSize: indentSize);
-
-    public string Render()
-        => Build().Render();
-
-    public override string ToString()
-        => Render();
-}
-
-public partial class TextBuilder
-{
-    public TextFieldSetBuilder StartFieldSet(int minLabelWidth = 0,
-                                             int minValueWidth = 0,
-                                             int maxValueWidth = 1000,
-                                             string fieldSeparator = ":",
-                                             int labelRightPadding = 1,
-                                             int valueLeftPadding = 1,
-                                             bool labelRightAlign = false,
-                                             bool valueRightAlign = false,
-                                             int valueOverflowIndent = 0)
-        => new TextFieldSetBuilder(this).MinLabelWidth(minLabelWidth)
-                                        .MinValueWidth(minValueWidth)
-                                        .MaxValueWidth(maxValueWidth)
-                                        .FieldSeparator(fieldSeparator)
-                                        .LabelRightPadding(labelRightPadding)
-                                        .ValueLeftPadding(valueLeftPadding)
-                                        .LabelRightAlign(labelRightAlign)
-                                        .ValueRightAlign(valueRightAlign)
-                                        .ValueOverflowIndent(valueOverflowIndent);
-
-    public TextHangSectionBuilder StartHangSection(string heading = null)
-        => new TextHangSectionBuilder(this).Heading(heading);
-
-    public TextListBuilder StartList(string separator = ":", int defaultTrailingBlankLines = 0)
-        => new TextListBuilder(this).Separator(separator)
-                                    .DefaultTrailingBlankLines(defaultTrailingBlankLines);
-
-    public TextSectionBuilder StartSection(string heading = null)
-        => new TextSectionBuilder(this).Heading(heading);
-
-    public TextTableBuilder StartTable(TextTableBorder border = TextTableBorder.Default,
-                                       int defaultColumnPadding = 1,
-                                       int? defaultColumnMaxWidth = null)
-        => new TextTableBuilder(this).Border(border)
-                                     .DefaultColumnPadding(defaultColumnPadding)
-                                     .DefaultColumnMaxWidth(defaultColumnMaxWidth);
-}
-
-public partial class TextBuilder
-{
     public TextBuilder AddBlankLine()
         => Add(new TextLineModel(string.Empty));
 
@@ -295,6 +240,10 @@ public partial class TextBuilder
         return this;
     }
 
+    public IRender Build()
+        => new TextRegionModel(Children: _children,
+                               IndentSize: 0);
+
     public TextBuilder ClearIndent()
     {
         _indentStack.Clear();
@@ -302,6 +251,9 @@ public partial class TextBuilder
 
         return this;
     }
+
+    public static TextBuilder Create(int indentSize = 2)
+        => new(indentSize: indentSize);
 
     public TextBuilder PopIndent(int count = 1)
     {
@@ -342,4 +294,46 @@ public partial class TextBuilder
 
         return this;
     }
+
+    public string Render()
+        => Build().Render();
+
+    public TextFieldSetBuilder StartFieldSet(int minLabelWidth = 0,
+                                             int minValueWidth = 0,
+                                             int maxValueWidth = 1000,
+                                             string fieldSeparator = ":",
+                                             int labelRightPadding = 1,
+                                             int valueLeftPadding = 1,
+                                             bool labelRightAlign = false,
+                                             bool valueRightAlign = false,
+                                             int valueOverflowIndent = 0)
+        => new TextFieldSetBuilder(this).MinLabelWidth(minLabelWidth)
+                                        .MinValueWidth(minValueWidth)
+                                        .MaxValueWidth(maxValueWidth)
+                                        .FieldSeparator(fieldSeparator)
+                                        .LabelRightPadding(labelRightPadding)
+                                        .ValueLeftPadding(valueLeftPadding)
+                                        .LabelRightAlign(labelRightAlign)
+                                        .ValueRightAlign(valueRightAlign)
+                                        .ValueOverflowIndent(valueOverflowIndent);
+
+    public TextHangSectionBuilder StartHangSection(string heading = null)
+        => new TextHangSectionBuilder(this).Heading(heading);
+
+    public TextListBuilder StartList(string separator = ":", int defaultTrailingBlankLines = 0)
+        => new TextListBuilder(this).Separator(separator)
+                                    .DefaultTrailingBlankLines(defaultTrailingBlankLines);
+
+    public TextSectionBuilder StartSection(string heading = null)
+        => new TextSectionBuilder(this).Heading(heading);
+
+    public TextTableBuilder StartTable(TextTableBorder border = TextTableBorder.Default,
+                                       int defaultColumnPadding = 1,
+                                       int? defaultColumnMaxWidth = null)
+        => new TextTableBuilder(this).Border(border)
+                                     .DefaultColumnPadding(defaultColumnPadding)
+                                     .DefaultColumnMaxWidth(defaultColumnMaxWidth);
+
+    public override string ToString()
+        => Render();
 }

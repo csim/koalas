@@ -2,89 +2,17 @@
 
 public partial class TextListBuilder : ITextBuilder
 {
+    private int _defaultTrailingBlankLines;
+    private readonly List<TextListItemModel> _items = [];
+    private readonly TextBuilder _parent;
+    private bool _saved;
+    private string _separator;
+
     internal TextListBuilder(TextBuilder parent)
     {
         _parent = parent;
     }
 
-    private readonly List<TextListItemModel> _items = [];
-    private readonly TextBuilder _parent;
-    private bool _saved;
-
-    public IRender Build()
-        => new TextListModel(Items: _items);
-
-    public static TextListBuilder Create(string separator = ":",
-                                         int indentSize = 2,
-                                         int defaultTrailingBlankLines = 0)
-        => new TextListBuilder(TextBuilder.Create(indentSize: indentSize)).DefaultTrailingBlankLines(defaultTrailingBlankLines)
-                                                                          .Separator(separator);
-
-    public static TextListBuilder Create(IEnumerable<string> items,
-                                         string separator = ":",
-                                         int indentSize = 2,
-                                         int defaultTrailingBlankLines = 0)
-    {
-        TextListBuilder builder = Create(separator: separator,
-                                         indentSize: indentSize,
-                                         defaultTrailingBlankLines: defaultTrailingBlankLines);
-
-        foreach (string item in items)
-        {
-            builder.AddItem(item);
-        }
-
-        return builder;
-    }
-
-    public string Render()
-        => Build().Render();
-
-    public TextBuilder SaveList()
-    {
-        if (_saved)
-        {
-            throw new Exception($"Cannot {nameof(SaveList)}, {nameof(TextListBuilder)} already saved.");
-        }
-
-        _saved = true;
-
-        return _items.Count > 0
-                   ? _parent.Add(this)
-                   : _parent;
-    }
-
-    public TextListItemBuilder StartItem(string id = null, string indicator = null, string separator = ":")
-        => new TextListItemBuilder(this).Id(id)
-                                        .Indicator(indicator)
-                                        .Separator(separator);
-
-    public override string ToString()
-        => Render();
-}
-
-public partial class TextListBuilder
-{
-    private int _defaultTrailingBlankLines;
-    private string _separator;
-
-    public TextListBuilder DefaultTrailingBlankLines(int value)
-    {
-        _defaultTrailingBlankLines = value;
-
-        return this;
-    }
-
-    public TextListBuilder Separator(string separator)
-    {
-        _separator = separator;
-
-        return this;
-    }
-}
-
-public partial class TextListBuilder
-{
     public TextListBuilder AddItem(TextListItemModel model)
     {
         _items.Add(model);
@@ -190,4 +118,69 @@ public partial class TextListBuilder
 
         return this;
     }
+
+    public IRender Build()
+        => new TextListModel(Items: _items);
+
+    public static TextListBuilder Create(string separator = ":",
+                                         int indentSize = 2,
+                                         int defaultTrailingBlankLines = 0)
+        => new TextListBuilder(TextBuilder.Create(indentSize: indentSize)).DefaultTrailingBlankLines(defaultTrailingBlankLines)
+                                                                          .Separator(separator);
+
+    public static TextListBuilder Create(IEnumerable<string> items,
+                                         string separator = ":",
+                                         int indentSize = 2,
+                                         int defaultTrailingBlankLines = 0)
+    {
+        TextListBuilder builder = Create(separator: separator,
+                                         indentSize: indentSize,
+                                         defaultTrailingBlankLines: defaultTrailingBlankLines);
+
+        foreach (string item in items)
+        {
+            builder.AddItem(item);
+        }
+
+        return builder;
+    }
+
+    public TextListBuilder DefaultTrailingBlankLines(int value)
+    {
+        _defaultTrailingBlankLines = value;
+
+        return this;
+    }
+
+    public string Render()
+        => Build().Render();
+
+    public TextBuilder SaveList()
+    {
+        if (_saved)
+        {
+            throw new Exception($"Cannot {nameof(SaveList)}, {nameof(TextListBuilder)} already saved.");
+        }
+
+        _saved = true;
+
+        return _items.Count > 0
+                   ? _parent.Add(this)
+                   : _parent;
+    }
+
+    public TextListBuilder Separator(string separator)
+    {
+        _separator = separator;
+
+        return this;
+    }
+
+    public TextListItemBuilder StartItem(string id = null, string indicator = null, string separator = ":")
+        => new TextListItemBuilder(this).Id(id)
+                                        .Indicator(indicator)
+                                        .Separator(separator);
+
+    public override string ToString()
+        => Render();
 }

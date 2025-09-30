@@ -2,10 +2,7 @@
 
 public partial class TextFieldSetBuilder : ITextBuilder
 {
-    internal TextFieldSetBuilder(TextBuilder parent)
-    {
-        _parent = parent;
-    }
+    public int Count => _items.Count;
 
     private readonly List<TextFieldModel> _items = [];
     private bool _labelRightAlign;
@@ -21,141 +18,11 @@ public partial class TextFieldSetBuilder : ITextBuilder
     private int _valueOverflowIndent;
     private bool _valueRightAlign;
 
-    public int Count => _items.Count;
-
-    public IRender Build()
-        => new TextFieldSetModel(Items: _items,
-                                 Separator: _separator,
-                                 MinLabelWidth: _minLabelWidth,
-                                 LabelRightPadding: _labelRightPadding,
-                                 LabelRightAlign: _labelRightAlign,
-                                 MinValueWidth: _minValueWidth,
-                                 MaxValueWidth: _maxValueWidth,
-                                 ValueLeftPadding: _valueLeftPadding,
-                                 ValueRightAlign: _valueRightAlign,
-                                 ValueOverflowIndent: _valueOverflowIndent,
-                                 NullProjection: _nullProjection);
-
-    public static TextFieldSetBuilder Create(int minLabelWidth = 0,
-                                             int minValueWidth = 0,
-                                             int maxValueWidth = 1000,
-                                             string fieldSeparator = ":",
-                                             int labelRightPadding = 1,
-                                             int valueLeftPadding = 1,
-                                             bool labelRightAlign = false,
-                                             bool valueRightAlign = false,
-                                             int valueOverflowIndent = 0)
-        => new TextFieldSetBuilder(TextBuilder.Create()).MinLabelWidth(minLabelWidth)
-                                                        .MinValueWidth(minValueWidth)
-                                                        .MaxValueWidth(maxValueWidth)
-                                                        .FieldSeparator(fieldSeparator)
-                                                        .LabelRightPadding(labelRightPadding)
-                                                        .ValueLeftPadding(valueLeftPadding)
-                                                        .LabelRightAlign(labelRightAlign)
-                                                        .ValueRightAlign(valueRightAlign)
-                                                        .ValueOverflowIndent(valueOverflowIndent);
-
-    public string Render()
-        => Build().Render();
-
-    public TextBuilder SaveFieldSet()
+    internal TextFieldSetBuilder(TextBuilder parent)
     {
-        if (_saved)
-        {
-            throw new Exception($"Cannot {nameof(SaveFieldSet)}, {nameof(TextFieldSetBuilder)} already saved.");
-        }
-
-        _saved = true;
-
-
-
-        return _items.Count > 0
-                   ? _parent.Add(this)
-                   : _parent;
+        _parent = parent;
     }
 
-    public TextFieldSetItemBuilder StartField()
-        => new(this);
-
-    public override string ToString()
-        => Render();
-}
-
-public partial class TextFieldSetBuilder
-{
-    public TextFieldSetBuilder FieldSeparator(string fieldSeparator)
-    {
-        _separator = fieldSeparator;
-
-        return this;
-    }
-
-    public TextFieldSetBuilder LabelRightAlign(bool labelRightAlign)
-    {
-        _labelRightAlign = labelRightAlign;
-
-        return this;
-    }
-
-    public TextFieldSetBuilder LabelRightPadding(int labelRightPadding)
-    {
-        _labelRightPadding = labelRightPadding;
-
-        return this;
-    }
-
-    public TextFieldSetBuilder MaxValueWidth(int maxValueWidth)
-    {
-        _maxValueWidth = maxValueWidth;
-
-        return this;
-    }
-
-    public TextFieldSetBuilder MinLabelWidth(int minLabelWidth)
-    {
-        _minLabelWidth = minLabelWidth;
-
-        return this;
-    }
-
-    public TextFieldSetBuilder MinValueWidth(int minValueWidth)
-    {
-        _minValueWidth = minValueWidth;
-
-        return this;
-    }
-
-    public TextFieldSetBuilder NullProjection(string nullProjection)
-    {
-        _nullProjection = nullProjection;
-
-        return this;
-    }
-
-    public TextFieldSetBuilder ValueLeftPadding(int valueLeftPadding)
-    {
-        _valueLeftPadding = valueLeftPadding;
-
-        return this;
-    }
-
-    public TextFieldSetBuilder ValueOverflowIndent(int valueOverflowIndent)
-    {
-        _valueOverflowIndent = valueOverflowIndent;
-
-        return this;
-    }
-
-    public TextFieldSetBuilder ValueRightAlign(bool valueRightAlign)
-    {
-        _valueRightAlign = valueRightAlign;
-
-        return this;
-    }
-}
-
-public partial class TextFieldSetBuilder
-{
     public TextFieldSetBuilder AddField(string label, object value)
         => StartField().Label(label)
                        .Value(value.Render())
@@ -211,6 +78,133 @@ public partial class TextFieldSetBuilder
     public TextFieldSetBuilder AddField(TextFieldModel field)
     {
         _items.Add(field);
+
+        return this;
+    }
+
+    public IRender Build()
+        => new TextFieldSetModel(Items: _items,
+                                 Separator: _separator,
+                                 MinLabelWidth: _minLabelWidth,
+                                 LabelRightPadding: _labelRightPadding,
+                                 LabelRightAlign: _labelRightAlign,
+                                 MinValueWidth: _minValueWidth,
+                                 MaxValueWidth: _maxValueWidth,
+                                 ValueLeftPadding: _valueLeftPadding,
+                                 ValueRightAlign: _valueRightAlign,
+                                 ValueOverflowIndent: _valueOverflowIndent,
+                                 NullProjection: _nullProjection);
+
+    public static TextFieldSetBuilder Create(int minLabelWidth = 0,
+                                             int minValueWidth = 0,
+                                             int maxValueWidth = 1000,
+                                             string fieldSeparator = ":",
+                                             int labelRightPadding = 1,
+                                             int valueLeftPadding = 1,
+                                             bool labelRightAlign = false,
+                                             bool valueRightAlign = false,
+                                             int valueOverflowIndent = 0)
+        => new TextFieldSetBuilder(TextBuilder.Create()).MinLabelWidth(minLabelWidth)
+                                                        .MinValueWidth(minValueWidth)
+                                                        .MaxValueWidth(maxValueWidth)
+                                                        .FieldSeparator(fieldSeparator)
+                                                        .LabelRightPadding(labelRightPadding)
+                                                        .ValueLeftPadding(valueLeftPadding)
+                                                        .LabelRightAlign(labelRightAlign)
+                                                        .ValueRightAlign(valueRightAlign)
+                                                        .ValueOverflowIndent(valueOverflowIndent);
+
+    public TextFieldSetBuilder FieldSeparator(string fieldSeparator)
+    {
+        _separator = fieldSeparator;
+
+        return this;
+    }
+
+    public TextFieldSetBuilder LabelRightAlign(bool labelRightAlign)
+    {
+        _labelRightAlign = labelRightAlign;
+
+        return this;
+    }
+
+    public TextFieldSetBuilder LabelRightPadding(int labelRightPadding)
+    {
+        _labelRightPadding = labelRightPadding;
+
+        return this;
+    }
+
+    public TextFieldSetBuilder MaxValueWidth(int maxValueWidth)
+    {
+        _maxValueWidth = maxValueWidth;
+
+        return this;
+    }
+
+    public TextFieldSetBuilder MinLabelWidth(int minLabelWidth)
+    {
+        _minLabelWidth = minLabelWidth;
+
+        return this;
+    }
+
+    public TextFieldSetBuilder MinValueWidth(int minValueWidth)
+    {
+        _minValueWidth = minValueWidth;
+
+        return this;
+    }
+
+    public TextFieldSetBuilder NullProjection(string nullProjection)
+    {
+        _nullProjection = nullProjection;
+
+        return this;
+    }
+
+    public string Render()
+        => Build().Render();
+
+    public TextBuilder SaveFieldSet()
+    {
+        if (_saved)
+        {
+            throw new Exception($"Cannot {nameof(SaveFieldSet)}, {nameof(TextFieldSetBuilder)} already saved.");
+        }
+
+        _saved = true;
+
+
+
+        return _items.Count > 0
+                   ? _parent.Add(this)
+                   : _parent;
+    }
+
+    public TextFieldSetItemBuilder StartField()
+        => new(this);
+
+    public override string ToString()
+        => Render();
+
+    public TextFieldSetBuilder ValueLeftPadding(int valueLeftPadding)
+    {
+        _valueLeftPadding = valueLeftPadding;
+
+        return this;
+    }
+
+    public TextFieldSetBuilder ValueOverflowIndent(int valueOverflowIndent)
+    {
+        _valueOverflowIndent = valueOverflowIndent;
+
+        return this;
+    }
+
+    public TextFieldSetBuilder ValueRightAlign(bool valueRightAlign)
+    {
+        _valueRightAlign = valueRightAlign;
 
         return this;
     }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Koalas.Text.Models;
+﻿namespace Koalas.Text.Models;
 
 public record class TextLineModel(string Text) : IRender
 {

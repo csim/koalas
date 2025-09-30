@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Koalas.Text.Models;
+﻿namespace Koalas.Text.Models;
 
 public record class TextTableModel(List<ITextColumn> Columns,
                                    List<ITextRow> Rows,

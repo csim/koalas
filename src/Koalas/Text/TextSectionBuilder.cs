@@ -2,17 +2,17 @@
 
 public partial class TextSectionBuilder : ITextBuilder
 {
-    internal TextSectionBuilder(TextBuilder parent)
-    {
-        _parent = parent;
-        _bodyBuilder = TextBuilder.Create(indentSize: parent.IndentSize);
-    }
-
     private readonly TextBuilder _bodyBuilder;
     private string _heading = string.Empty;
     private string _headingSuffix = string.Empty;
     private readonly TextBuilder _parent;
     private bool _saved;
+
+    internal TextSectionBuilder(TextBuilder parent)
+    {
+        _parent = parent;
+        _bodyBuilder = TextBuilder.Create(indentSize: parent.IndentSize);
+    }
 
     public TextSectionBuilder Add(ITextBuilder subject)
     {
@@ -21,52 +21,6 @@ public partial class TextSectionBuilder : ITextBuilder
         return this;
     }
 
-    public IRender Build()
-        => new TextSectionModel(Heading: _heading,
-                                Body: _bodyBuilder.Build(),
-                                HeadingSuffix: _headingSuffix);
-
-    public static TextSectionBuilder Create(int indentSize = 2)
-        => new(TextBuilder.Create(indentSize: 2));
-
-    public string Render()
-        => Build().Render();
-
-    public TextBuilder SaveSection()
-    {
-        if (_saved)
-        {
-            throw new Exception($"Cannot {nameof(SaveSection)}, {nameof(TextSectionBuilder)} already saved.");
-        }
-
-        _saved = true;
-
-        return _parent.Add(this);
-    }
-
-    public override string ToString()
-        => Render();
-}
-
-public partial class TextSectionBuilder
-{
-    public TextSectionBuilder Heading(string heading)
-    {
-        _heading = heading;
-
-        return this;
-    }
-
-    public TextSectionBuilder HeadingSuffix(string headingSuffix)
-    {
-        _headingSuffix = headingSuffix;
-
-        return this;
-    }
-}
-
-public partial class TextSectionBuilder
-{
     public TextSectionBuilder AddBlankLine()
     {
         _bodyBuilder.AddBlankLine();
@@ -166,9 +120,31 @@ public partial class TextSectionBuilder
                                        formatCellValue: formatCellValue,
                                        includeIdentityColumn: includeIdentityColumn));
 
+    public IRender Build()
+        => new TextSectionModel(Heading: _heading,
+                                Body: _bodyBuilder.Build(),
+                                HeadingSuffix: _headingSuffix);
+
     public TextSectionBuilder ClearIndent()
     {
         _bodyBuilder.ClearIndent();
+
+        return this;
+    }
+
+    public static TextSectionBuilder Create(int indentSize = 2)
+        => new(TextBuilder.Create(indentSize: 2));
+
+    public TextSectionBuilder Heading(string heading)
+    {
+        _heading = heading;
+
+        return this;
+    }
+
+    public TextSectionBuilder HeadingSuffix(string headingSuffix)
+    {
+        _headingSuffix = headingSuffix;
 
         return this;
     }
@@ -186,4 +162,22 @@ public partial class TextSectionBuilder
 
         return this;
     }
+
+    public string Render()
+        => Build().Render();
+
+    public TextBuilder SaveSection()
+    {
+        if (_saved)
+        {
+            throw new Exception($"Cannot {nameof(SaveSection)}, {nameof(TextSectionBuilder)} already saved.");
+        }
+
+        _saved = true;
+
+        return _parent.Add(this);
+    }
+
+    public override string ToString()
+        => Render();
 }

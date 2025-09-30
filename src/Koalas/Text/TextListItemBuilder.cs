@@ -2,17 +2,17 @@
 
 public partial class TextListItemBuilder : IRender
 {
-    internal TextListItemBuilder(TextListBuilder parent)
-    {
-        _parent = parent;
-    }
-
     private readonly TextBuilder _bodyBuilder = TextBuilder.Create();
     private string _id;
     private string _indicator;
     private readonly TextListBuilder _parent;
     private bool _saved;
     private string _separator;
+
+    internal TextListItemBuilder(TextListBuilder parent)
+    {
+        _parent = parent;
+    }
 
     public TextListItemBuilder Add(IRender subject)
     {
@@ -21,64 +21,6 @@ public partial class TextListItemBuilder : IRender
         return this;
     }
 
-    public string Render()
-    {
-        if (!_saved)
-        {
-            SaveItem();
-        }
-
-        return _parent.Render();
-    }
-
-    public TextListBuilder SaveItem()
-    {
-        if (_saved)
-        {
-            throw new Exception($"Cannot {nameof(SaveItem)}, {nameof(TextListItemBuilder)} already saved.");
-        }
-
-        _saved = true;
-
-        return _parent.AddItem(Build());
-    }
-
-    public override string ToString()
-        => Render();
-
-    private TextListItemModel Build()
-        => new(Body: _bodyBuilder.Build(),
-               Id: _id,
-               Separator: _separator,
-               Indicator: _indicator);
-}
-
-public partial class TextListItemBuilder
-{
-    public TextListItemBuilder Id(string id)
-    {
-        _id = id;
-
-        return this;
-    }
-
-    public TextListItemBuilder Indicator(string indicator)
-    {
-        _indicator = indicator;
-
-        return this;
-    }
-
-    public TextListItemBuilder Separator(string separator)
-    {
-        _separator = separator;
-
-        return this;
-    }
-}
-
-public partial class TextListItemBuilder
-{
     public TextListItemBuilder AddBlankLine()
     {
         _bodyBuilder.AddBlankLine();
@@ -237,6 +179,20 @@ public partial class TextListItemBuilder
         return this;
     }
 
+    public TextListItemBuilder Id(string id)
+    {
+        _id = id;
+
+        return this;
+    }
+
+    public TextListItemBuilder Indicator(string indicator)
+    {
+        _indicator = indicator;
+
+        return this;
+    }
+
     public TextListItemBuilder PopIndent(int count = 1)
     {
         _bodyBuilder.PopIndent(count);
@@ -250,4 +206,42 @@ public partial class TextListItemBuilder
 
         return this;
     }
+
+    public string Render()
+    {
+        if (!_saved)
+        {
+            SaveItem();
+        }
+
+        return _parent.Render();
+    }
+
+    public TextListBuilder SaveItem()
+    {
+        if (_saved)
+        {
+            throw new Exception($"Cannot {nameof(SaveItem)}, {nameof(TextListItemBuilder)} already saved.");
+        }
+
+        _saved = true;
+
+        return _parent.AddItem(Build());
+    }
+
+    public TextListItemBuilder Separator(string separator)
+    {
+        _separator = separator;
+
+        return this;
+    }
+
+    public override string ToString()
+        => Render();
+
+    private TextListItemModel Build()
+        => new(Body: _bodyBuilder.Build(),
+               Id: _id,
+               Separator: _separator,
+               Indicator: _indicator);
 }
