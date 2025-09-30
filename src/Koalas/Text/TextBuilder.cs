@@ -225,7 +225,7 @@ public partial class TextBuilder : ITextBuilder
         AddLine(text);
 
         int length = text.Length;
-        if (text.Contains("\n"))
+        if (text.Contains('\n'))
         {
             length = text.Lines()
                          .Max(t => t.Length);

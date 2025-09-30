@@ -139,7 +139,7 @@ public static partial class LinqExtension
 
     public static IReadOnlyList<T> ToReadOnlyList<T>(this IEnumerable<T> subject)
     {
-        return subject as IReadOnlyList<T> ?? (IReadOnlyList<T>)subject?.ToList() ?? new T[0];
+        return subject as IReadOnlyList<T> ?? (IReadOnlyList<T>)subject?.ToList() ?? [];
     }
 
     public static bool TryFirst<T>(this IEnumerable<T> subject, out T item)

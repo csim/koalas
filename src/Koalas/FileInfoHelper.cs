@@ -86,7 +86,7 @@ public static class FileInfoHelper
     {
         prefix ??= $"{DateTime.UtcNow:yyyyMMdd-HHmmss}_";
 
-        if (!prefix.EndsWith("_")) prefix = $"{prefix}_";
+        if (!prefix.EndsWith('_')) prefix = $"{prefix}_";
 
         List<FileInfo> files = [];
         int fileId = 1;

@@ -3,12 +3,12 @@
 using System.Linq;
 using Koalas.Extensions;
 
-public static class Program {
-    public static string X = "11";
-
+public static class Program
+{
     public static string Pro1 { get; set; }
 
-    public static void Main(string[] args) {
+    public static void Main(string[] args)
+    {
         var items = new[] {
                               new { Name = "Name1", Count = 4d },
                               new { Name = "Name2", Count = 5d },
@@ -22,13 +22,11 @@ public static class Program {
                           };
 
         items //.PrintCount()
-            //.Print(limit: 6, select: i => i.Name)
-            //.Print(limit: 6, where: i => i.Name.Contains("7"), select: i => i.Name)
-            //.PrintJsonLine(limit: 6, where: i => i.Name.Contains("7"), select: i => new { i.Name })
-            //.PrintJsonLine()
-            .Where(i => i.Count > 5)
-            .PrintJsonLine()
-            ;
+              //.Print(limit: 6, select: i => i.Name)
+              //.Print(limit: 6, where: i => i.Name.Contains("7"), select: i => i.Name)
+              //.PrintJsonLine(limit: 6, where: i => i.Name.Contains("7"), select: i => new { i.Name })
+              //.PrintJsonLine()
+            .Where(i => i.Count > 5).PrintJsonLine();
 
         //new[] { "1", "2", "3", "4", "5", "6" }.PrintJson();
 

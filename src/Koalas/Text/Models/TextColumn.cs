@@ -31,11 +31,11 @@ public class DoubleBorderTextColumn : TextColumnBase, IBorderTextColumn
     public override IReadOnlyList<string> Lines(ITextRow row)
         => _lines ??= [FormatValue(row)];
 
-    public override void Render(StringBuilder output, ITextRow row, int lineIndex)
+    public override void Render(StringBuilder output, ITextRow row, int partitionIndex)
     {
         if (row is IBorderTextRow borderRow)
         {
-            output.Append(borderRow.DoubleJunction(this, row).ToString());
+            output.Append(borderRow.DoubleJunction(this, row));
 
             return;
         }
@@ -66,7 +66,7 @@ public class PaddingTextColumn(int width) : TextColumnBase
     public override IReadOnlyList<string> Lines(ITextRow row)
         => [new(Space, width)];
 
-    public override void Render(StringBuilder output, ITextRow row, int lineIndex)
+    public override void Render(StringBuilder output, ITextRow row, int partitionIndex)
     {
         if (row is IBorderTextRow borderRow)
         {
@@ -87,17 +87,17 @@ public class SingleBorderTextColumn : TextColumnBase, IBorderTextColumn
 
     private IReadOnlyList<string> _lines;
 
-    public string FormatValue(ITextRow row)
+    public static string FormatValue(ITextRow row)
         => VerticalBar.ToString();
 
     public override IReadOnlyList<string> Lines(ITextRow row)
         => _lines ??= [FormatValue(row)];
 
-    public override void Render(StringBuilder output, ITextRow row, int lineIndex)
+    public override void Render(StringBuilder output, ITextRow row, int partitionIndex)
     {
         if (row is IBorderTextRow borderRow)
         {
-            output.Append(borderRow.SingleJunction(this, row).ToString());
+            output.Append(borderRow.SingleJunction(this, row));
 
             return;
         }
@@ -124,7 +124,7 @@ public class StaticTextColumn : TextColumnBase
     public override IReadOnlyList<string> Lines(ITextRow row)
         => _lines ??= [Text];
 
-    public override void Render(StringBuilder output, ITextRow row, int lineIndex)
+    public override void Render(StringBuilder output, ITextRow row, int partitionIndex)
     {
         string blank = new(Space, Width);
         string fdata = FormatValue(row);
@@ -143,7 +143,7 @@ public class StaticTextColumn : TextColumnBase
             return;
         }
 
-        output.Append(lineIndex > 0 && !ShowInRowExtraLines
+        output.Append(partitionIndex > 0 && !ShowInRowExtraLines
                           ? blank
                           : ShowInRow
                               ? fdata
@@ -211,7 +211,7 @@ public abstract class TextColumnBase : ITextColumn
 
     public abstract IReadOnlyList<string> Lines(ITextRow row);
 
-    public virtual void Render(StringBuilder output, ITextRow row, int lineIndex)
+    public virtual void Render(StringBuilder output, ITextRow row, int partitionIndex)
     {
         if (row is HeadingTextRow)
         {
@@ -228,8 +228,8 @@ public abstract class TextColumnBase : ITextColumn
         }
 
         IReadOnlyList<string> lines = Lines(row);
-        string line = 0 <= lineIndex && lineIndex < lines.Count
-                          ? lines[lineIndex] ?? string.Empty
+        string line = 0 <= partitionIndex && partitionIndex < lines.Count
+                          ? lines[partitionIndex] ?? string.Empty
                           : string.Empty;
 
         output.Append(AlignRight

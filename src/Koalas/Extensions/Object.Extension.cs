@@ -90,7 +90,7 @@ public static partial class ObjectExtension
     {
         return subject == null
                    ? "null"
-                   : subject.Contains("\n")
+                   : subject.Contains('\n')
                        ? $"\"\"\"{Environment.NewLine}{subject}{Environment.NewLine}\"\"\""
                        : subject.ToLiteral().Replace(@"\\", @"\");
     }

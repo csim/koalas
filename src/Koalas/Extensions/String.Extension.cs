@@ -47,7 +47,7 @@ public static partial class StringExtensions
 
     public static bool ContainsIgnoreCase(this string subject, string target)
     {
-        return subject.IndexOf(target, StringComparison.OrdinalIgnoreCase) >= 0;
+        return subject.Contains(target, StringComparison.OrdinalIgnoreCase);
     }
 
     public static string Decompress(this string base64Content)
