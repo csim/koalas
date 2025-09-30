@@ -157,7 +157,7 @@ public record class TextTableModel(List<ITextColumn> Columns,
 
             if (x.Any(y => y == null))
             {
-                Console.Write("x");
+                Console.Write('x');
             }
 
             IReadOnlyList<int> partitionLengths = (from row in Rows

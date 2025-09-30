@@ -1,4 +1,6 @@
-﻿namespace Koalas.Extensions;
+﻿#nullable enable
+
+namespace Koalas.Extensions;
 
 public static class FileInfoExtensions
 {
