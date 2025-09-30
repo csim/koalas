@@ -3,6 +3,7 @@
 // Project-level suppressions either have no target or are given
 // a specific target and scoped to a namespace, type, member, etc.
 
+
 [assembly: SuppressMessage("Usage", "CA2201:Do not raise reserved exception types", Justification = "<Pending>")]
 [assembly: SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "<Pending>")]
 [assembly: SuppressMessage("Globalization", "CA1304:Specify CultureInfo", Justification = "<Pending>")]
@@ -10,4 +11,4 @@
 [assembly: SuppressMessage("Globalization", "CA1310:Specify StringComparison for correctness", Justification = "<Pending>")]
 [assembly: SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "<Pending>")]
 [assembly: SuppressMessage("Performance", "CA1860:Avoid using 'Enumerable.Any()' extension method", Justification = "<Pending>")]
-
+[assembly: SuppressMessage("Globalization", "CA1307:Specify StringComparison for clarity", Justification = "<Pending>", Scope = "member", Target = "~M:Koalas.Extensions.StringExtensions.ToAnonymizedString(System.String)~System.String")]
