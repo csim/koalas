@@ -6,6 +6,13 @@
     <Title>Notebook ready C# data science tools and utilities inspired by Python pandas module.</Title>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Nullable>enable</Nullable>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>All</AnalysisMode>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
   </PropertyGroup>
 
   <ItemGroup>
