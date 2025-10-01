@@ -225,7 +225,7 @@ public static class PrintExtensions
 
                 return filename == null || lineNumber is null or 0
                     ? null
-                    : $"{Path.GetFileName(filename)}:{lineNumber,-4}";
+                    : $"{Path.GetFileName(filename)}:{lineNumber, -4}";
             }
         }
         catch
@@ -276,7 +276,7 @@ public static class PrintExtensions
             return;
         }
 
-        string output = $"--- {callerLocation,96}";
+        string output = $"--- {callerLocation, 96}";
 
         Debug.WriteLine(output);
         Console.WriteLine(output);

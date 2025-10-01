@@ -3,6 +3,7 @@
 
 # Variables
 SOLUTION = src/Koalas.sln
+SOLUTION_DIR = src
 MAIN_PROJECT = src/Koalas/Koalas.csproj
 CLI_PROJECT = src/Koalas.CommandLine/Koalas.CommandLine.csproj
 TEST_PROJECT = src/Koalas.Tests/Koalas.Tests.csproj
@@ -137,7 +138,8 @@ run-debug:
 .PHONY: format
 format:
 	@echo "Formatting code..."
-	dotnet format $(SOLUTION) --verbosity normal
+	dotnet csharpier format $(SOLUTION_DIRs) --log-format Console
+
 
 .PHONY: format-check
 format-check:
