@@ -65,7 +65,6 @@ end_of_line = lf
 
 # C# specific formatting rules
 [*.cs]
-#### .NET Coding Conventions ####
 
 # Organize usings
 dotnet_separate_import_directive_groups = false
