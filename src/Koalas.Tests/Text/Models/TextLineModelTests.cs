@@ -12,7 +12,7 @@ public class TextLineModelTests
         const string text = "Hello World";
 
         // Act
-        var model = new TextLineModel(text);
+        TextLineModel model = new(text);
 
         // Assert
         model.Text.Should().Be(text);
@@ -23,10 +23,10 @@ public class TextLineModelTests
     {
         // Arrange
         const string text = "Hello World";
-        var model = new TextLineModel(text);
+        TextLineModel model = new(text);
 
         // Act
-        var result = model.Render();
+        string result = model.Render();
 
         // Assert
         result.Should().Be(text + Environment.NewLine);
@@ -36,10 +36,10 @@ public class TextLineModelTests
     public void Render_WithEmptyText_ReturnsNewLineOnly()
     {
         // Arrange
-        var model = new TextLineModel(string.Empty);
+        TextLineModel model = new(string.Empty);
 
         // Act
-        var result = model.Render();
+        string result = model.Render();
 
         // Assert
         result.Should().Be(Environment.NewLine);
@@ -49,10 +49,10 @@ public class TextLineModelTests
     public void Render_WithNullText_HandlesGracefully()
     {
         // Arrange
-        var model = new TextLineModel(null);
+        TextLineModel model = new(null);
 
         // Act
-        var result = model.Render();
+        string result = model.Render();
 
         // Assert
         result.Should().NotBeNull();

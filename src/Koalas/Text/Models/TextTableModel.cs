@@ -1,4 +1,4 @@
-﻿namespace Koalas.Text.Models;
+namespace Koalas.Text.Models;
 
 public record class TextTableModel(
     List<ITextColumn> Columns,
@@ -19,7 +19,7 @@ public record class TextTableModel(
 
     public string Render()
     {
-        if (!Columns.Any() || !Rows.Any())
+        if (Columns.Count == 0 || Rows.Count == 0)
         {
             return string.Empty;
         }
@@ -113,13 +113,11 @@ public record class TextTableModel(
         {
             IReadOnlyList<IDynamicWidthTextColumn> dynamicColumns =
             [
-                .. (
-                    from col in Columns
-                    where col is IDynamicWidthTextColumn
-                    let dynamicCol = (IDynamicWidthTextColumn)col
-                    orderby dynamicCol.Index descending
-                    select dynamicCol
-                ),
+                .. from col in Columns
+                where col is IDynamicWidthTextColumn
+                let dynamicCol = (IDynamicWidthTextColumn)col
+                orderby dynamicCol.Index descending
+                select dynamicCol,
             ];
             foreach (
                 IDynamicWidthTextColumn column in dynamicColumns
@@ -204,7 +202,7 @@ public record class TextTableModel(
                 Columns.Insert(0, new SingleBorderTextColumn());
             }
 
-            if (Columns[Columns.Count - 1] is not IBorderTextColumn)
+            if (Columns[^1] is not IBorderTextColumn)
             {
                 Columns.Add(new SingleBorderTextColumn());
             }
@@ -214,7 +212,7 @@ public record class TextTableModel(
                 Rows.Insert(0, new SingleBorderTextRow());
             }
 
-            if (Rows[Rows.Count - 1] is not IBorderTextRow)
+            if (Rows[^1] is not IBorderTextRow)
             {
                 Rows.Add(new SingleBorderTextRow());
             }

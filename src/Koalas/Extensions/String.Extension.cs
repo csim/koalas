@@ -1,5 +1,3 @@
-﻿#nullable enable
-
 namespace Koalas.Extensions;
 
 public static partial class StringExtensions
@@ -16,7 +14,7 @@ public static partial class StringExtensions
             return string.Empty;
 
         int index = subject.IndexOf(findText, StringComparison.Ordinal);
-        return index >= 0 ? subject.Substring(index + findText.Length) : subject;
+        return index >= 0 ? subject[(index + findText.Length)..] : subject;
     }
 
     public static string Before(this string? subject, string findText)
@@ -25,7 +23,7 @@ public static partial class StringExtensions
             return string.Empty;
 
         int index = subject.IndexOf(findText, StringComparison.Ordinal);
-        return index >= 0 ? subject.Substring(0, index) : subject;
+        return index >= 0 ? subject[..index] : subject;
     }
 
     public static string Compress(this string content)
@@ -169,7 +167,7 @@ public static partial class StringExtensions
     public static T ParseJson<T>(this string source)
     {
         return JsonConvert.DeserializeObject<T>(source)
-            ?? throw new Exception($"Unable to deserialize: {typeof(T).Name}");
+            ?? throw new InvalidOperationException($"Unable to deserialize: {typeof(T).Name}");
     }
 
     public static string RemoveTrailingBlankLines(this string? subject)
@@ -256,7 +254,7 @@ public static partial class StringExtensions
 
         return subject
             .Lines()
-            .Select(line => line.Length <= minIndent ? line : line.Substring(minIndent))
+            .Select(line => line.Length <= minIndent ? line : line[minIndent..])
             .ToJoinNewlineString();
     }
 
@@ -301,7 +299,7 @@ public static partial class StringExtensions
     {
         return string.IsNullOrEmpty(str) || str.Length < 2
             ? str
-            : char.ToLowerInvariant(str[0]) + str.Substring(1);
+            : char.ToLowerInvariant(str[0]) + str[1..];
     }
 
     public static string ToValidFilename(this string input, char replacement = '_')
@@ -325,7 +323,7 @@ public static partial class StringExtensions
         bool showGlyph = false
     )
     {
-        return maxLength == null || text == null || text == string.Empty
+        return maxLength == null || text == null || string.IsNullOrEmpty(text)
             ? text ?? string.Empty
             : text.Wrap(
                     maxLength: maxLength.Value,
@@ -403,13 +401,13 @@ public static partial class StringExtensions
             }
 
             // Get maxLength chunk from string.
-            string chunk = text.Substring(0, maxLength);
+            string chunk = text[..maxLength];
 
             // If next char is a space, we can use the whole chunk and remove the space for the next line
             if (char.IsWhiteSpace(text[maxLength]))
             {
                 AddChunk(chunk);
-                text = text.Substring(chunk.Length + 1); // Remove chunk plus space from original string
+                text = text[(chunk.Length + 1)..]; // Remove chunk plus space from original string
             }
             else
             {
@@ -417,9 +415,9 @@ public static partial class StringExtensions
 
                 // If space exists in string,
                 if (splitIndex != -1)
-                    chunk = chunk.Substring(0, splitIndex); // Remove chars after space.
+                    chunk = chunk[..splitIndex]; // Remove chars after space.
 
-                text = text.Substring(chunk.Length + (splitIndex == -1 ? 0 : 1)); // Remove chunk plus space (if found) from original string
+                text = text[(chunk.Length + (splitIndex == -1 ? 0 : 1))..]; // Remove chunk plus space (if found) from original string
                 AddChunk(chunk);
             }
         }

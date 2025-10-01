@@ -1,4 +1,4 @@
-﻿// ReSharper disable RedundantUsingDirective.Global
+// ReSharper disable RedundantUsingDirective.Global
 // Basic
 global using System;
 global using System.Collections.Generic;
@@ -6,7 +6,6 @@ global using System.Diagnostics;
 global using System.Globalization;
 global using System.IO;
 global using System.Linq;
-global using static System.Linq.Enumerable;
 global using System.Reflection;
 global using System.Text;
 global using System.Text.RegularExpressions;
@@ -15,3 +14,4 @@ global using Koalas.Text;
 global using Koalas.Text.Models;
 global using Newtonsoft.Json;
 global using Newtonsoft.Json.Linq;
+global using static System.Linq.Enumerable;

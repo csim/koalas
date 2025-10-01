@@ -1,4 +1,4 @@
-﻿namespace Koalas.Text.Models;
+namespace Koalas.Text.Models;
 
 public record class TextListItemModel(
     string? Indicator,
@@ -7,5 +7,8 @@ public record class TextListItemModel(
     IRender Body
 ) : IRender
 {
-    public string Render() => string.Empty;
+    public string Render()
+    {
+        return string.Empty;
+    }
 }

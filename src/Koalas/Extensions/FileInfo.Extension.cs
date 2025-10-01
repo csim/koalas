@@ -1,4 +1,4 @@
-﻿namespace Koalas.Extensions;
+namespace Koalas.Extensions;
 
 public static class FileInfoExtensions
 {
@@ -106,8 +106,10 @@ public static class FileInfoExtensions
     {
         subject.EnsureDirectory();
 
-        if (subject.Exists == false)
+        if (!subject.Exists)
+        {
             subject.WriteAllText(string.Empty);
+        }
 
         subject.Refresh();
 
@@ -272,8 +274,7 @@ public static class FileInfoExtensions
         string? filePrefix = null,
         string extension = "json",
         int maxDirectoryLines = 1_000,
-        int maxFileLines = 1,
-        int? maxParallel = null
+        int maxFileLines = 1
     )
     {
         filePrefix ??= $"{DateTime.UtcNow:yyyyMMdd-HHmmss}_";
@@ -288,11 +289,11 @@ public static class FileInfoExtensions
 
         while (true)
         {
-            List<string> directoryLines = lines
-                .Skip((partId - 1) * maxDirectoryLines)
-                .Take(maxDirectoryLines)
-                .ToList();
-            if (!directoryLines.Any())
+            List<string> directoryLines =
+            [
+                .. lines.Skip((partId - 1) * maxDirectoryLines).Take(maxDirectoryLines),
+            ];
+            if (directoryLines.Count == 0)
                 break;
 
             foreach (IEnumerable<string> fileLines in directoryLines.Partition(maxFileLines))
@@ -315,6 +316,6 @@ public static class FileInfoExtensions
             partId++;
         }
 
-        return files.ToList();
+        return [.. files];
     }
 }

@@ -1,10 +1,10 @@
-﻿namespace Koalas.Text;
+namespace Koalas.Text;
 
 public partial class TextBuilder : ITextBuilder
 {
     public int IndentSize { get; private set; }
 
-    private List<IRender> _children = [];
+    private readonly List<IRender> _children = [];
     private readonly int _defaultIndentSize;
     private readonly List<int> _indentStack = [];
 
@@ -27,7 +27,10 @@ public partial class TextBuilder : ITextBuilder
         return this;
     }
 
-    public TextBuilder AddBlankLine() => Add(new TextLineModel(string.Empty));
+    public TextBuilder AddBlankLine()
+    {
+        return Add(new TextLineModel(string.Empty));
+    }
 
     public TextBuilder AddBlankLine(int count)
     {
@@ -71,8 +74,6 @@ public partial class TextBuilder : ITextBuilder
 
         fieldSetBuilder.SaveFieldSet();
 
-        this.AddLine("x");
-
         return this;
     }
 
@@ -81,36 +82,32 @@ public partial class TextBuilder : ITextBuilder
         string body,
         int? maxWidth = null,
         int trailingBlankLines = 1
-    ) =>
-        StartHangSection()
+    )
+    {
+        return StartHangSection()
             .Heading(heading)
             .AddLine(body.ToWrapString(maxWidth))
             .AddBlankLine(trailingBlankLines)
             .SaveHangSection();
+    }
 
-    public TextBuilder AddHangSection(
-        string heading,
-        ITextBuilder body,
-        int? maxWidth = null,
-        int trailingBlankLines = 1
-    ) =>
-        StartHangSection()
+    public TextBuilder AddHangSection(string heading, ITextBuilder body, int trailingBlankLines = 1)
+    {
+        return StartHangSection()
             .Heading(heading)
             .Add(body)
             .AddBlankLine(trailingBlankLines)
             .SaveHangSection();
+    }
 
-    public TextBuilder AddHangSection(
-        string heading,
-        object body,
-        int? maxWidth = null,
-        int trailingBlankLines = 1
-    ) =>
-        StartHangSection()
+    public TextBuilder AddHangSection(string heading, object body, int trailingBlankLines = 1)
+    {
+        return StartHangSection()
             .Heading(heading)
             .AddLine(body.Render())
             .AddBlankLine(trailingBlankLines)
             .SaveHangSection();
+    }
 
     public TextBuilder AddHeading(string text, string prefix = "", string suffix = "")
     {
@@ -120,10 +117,15 @@ public partial class TextBuilder : ITextBuilder
         return this;
     }
 
-    public TextBuilder AddLine(string text) =>
-        Add(new TextLineModel(Text: text?.TrimEnd() ?? string.Empty));
+    public TextBuilder AddLine(string text)
+    {
+        return Add(new TextLineModel(Text: text?.TrimEnd() ?? string.Empty));
+    }
 
-    public TextBuilder AddLine(object source) => AddLine(source.Render());
+    public TextBuilder AddLine(object source)
+    {
+        return AddLine(source.Render());
+    }
 
     public TextBuilder AddList(IEnumerable<string?> items, string separator = ":")
     {
@@ -156,14 +158,22 @@ public partial class TextBuilder : ITextBuilder
             );
     }
 
-    public TextBuilder AddOptionalLine(string content, int trailingBlankLines = 0) =>
-        string.IsNullOrEmpty(content) ? this : AddLine(content).AddBlankLine(trailingBlankLines);
+    public TextBuilder AddOptionalLine(string content, int trailingBlankLines = 0)
+    {
+        return string.IsNullOrEmpty(content)
+            ? this
+            : AddLine(content).AddBlankLine(trailingBlankLines);
+    }
 
-    public TextBuilder AddOptionalLine(IRender source, int trailingBlankLines = 0) =>
-        AddOptionalLine(source.Render(), trailingBlankLines: trailingBlankLines);
+    public TextBuilder AddOptionalLine(IRender source, int trailingBlankLines = 0)
+    {
+        return AddOptionalLine(source.Render(), trailingBlankLines: trailingBlankLines);
+    }
 
-    public TextBuilder AddOptionalLine(object source, int trailingBlankLines = 0) =>
-        AddOptionalLine(source.Render(), trailingBlankLines: trailingBlankLines);
+    public TextBuilder AddOptionalLine(object source, int trailingBlankLines = 0)
+    {
+        return AddOptionalLine(source.Render(), trailingBlankLines: trailingBlankLines);
+    }
 
     public TextBuilder AddOptionalSection(
         string heading,
@@ -190,41 +200,45 @@ public partial class TextBuilder : ITextBuilder
         string headingSuffix = "",
         int? maxWidth = null,
         int trailingBlankLines = 2
-    ) =>
-        StartSection()
+    )
+    {
+        return StartSection()
             .Heading(heading)
             .HeadingSuffix(headingSuffix)
             .AddLine(body.ToWrapString(maxWidth))
             .AddBlankLine(trailingBlankLines)
             .SaveSection();
+    }
 
     public TextBuilder AddSection(
         string heading,
         ITextBuilder body,
         string headingSuffix = "",
-        int? maxWidth = null,
         int trailingBlankLines = 2
-    ) =>
-        StartSection()
+    )
+    {
+        return StartSection()
             .Heading(heading)
             .HeadingSuffix(headingSuffix)
             .Add(body)
             .AddBlankLine(trailingBlankLines)
             .SaveSection();
+    }
 
     public TextBuilder AddSection(
         string heading,
         object body,
         string headingSuffix = "",
-        int? maxWidth = null,
         int trailingBlankLines = 2
-    ) =>
-        StartSection()
+    )
+    {
+        return StartSection()
             .Heading(heading)
             .HeadingSuffix(headingSuffix)
             .AddLine(body.Render())
             .AddBlankLine(trailingBlankLines)
             .SaveSection();
+    }
 
     public TextBuilder AddTable(
         IEnumerable<IEnumerable<object>> values,
@@ -234,8 +248,9 @@ public partial class TextBuilder : ITextBuilder
         int? defaultColumnMaxWidth = 50,
         Func<object, string>? formatCellValue = null,
         bool includeIdentityColumn = false
-    ) =>
-        Add(
+    )
+    {
+        return Add(
             TextTableBuilder.Create(
                 values: values,
                 border: border,
@@ -246,6 +261,7 @@ public partial class TextBuilder : ITextBuilder
                 includeIdentityColumn: includeIdentityColumn
             )
         );
+    }
 
     public TextBuilder AddTitle(string text)
     {
@@ -262,7 +278,10 @@ public partial class TextBuilder : ITextBuilder
         return this;
     }
 
-    public IRender Build() => new TextRegionModel(Children: _children, IndentSize: 0);
+    public IRender Build()
+    {
+        return new TextRegionModel(Children: _children, IndentSize: 0);
+    }
 
     public TextBuilder ClearIndent()
     {
@@ -272,7 +291,10 @@ public partial class TextBuilder : ITextBuilder
         return this;
     }
 
-    public static TextBuilder Create(int indentSize = 2) => new(indentSize: indentSize);
+    public static TextBuilder Create(int indentSize = 2)
+    {
+        return new(indentSize: indentSize);
+    }
 
     public TextBuilder PopIndent(int count = 1)
     {
@@ -314,7 +336,10 @@ public partial class TextBuilder : ITextBuilder
         return this;
     }
 
-    public string Render() => Build().Render();
+    public string Render()
+    {
+        return Build().Render();
+    }
 
     public TextFieldSetBuilder StartFieldSet(
         int minLabelWidth = 0,
@@ -326,8 +351,9 @@ public partial class TextBuilder : ITextBuilder
         bool labelRightAlign = false,
         bool valueRightAlign = false,
         int valueOverflowIndent = 0
-    ) =>
-        new TextFieldSetBuilder(this)
+    )
+    {
+        return new TextFieldSetBuilder(this)
             .MinLabelWidth(minLabelWidth)
             .MinValueWidth(minValueWidth)
             .MaxValueWidth(maxValueWidth)
@@ -337,27 +363,39 @@ public partial class TextBuilder : ITextBuilder
             .LabelRightAlign(labelRightAlign)
             .ValueRightAlign(valueRightAlign)
             .ValueOverflowIndent(valueOverflowIndent);
+    }
 
-    public TextHangSectionBuilder StartHangSection(string? heading = null) =>
-        new TextHangSectionBuilder(this).Heading(heading ?? string.Empty);
+    public TextHangSectionBuilder StartHangSection(string? heading = null)
+    {
+        return new TextHangSectionBuilder(this).Heading(heading ?? string.Empty);
+    }
 
-    public TextListBuilder StartList(string separator = ":", int defaultTrailingBlankLines = 0) =>
-        new TextListBuilder(this)
+    public TextListBuilder StartList(string separator = ":", int defaultTrailingBlankLines = 0)
+    {
+        return new TextListBuilder(this)
             .Separator(separator)
             .DefaultTrailingBlankLines(defaultTrailingBlankLines);
+    }
 
-    public TextSectionBuilder StartSection(string? heading = null) =>
-        new TextSectionBuilder(this).Heading(heading ?? string.Empty);
+    public TextSectionBuilder StartSection(string? heading = null)
+    {
+        return new TextSectionBuilder(this).Heading(heading ?? string.Empty);
+    }
 
     public TextTableBuilder StartTable(
         TextTableBorder border = TextTableBorder.Default,
         int defaultColumnPadding = 1,
         int? defaultColumnMaxWidth = null
-    ) =>
-        new TextTableBuilder(this)
+    )
+    {
+        return new TextTableBuilder(this)
             .Border(border)
             .DefaultColumnPadding(defaultColumnPadding)
             .DefaultColumnMaxWidth(defaultColumnMaxWidth);
+    }
 
-    public override string ToString() => Render();
+    public override string ToString()
+    {
+        return Render();
+    }
 }

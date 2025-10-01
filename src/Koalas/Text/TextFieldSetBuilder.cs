@@ -1,4 +1,4 @@
-﻿namespace Koalas.Text;
+namespace Koalas.Text;
 
 public partial class TextFieldSetBuilder : ITextBuilder
 {
@@ -38,21 +38,35 @@ public partial class TextFieldSetBuilder : ITextBuilder
         int? value,
         string format = "N0",
         int trailingBlankLines = 0
-    ) => AddField(label, (object?)value, format);
+    )
+    {
+        return AddField(
+            label,
+            (object?)value,
+            format: format,
+            trailingBlankLines: trailingBlankLines
+        );
+    }
 
     public TextFieldSetBuilder AddField(
         string label,
         double? value,
         string format = "N3",
         int trailingBlankLines = 0
-    ) => AddField(label, (object?)value, format, trailingBlankLines: trailingBlankLines);
+    )
+    {
+        return AddField(label, (object?)value, format, trailingBlankLines: trailingBlankLines);
+    }
 
     public TextFieldSetBuilder AddField(
         string label,
         decimal? value,
         string format = "N3",
         int trailingBlankLines = 0
-    ) => AddField(label, (object?)value, format, trailingBlankLines: trailingBlankLines);
+    )
+    {
+        return AddField(label, (object?)value, format, trailingBlankLines: trailingBlankLines);
+    }
 
     public TextFieldSetBuilder AddField(
         string? label,
@@ -80,7 +94,7 @@ public partial class TextFieldSetBuilder : ITextBuilder
         if (trailingBlankLines > 0)
         {
             List<IRender> childValueModels = [valueModel];
-            for (var i = 0; i < trailingBlankLines; i++)
+            for (int i = 0; i < trailingBlankLines; i++)
             {
                 childValueModels.Add(new TextLineModel(string.Empty));
             }
@@ -98,8 +112,9 @@ public partial class TextFieldSetBuilder : ITextBuilder
         return this;
     }
 
-    public IRender Build() =>
-        new TextFieldSetModel(
+    public IRender Build()
+    {
+        return new TextFieldSetModel(
             Items: _items,
             Separator: _separator ?? ":",
             MinLabelWidth: _minLabelWidth,
@@ -112,6 +127,7 @@ public partial class TextFieldSetBuilder : ITextBuilder
             ValueOverflowIndent: _valueOverflowIndent,
             NullProjection: _nullProjection
         );
+    }
 
     public static TextFieldSetBuilder Create(
         int minLabelWidth = 0,
@@ -123,8 +139,9 @@ public partial class TextFieldSetBuilder : ITextBuilder
         bool labelRightAlign = false,
         bool valueRightAlign = false,
         int valueOverflowIndent = 0
-    ) =>
-        new TextFieldSetBuilder(TextBuilder.Create())
+    )
+    {
+        return new TextFieldSetBuilder(TextBuilder.Create())
             .MinLabelWidth(minLabelWidth)
             .MinValueWidth(minValueWidth)
             .MaxValueWidth(maxValueWidth)
@@ -134,6 +151,7 @@ public partial class TextFieldSetBuilder : ITextBuilder
             .LabelRightAlign(labelRightAlign)
             .ValueRightAlign(valueRightAlign)
             .ValueOverflowIndent(valueOverflowIndent);
+    }
 
     public TextFieldSetBuilder FieldSeparator(string fieldSeparator)
     {
@@ -184,13 +202,16 @@ public partial class TextFieldSetBuilder : ITextBuilder
         return this;
     }
 
-    public string Render() => Build().Render();
+    public string Render()
+    {
+        return Build().Render();
+    }
 
     public TextBuilder SaveFieldSet()
     {
         if (_saved)
         {
-            throw new Exception(
+            throw new InvalidOperationException(
                 $"Cannot {nameof(SaveFieldSet)}, {nameof(TextFieldSetBuilder)} already saved."
             );
         }
@@ -200,9 +221,15 @@ public partial class TextFieldSetBuilder : ITextBuilder
         return _items.Count > 0 ? _parent.Add(this) : _parent;
     }
 
-    public TextFieldSetItemBuilder StartField() => new(this);
+    public TextFieldSetItemBuilder StartField()
+    {
+        return new(this);
+    }
 
-    public override string ToString() => Render();
+    public override string ToString()
+    {
+        return Render();
+    }
 
     public TextFieldSetBuilder ValueLeftPadding(int valueLeftPadding)
     {

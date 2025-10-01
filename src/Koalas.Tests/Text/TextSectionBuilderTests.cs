@@ -8,11 +8,11 @@ public class TextSectionBuilderTests
     public void AddLine_AddsContentToSection()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
-        var sectionBuilder = textBuilder.StartSection("Test Section");
+        TextBuilder textBuilder = TextBuilder.Create();
+        TextSectionBuilder sectionBuilder = textBuilder.StartSection("Test Section");
 
         // Act
-        var result = sectionBuilder.AddLine("Section content");
+        TextSectionBuilder result = sectionBuilder.AddLine("Section content");
 
         // Assert
         result.Should().BeSameAs(sectionBuilder);
@@ -22,7 +22,7 @@ public class TextSectionBuilderTests
     public void CompleteSection_RendersCorrectly()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
+        TextBuilder textBuilder = TextBuilder.Create();
 
         // Act
         textBuilder
@@ -31,7 +31,7 @@ public class TextSectionBuilderTests
             .AddLine("Second line")
             .SaveSection();
 
-        var result = textBuilder.Render();
+        string result = textBuilder.Render();
 
         // Assert
         result.Should().NotBeNullOrEmpty();
@@ -44,12 +44,12 @@ public class TextSectionBuilderTests
     public void Heading_SetsHeadingProperty()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
-        var sectionBuilder = textBuilder.StartSection();
+        TextBuilder textBuilder = TextBuilder.Create();
+        TextSectionBuilder sectionBuilder = textBuilder.StartSection();
         const string heading = "Test Heading";
 
         // Act
-        var result = sectionBuilder.Heading(heading);
+        TextSectionBuilder result = sectionBuilder.Heading(heading);
 
         // Assert
         result.Should().BeSameAs(sectionBuilder);
@@ -59,12 +59,12 @@ public class TextSectionBuilderTests
     public void SaveSection_ReturnsOriginalTextBuilder()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
-        var sectionBuilder = textBuilder.StartSection("Test");
+        TextBuilder textBuilder = TextBuilder.Create();
+        TextSectionBuilder sectionBuilder = textBuilder.StartSection("Test");
         sectionBuilder.AddLine("Content");
 
         // Act
-        var result = sectionBuilder.SaveSection();
+        TextBuilder result = sectionBuilder.SaveSection();
 
         // Assert
         result.Should().BeSameAs(textBuilder);
@@ -74,12 +74,12 @@ public class TextSectionBuilderTests
     public void SectionWithContent_RendersCorrectly()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
+        TextBuilder textBuilder = TextBuilder.Create();
 
         // Act
         textBuilder.StartSection("Test Section").AddLine("Content").SaveSection();
 
-        var result = textBuilder.Render();
+        string result = textBuilder.Render();
 
         // Assert
         result.Should().NotBeNullOrEmpty();
@@ -91,10 +91,10 @@ public class TextSectionBuilderTests
     public void StartSection_CreatesTextSectionBuilder()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
+        TextBuilder textBuilder = TextBuilder.Create();
 
         // Act
-        var sectionBuilder = textBuilder.StartSection();
+        TextSectionBuilder sectionBuilder = textBuilder.StartSection();
 
         // Assert
         sectionBuilder.Should().NotBeNull();
@@ -105,11 +105,11 @@ public class TextSectionBuilderTests
     public void StartSection_WithHeading_SetsHeadingCorrectly()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
+        TextBuilder textBuilder = TextBuilder.Create();
         const string heading = "Section Title";
 
         // Act
-        var sectionBuilder = textBuilder.StartSection(heading);
+        TextSectionBuilder sectionBuilder = textBuilder.StartSection(heading);
 
         // Assert
         sectionBuilder.Should().NotBeNull();

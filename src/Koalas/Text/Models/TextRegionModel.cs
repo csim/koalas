@@ -1,4 +1,4 @@
-﻿namespace Koalas.Text.Models;
+namespace Koalas.Text.Models;
 
 public record class TextRegionModel(IReadOnlyList<IRender> Children, int IndentSize) : IRender
 {

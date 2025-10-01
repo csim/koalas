@@ -1,4 +1,4 @@
-﻿namespace Koalas.Extensions;
+namespace Koalas.Extensions;
 
 public static partial class LinqExtensions
 {
@@ -41,19 +41,25 @@ public static partial class LinqExtensions
         return items;
     }
 
-    public static IEnumerable<string> AddPrefix(this IEnumerable<string>? subject, string prefix) =>
-        subject == null ? [] : subject.Select(line => $"{prefix}{line}");
+    public static IEnumerable<string> AddPrefix(this IEnumerable<string>? subject, string prefix)
+    {
+        return subject == null ? [] : subject.Select(line => $"{prefix}{line}");
+    }
 
     public static IEnumerable<string> AddPrefixDelimiter(
         this IEnumerable<string>? subject,
         string prefixDelimiter
-    ) =>
-        subject == null
+    )
+    {
+        return subject == null
             ? []
             : subject.Select((line, index) => index == 0 ? line : $"{prefixDelimiter}{line}");
+    }
 
-    public static IEnumerable<string> AddSuffix(this IEnumerable<string>? subject, string suffix) =>
-        subject?.Select(line => $"{line}{suffix}") ?? [];
+    public static IEnumerable<string> AddSuffix(this IEnumerable<string>? subject, string suffix)
+    {
+        return subject?.Select(line => $"{line}{suffix}") ?? [];
+    }
 
     public static IEnumerable<string> AddSuffixDelimiter(
         this IEnumerable<string>? subject,
@@ -68,33 +74,53 @@ public static partial class LinqExtensions
         );
     }
 
-    public static bool Any<T>(this IEnumerable<T>? items, T? item) =>
-        items?.Any(i => (i == null && item == null) || i?.Equals(item) == true) ?? false;
+    public static bool Any<T>(this IEnumerable<T>? items, T? item)
+    {
+        return items?.Any(i => (i == null && item == null) || i?.Equals(item) == true) ?? false;
+    }
 
-    public static IEnumerable<T> Head<T>(this IEnumerable<T> items, int size = 10) =>
-        items.Take(size);
+    public static IEnumerable<T> Head<T>(this IEnumerable<T> items, int size = 10)
+    {
+        return items.Take(size);
+    }
 
-    public static bool None<T>(this IEnumerable<T> items, T? item) => !items.Any(item);
+    public static bool None<T>(this IEnumerable<T> items, T? item)
+    {
+        return !items.Any(item);
+    }
 
-    public static bool None<T>(this IEnumerable<T> items) => !items.Any();
+    public static bool None<T>(this IEnumerable<T> items)
+    {
+        return !items.Any();
+    }
 
-    public static bool None<T>(this IEnumerable<T> items, Func<T, bool> predicate) =>
-        !items.Any(predicate);
+    public static bool None<T>(this IEnumerable<T> items, Func<T, bool> predicate)
+    {
+        return !items.Any(predicate);
+    }
 
-    public static IEnumerable<string> NotNullOrEmpty(this IEnumerable<string> subject) =>
-        subject.Where(s => !string.IsNullOrEmpty(s));
+    public static IEnumerable<string> NotNullOrEmpty(this IEnumerable<string> subject)
+    {
+        return subject.Where(s => !string.IsNullOrEmpty(s));
+    }
 
-    public static IEnumerable<T> Page<T>(this IEnumerable<T> items, int page, int pageSize) =>
-        items.Skip(pageSize * page).Take(pageSize);
+    public static IEnumerable<T> Page<T>(this IEnumerable<T> items, int page, int pageSize)
+    {
+        return items.Skip(pageSize * page).Take(pageSize);
+    }
 
-    public static int PageCount<T>(this IEnumerable<T> items, int pageSize) =>
-        Convert.ToInt32(Math.Ceiling(items.Count() / Convert.ToDouble(pageSize)));
+    public static int PageCount<T>(this IEnumerable<T> items, int pageSize)
+    {
+        return Convert.ToInt32(Math.Ceiling(items.Count() / Convert.ToDouble(pageSize)));
+    }
 
-    public static IEnumerable<T> ParseJson<T>(this IEnumerable<string>? items) =>
-        items?.Select(i =>
-            JsonConvert.DeserializeObject<T>(i)
-            ?? throw new ArgumentOutOfRangeException(typeof(T).Name)
-        ) ?? [];
+    public static IEnumerable<T> ParseJson<T>(this IEnumerable<string>? items)
+    {
+        return items?.Select(i =>
+                JsonConvert.DeserializeObject<T>(i)
+                ?? throw new ArgumentOutOfRangeException(typeof(T).Name)
+            ) ?? [];
+    }
 
     public static IEnumerable<IEnumerable<T>> Partition<T>(this IEnumerable<T> items, int size)
     {
@@ -113,8 +139,10 @@ public static partial class LinqExtensions
         }
     }
 
-    public static IEnumerable<T> SkipTake<T>(this IEnumerable<T> items, int skip, int take) =>
-        items.Skip(skip).Take(take);
+    public static IEnumerable<T> SkipTake<T>(this IEnumerable<T> items, int skip, int take)
+    {
+        return items.Skip(skip).Take(take);
+    }
 
     public static IEnumerable<T> Tail<T>(this IEnumerable<T> items, int size)
     {
@@ -125,11 +153,15 @@ public static partial class LinqExtensions
         return list.Skip(skip);
     }
 
-    public static T[] ToArrayOrEmpty<T>(this IEnumerable<T>? subject) =>
-        subject as T[] ?? subject?.ToArray() ?? [];
+    public static T[] ToArrayOrEmpty<T>(this IEnumerable<T>? subject)
+    {
+        return subject as T[] ?? subject?.ToArray() ?? [];
+    }
 
-    public static IReadOnlyList<T> ToDistinctReadOnlyList<T>(this IEnumerable<T>? subject) =>
-        (subject?.Distinct()).ToReadOnlyList();
+    public static IReadOnlyList<T> ToDistinctReadOnlyList<T>(this IEnumerable<T>? subject)
+    {
+        return (subject?.Distinct()).ToReadOnlyList();
+    }
 
     public static string ToJoinNewlineString(
         this IEnumerable<string>? subject,
@@ -150,15 +182,25 @@ public static partial class LinqExtensions
         return string.Join(Environment.NewLine, lines);
     }
 
-    public static string ToJoinString(this IEnumerable<char> subject) => string.Concat(subject);
+    public static string ToJoinString(this IEnumerable<char> subject)
+    {
+        return string.Concat(subject);
+    }
 
-    public static string ToJoinString(this IEnumerable<string> subject) => string.Concat(subject);
+    public static string ToJoinString(this IEnumerable<string> subject)
+    {
+        return string.Concat(subject);
+    }
 
-    public static string ToJoinString(this IEnumerable<string?>? subject, string delimiter) =>
-        subject == null ? string.Empty : string.Join(delimiter, subject);
+    public static string ToJoinString(this IEnumerable<string?>? subject, string delimiter)
+    {
+        return subject == null ? string.Empty : string.Join(delimiter, subject);
+    }
 
-    public static IReadOnlyList<T> ToReadOnlyList<T>(this IEnumerable<T>? subject) =>
-        subject as IReadOnlyList<T> ?? (IReadOnlyList<T>?)subject?.ToList() ?? [];
+    public static IReadOnlyList<T> ToReadOnlyList<T>(this IEnumerable<T>? subject)
+    {
+        return subject as IReadOnlyList<T> ?? (IReadOnlyList<T>?)subject?.ToList() ?? [];
+    }
 
     public static bool TryFirst<T>(this IEnumerable<T> subject, out T? item)
     {
@@ -200,11 +242,18 @@ public static partial class LinqExtensions
     public static void ForEach<TSource>(this IEnumerable<TSource> source, Action<TSource> onNext)
     {
         if (source == null)
+        {
             throw new ArgumentNullException(nameof(source));
-        if (onNext == null)
-            throw new ArgumentNullException(nameof(onNext));
+        }
 
-        foreach (var item in source)
+        if (onNext == null)
+        {
+            throw new ArgumentNullException(nameof(onNext));
+        }
+
+        foreach (TSource? item in source)
+        {
             onNext(item);
+        }
     }
 }

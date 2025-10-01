@@ -10,11 +10,11 @@ public class TextRegionModelTests
     public void Constructor_WithChildrenAndIndentSize_SetsProperties()
     {
         // Arrange
-        var children = new List<IRender> { new TextLineModel("Test") };
+        List<IRender> children = [new TextLineModel("Test")];
         const int indentSize = 4;
 
         // Act
-        var model = new TextRegionModel(children.AsReadOnly(), indentSize);
+        TextRegionModel model = new(children.AsReadOnly(), indentSize);
 
         // Assert
         model.Children.Should().BeEquivalentTo(children);
@@ -25,10 +25,10 @@ public class TextRegionModelTests
     public void Render_WithEmptyChildren_ReturnsEmptyString()
     {
         // Arrange
-        var model = new TextRegionModel(new List<IRender>().AsReadOnly(), 0);
+        TextRegionModel model = new(new List<IRender>().AsReadOnly(), 0);
 
         // Act
-        var result = model.Render();
+        string result = model.Render();
 
         // Assert
         result.Should().BeEmpty();
@@ -38,11 +38,11 @@ public class TextRegionModelTests
     public void Render_WithIndent_ReturnsIndentedContent()
     {
         // Arrange
-        var children = new List<IRender> { new TextLineModel("Test content") };
-        var model = new TextRegionModel(children.AsReadOnly(), 2);
+        List<IRender> children = [new TextLineModel("Test content")];
+        TextRegionModel model = new(children.AsReadOnly(), 2);
 
         // Act
-        var result = model.Render();
+        string result = model.Render();
 
         // Assert
         result.Should().Contain("Test content");
@@ -53,15 +53,11 @@ public class TextRegionModelTests
     public void Render_WithNoIndent_ReturnsChildrenRendered()
     {
         // Arrange
-        var children = new List<IRender>
-        {
-            new TextLineModel("Line 1"),
-            new TextLineModel("Line 2"),
-        };
-        var model = new TextRegionModel(children.AsReadOnly(), 0);
+        List<IRender> children = [new TextLineModel("Line 1"), new TextLineModel("Line 2")];
+        TextRegionModel model = new(children.AsReadOnly(), 0);
 
         // Act
-        var result = model.Render();
+        string result = model.Render();
 
         // Assert
         result.Should().Contain("Line 1");

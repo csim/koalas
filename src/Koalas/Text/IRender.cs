@@ -1,6 +1,6 @@
-﻿namespace Koalas.Text;
+namespace Koalas.Text;
 
 public interface IRender
 {
-    string Render();
+    public string Render();
 }

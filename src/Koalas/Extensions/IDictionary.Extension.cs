@@ -1,4 +1,4 @@
-﻿namespace Koalas.Extensions;
+namespace Koalas.Extensions;
 
 // ReSharper disable once InconsistentNaming
 public static class IDictionaryExtension

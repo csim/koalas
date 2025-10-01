@@ -10,11 +10,11 @@ public class TextBuilderTests
     public void Add_WithSimpleText_AddsTextToBuilder()
     {
         // Arrange
-        var builder = TextBuilder.Create();
-        var textLine = new TextLineModel("Hello World");
+        TextBuilder builder = TextBuilder.Create();
+        TextLineModel textLine = new("Hello World");
 
         // Act
-        var result = builder.Add(textLine);
+        TextBuilder result = builder.Add(textLine);
 
         // Assert
         result.Should().BeSameAs(builder); // Should return the same instance for chaining
@@ -25,10 +25,10 @@ public class TextBuilderTests
     public void AddBlankLine_AddsEmptyLineToBuilder()
     {
         // Arrange
-        var builder = TextBuilder.Create();
+        TextBuilder builder = TextBuilder.Create();
 
         // Act
-        var result = builder.AddBlankLine();
+        TextBuilder result = builder.AddBlankLine();
 
         // Assert
         result.Should().BeSameAs(builder);
@@ -39,16 +39,16 @@ public class TextBuilderTests
     public void AddBlankLine_WithCount_AddsMultipleEmptyLines()
     {
         // Arrange
-        var builder = TextBuilder.Create();
+        TextBuilder builder = TextBuilder.Create();
         const int count = 3;
 
         // Act
-        var result = builder.AddBlankLine(count);
+        TextBuilder result = builder.AddBlankLine(count);
 
         // Assert
         result.Should().BeSameAs(builder);
-        var rendered = builder.Render();
-        var newLineCount = rendered.Split(Environment.NewLine).Length - 1;
+        string rendered = builder.Render();
+        int newLineCount = rendered.Split(Environment.NewLine).Length - 1;
         newLineCount.Should().BeGreaterOrEqualTo(count);
     }
 
@@ -56,10 +56,10 @@ public class TextBuilderTests
     public void AddLine_WithSimpleString_AddsTextLineToBuilder()
     {
         // Arrange
-        var builder = TextBuilder.Create();
+        TextBuilder builder = TextBuilder.Create();
 
         // Act
-        var result = builder.AddLine("Hello World");
+        TextBuilder result = builder.AddLine("Hello World");
 
         // Assert
         result.Should().BeSameAs(builder);
@@ -70,11 +70,11 @@ public class TextBuilderTests
     public void Build_ReturnsTextRegionModel()
     {
         // Arrange
-        var builder = TextBuilder.Create();
+        TextBuilder builder = TextBuilder.Create();
         builder.AddLine("Test content");
 
         // Act
-        var result = builder.Build();
+        IRender result = builder.Build();
 
         // Assert
         result.Should().BeOfType<TextRegionModel>();
@@ -88,7 +88,7 @@ public class TextBuilderTests
         const int customIndentSize = 4;
 
         // Act
-        var builder = TextBuilder.Create(customIndentSize);
+        TextBuilder builder = TextBuilder.Create(customIndentSize);
 
         // Assert
         builder.Should().NotBeNull();
@@ -99,7 +99,7 @@ public class TextBuilderTests
     public void Create_WithDefaultIndentSize_ReturnsTextBuilder()
     {
         // Act
-        var builder = TextBuilder.Create();
+        TextBuilder builder = TextBuilder.Create();
 
         // Assert
         builder.Should().NotBeNull();
@@ -110,7 +110,7 @@ public class TextBuilderTests
     public void IndentedContent_RendersWithProperIndentation()
     {
         // Arrange
-        var builder = TextBuilder.Create(2);
+        TextBuilder builder = TextBuilder.Create(2);
         builder.AddLine("Before indent");
         builder.PushIndent();
         builder.AddLine("Indented content");
@@ -118,7 +118,7 @@ public class TextBuilderTests
         builder.AddLine("After indent");
 
         // Act
-        var result = builder.Render();
+        string result = builder.Render();
 
         // Assert
         result.Should().Contain("Before indent");
@@ -130,11 +130,11 @@ public class TextBuilderTests
     public void PopIndent_DecreasesIndentLevel()
     {
         // Arrange
-        var builder = TextBuilder.Create(2);
+        TextBuilder builder = TextBuilder.Create(2);
         builder.PushIndent();
 
         // Act
-        var result = builder.PopIndent();
+        TextBuilder result = builder.PopIndent();
 
         // Assert
         result.Should().BeSameAs(builder);
@@ -145,10 +145,10 @@ public class TextBuilderTests
     public void PushIndent_IncreasesIndentLevel()
     {
         // Arrange
-        var builder = TextBuilder.Create(2);
+        TextBuilder builder = TextBuilder.Create(2);
 
         // Act
-        var result = builder.PushIndent();
+        TextBuilder result = builder.PushIndent();
 
         // Assert
         result.Should().BeSameAs(builder);
@@ -159,10 +159,10 @@ public class TextBuilderTests
     public void PushIndent_WithCustomSize_UsesCustomIndentSize()
     {
         // Arrange
-        var builder = TextBuilder.Create(2);
+        TextBuilder builder = TextBuilder.Create(2);
 
         // Act
-        var result = builder.PushIndent(4);
+        TextBuilder result = builder.PushIndent(4);
 
         // Assert
         result.Should().BeSameAs(builder);
@@ -173,12 +173,12 @@ public class TextBuilderTests
     public void Render_ReturnsStringRepresentation()
     {
         // Arrange
-        var builder = TextBuilder.Create();
+        TextBuilder builder = TextBuilder.Create();
         builder.AddLine("Line 1");
         builder.AddLine("Line 2");
 
         // Act
-        var result = builder.Render();
+        string result = builder.Render();
 
         // Assert
         result.Should().NotBeNullOrEmpty();
@@ -190,12 +190,12 @@ public class TextBuilderTests
     public void ToString_ReturnsSameAsRender()
     {
         // Arrange
-        var builder = TextBuilder.Create();
+        TextBuilder builder = TextBuilder.Create();
         builder.AddLine("Test content");
 
         // Act
-        var renderResult = builder.Render();
-        var toStringResult = builder.ToString();
+        string renderResult = builder.Render();
+        string toStringResult = builder.ToString();
 
         // Assert
         toStringResult.Should().Be(renderResult);

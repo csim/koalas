@@ -1,4 +1,4 @@
-﻿namespace Koalas;
+namespace Koalas;
 
 public static class FileInfoHelper
 {
@@ -98,8 +98,7 @@ public static class FileInfoHelper
         string? prefix = null,
         string extension = "json",
         int maxDirectoryLines = 1_000_000,
-        int maxFileLines = 1,
-        int? maxParallel = null
+        int maxFileLines = 1
     )
     {
         prefix ??= $"{DateTime.UtcNow:yyyyMMdd-HHmmss}_";
@@ -118,7 +117,7 @@ public static class FileInfoHelper
             [
                 .. lines.Skip((partId - 1) * maxDirectoryLines).Take(maxDirectoryLines),
             ];
-            if (!directoryPartition.Any())
+            if (directoryPartition.Count == 0)
                 break;
 
             foreach (

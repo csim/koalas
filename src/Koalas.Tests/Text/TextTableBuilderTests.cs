@@ -8,11 +8,11 @@ public class TextTableBuilderTests
     public void AddColumn_WithTitle_AddsColumnToTable()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
-        var tableBuilder = textBuilder.StartTable();
+        TextBuilder textBuilder = TextBuilder.Create();
+        TextTableBuilder tableBuilder = textBuilder.StartTable();
 
         // Act
-        var result = tableBuilder.AddColumn("Name");
+        TextTableBuilder result = tableBuilder.AddColumn("Name");
 
         // Assert
         result.Should().BeSameAs(tableBuilder);
@@ -22,11 +22,11 @@ public class TextTableBuilderTests
     public void AddColumn_WithTitleAndMinWidth_AddsColumnWithSpecificWidth()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
-        var tableBuilder = textBuilder.StartTable();
+        TextBuilder textBuilder = TextBuilder.Create();
+        TextTableBuilder tableBuilder = textBuilder.StartTable();
 
         // Act
-        var result = tableBuilder.AddColumn("Name", minWidth: 20);
+        TextTableBuilder result = tableBuilder.AddColumn("Name", minWidth: 20);
 
         // Assert
         result.Should().BeSameAs(tableBuilder);
@@ -36,13 +36,13 @@ public class TextTableBuilderTests
     public void AddDataRow_WithValues_AddsRowToTable()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
-        var tableBuilder = textBuilder.StartTable();
+        TextBuilder textBuilder = TextBuilder.Create();
+        TextTableBuilder tableBuilder = textBuilder.StartTable();
         tableBuilder.AddColumn("Name");
         tableBuilder.AddColumn("Age");
 
         // Act
-        var result = tableBuilder.AddDataRow("John", "30");
+        ITextRowBuilder result = tableBuilder.AddDataRow("John", "30");
 
         // Assert
         result.Should().NotBeNull();
@@ -52,7 +52,7 @@ public class TextTableBuilderTests
     public void CompleteTable_RendersCorrectly()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
+        TextBuilder textBuilder = TextBuilder.Create();
 
         // Act
         textBuilder
@@ -65,7 +65,7 @@ public class TextTableBuilderTests
             .AddDataRow("Jane", "25", "Los Angeles")
             .SaveTable();
 
-        var result = textBuilder.Render();
+        string result = textBuilder.Render();
 
         // Assert
         result.Should().NotBeNullOrEmpty();
@@ -84,12 +84,12 @@ public class TextTableBuilderTests
     public void EmptyTable_RendersEmptyString()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
+        TextBuilder textBuilder = TextBuilder.Create();
 
         // Act
         textBuilder.StartTable().SaveTable();
 
-        var result = textBuilder.Render();
+        string result = textBuilder.Render();
 
         // Assert
         // An empty table should render as empty or minimal content
@@ -100,8 +100,8 @@ public class TextTableBuilderTests
     public void RowLimit_LimitsNumberOfRows()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
-        var tableBuilder = textBuilder.StartTable();
+        TextBuilder textBuilder = TextBuilder.Create();
+        TextTableBuilder tableBuilder = textBuilder.StartTable();
         tableBuilder.AddColumn("Number");
         tableBuilder.RowLimit(2);
 
@@ -112,7 +112,7 @@ public class TextTableBuilderTests
         }
         tableBuilder.SaveTable();
 
-        var result = textBuilder.Render();
+        string result = textBuilder.Render();
 
         // Assert
         result.Should().NotBeNullOrEmpty();
@@ -125,13 +125,13 @@ public class TextTableBuilderTests
     public void SaveTable_ReturnsOriginalTextBuilder()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
-        var tableBuilder = textBuilder.StartTable();
+        TextBuilder textBuilder = TextBuilder.Create();
+        TextTableBuilder tableBuilder = textBuilder.StartTable();
         tableBuilder.AddColumn("Name");
         tableBuilder.AddDataRow("John");
 
         // Act
-        var result = tableBuilder.SaveTable();
+        TextBuilder result = tableBuilder.SaveTable();
 
         // Assert
         result.Should().BeSameAs(textBuilder);
@@ -141,10 +141,10 @@ public class TextTableBuilderTests
     public void StartTable_CreatesTextTableBuilder()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
+        TextBuilder textBuilder = TextBuilder.Create();
 
         // Act
-        var tableBuilder = textBuilder.StartTable();
+        TextTableBuilder tableBuilder = textBuilder.StartTable();
 
         // Assert
         tableBuilder.Should().NotBeNull();
@@ -155,11 +155,11 @@ public class TextTableBuilderTests
     public void StartTable_WithCustomBorder_SetsBorderCorrectly()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
-        var border = TextTableBorder.Outer;
+        TextBuilder textBuilder = TextBuilder.Create();
+        TextTableBorder border = TextTableBorder.Outer;
 
         // Act
-        var tableBuilder = textBuilder.StartTable(border);
+        TextTableBuilder tableBuilder = textBuilder.StartTable(border);
 
         // Assert
         tableBuilder.Should().NotBeNull();
@@ -169,7 +169,7 @@ public class TextTableBuilderTests
     public void TableWithBorders_RendersWithBorders()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
+        TextBuilder textBuilder = TextBuilder.Create();
 
         // Act
         textBuilder
@@ -180,7 +180,7 @@ public class TextTableBuilderTests
             .AddDataRow("1", "Test")
             .SaveTable();
 
-        var result = textBuilder.Render();
+        string result = textBuilder.Render();
 
         // Assert
         result.Should().NotBeNullOrEmpty();
@@ -195,12 +195,12 @@ public class TextTableBuilderTests
     public void TableWithOnlyColumns_NoRows_HandlesGracefully()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
+        TextBuilder textBuilder = TextBuilder.Create();
 
         // Act
         textBuilder.StartTable().AddColumn("Name").AddColumn("Age").SaveTable();
 
-        var result = textBuilder.Render();
+        string result = textBuilder.Render();
 
         // Assert
         result.Should().NotBeNull();

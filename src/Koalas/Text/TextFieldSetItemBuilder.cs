@@ -1,4 +1,4 @@
-﻿namespace Koalas.Text;
+namespace Koalas.Text;
 
 public partial class TextFieldSetItemBuilder : IRender
 {
@@ -13,7 +13,10 @@ public partial class TextFieldSetItemBuilder : IRender
         _parent = parent;
     }
 
-    public TextBuilder Add(IRender subject) => _valueBuilder.Add(subject);
+    public TextBuilder Add(IRender subject)
+    {
+        return _valueBuilder.Add(subject);
+    }
 
     public TextFieldSetItemBuilder AddBlankLine()
     {
@@ -42,7 +45,7 @@ public partial class TextFieldSetItemBuilder : IRender
         int valueOverflowIndent = 0
     )
     {
-        _valueBuilder.StartFieldSet(
+        TextFieldSetBuilder fieldSetBuilder = _valueBuilder.StartFieldSet(
             minLabelWidth: minLabelWidth,
             minValueWidth: minValueWidth,
             maxValueWidth: maxValueWidth,
@@ -53,6 +56,13 @@ public partial class TextFieldSetItemBuilder : IRender
             valueRightAlign: valueRightAlign,
             valueOverflowIndent: valueOverflowIndent
         );
+
+        foreach (KeyValuePair<string, string> item in items)
+        {
+            fieldSetBuilder.AddField(item.Key, item.Value);
+        }
+
+        fieldSetBuilder.SaveFieldSet();
 
         return this;
     }
@@ -77,16 +87,10 @@ public partial class TextFieldSetItemBuilder : IRender
     public TextFieldSetItemBuilder AddHangSection(
         string heading,
         ITextBuilder body,
-        int? maxWidth = null,
         int trailingBlankLines = 1
     )
     {
-        _valueBuilder.AddHangSection(
-            heading,
-            body,
-            maxWidth: maxWidth,
-            trailingBlankLines: trailingBlankLines
-        );
+        _valueBuilder.AddHangSection(heading, body, trailingBlankLines: trailingBlankLines);
 
         return this;
     }
@@ -94,16 +98,10 @@ public partial class TextFieldSetItemBuilder : IRender
     public TextFieldSetItemBuilder AddHangSection(
         string heading,
         object body,
-        int? maxWidth = null,
         int trailingBlankLines = 1
     )
     {
-        _valueBuilder.AddHangSection(
-            heading,
-            body,
-            maxWidth: maxWidth,
-            trailingBlankLines: trailingBlankLines
-        );
+        _valueBuilder.AddHangSection(heading, body, trailingBlankLines: trailingBlankLines);
 
         return this;
     }
@@ -115,7 +113,10 @@ public partial class TextFieldSetItemBuilder : IRender
         return this;
     }
 
-    public TextFieldSetItemBuilder AddLine(object source) => AddLine(source.Render());
+    public TextFieldSetItemBuilder AddLine(object source)
+    {
+        return AddLine(source.Render());
+    }
 
     public TextFieldSetItemBuilder AddList(IEnumerable<string> items, string separator = ":")
     {
@@ -147,7 +148,6 @@ public partial class TextFieldSetItemBuilder : IRender
         string heading,
         object body,
         string headingSuffix = "",
-        int? maxWidth = null,
         int trailingBlankLines = 2
     )
     {
@@ -155,7 +155,6 @@ public partial class TextFieldSetItemBuilder : IRender
             heading: heading,
             body: body,
             headingSuffix: headingSuffix,
-            maxWidth: maxWidth,
             trailingBlankLines: trailingBlankLines
         );
 
@@ -166,7 +165,6 @@ public partial class TextFieldSetItemBuilder : IRender
         string heading,
         ITextBuilder body,
         string headingSuffix = "",
-        int? maxWidth = null,
         int trailingBlankLines = 2
     )
     {
@@ -174,7 +172,6 @@ public partial class TextFieldSetItemBuilder : IRender
             heading: heading,
             body: body,
             headingSuffix: headingSuffix,
-            maxWidth: maxWidth,
             trailingBlankLines: trailingBlankLines
         );
 
@@ -254,7 +251,7 @@ public partial class TextFieldSetItemBuilder : IRender
     {
         if (_saved)
         {
-            throw new Exception(
+            throw new InvalidCastException(
                 $"Cannot {nameof(SaveField)}, {nameof(TextFieldSetItemBuilder)} already saved."
             );
         }
@@ -264,7 +261,10 @@ public partial class TextFieldSetItemBuilder : IRender
         return _parent.AddField(Build());
     }
 
-    public override string ToString() => Render();
+    public override string ToString()
+    {
+        return Render();
+    }
 
     public TextFieldSetItemBuilder Value(string value)
     {
@@ -280,6 +280,8 @@ public partial class TextFieldSetItemBuilder : IRender
         return this;
     }
 
-    private TextFieldModel Build() =>
-        new(Label: _label, Value: _valueBuilder.Build(), Format: _format);
+    private TextFieldModel Build()
+    {
+        return new(Label: _label, Value: _valueBuilder.Build(), Format: _format);
+    }
 }

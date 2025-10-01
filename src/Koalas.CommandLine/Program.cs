@@ -1,10 +1,15 @@
-﻿using System.Linq;
+using System.Linq;
 using Koalas.Extensions;
 
 namespace Koalas.CommandLine;
 
 public static class Program
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "Style",
+        "IDE0060:Remove unused parameter",
+        Justification = "<Pending>"
+    )]
     public static void Main(string[] args)
     {
         var items = new[]
@@ -20,7 +25,8 @@ public static class Program
             new { Name = "Name9", Count = 12d },
         };
 
-        items //.PrintCount()
+        items
+            //.PrintCount()
             //.Print(limit: 6, select: i => i.Name)
             //.Print(limit: 6, where: i => i.Name.Contains("7"), select: i => i.Name)
             //.PrintJsonLine(limit: 6, where: i => i.Name.Contains("7"), select: i => new { i.Name })

@@ -1,4 +1,4 @@
-﻿namespace Koalas.Extensions;
+namespace Koalas.Extensions;
 
 public static class NumberExtensions
 {
@@ -215,7 +215,7 @@ public static class NumberExtensions
             return true;
         }
 
-        if (subject.IsNumeric() == false)
+        if (!subject.IsNumeric())
         {
             value = 0;
 

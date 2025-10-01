@@ -1,22 +1,22 @@
-﻿namespace Koalas.Text.Models;
+namespace Koalas.Text.Models;
 
 public interface IBorderTextRow : ITextRow
 {
-    char Dash { get; }
-    bool External { get; init; }
+    public char Dash { get; }
+    public bool External { get; init; }
 
-    char DoubleJunction(ITextColumn col, ITextRow row);
-    char SingleJunction(ITextColumn col, ITextRow row);
+    public char DoubleJunction(ITextColumn col, ITextRow row);
+    public char SingleJunction(ITextColumn col, ITextRow row);
 }
 
 public interface ITextRow
 {
-    bool First { get; set; }
-    int? Id { get; set; }
-    int Index { get; set; }
-    bool Last { get; set; }
+    public bool First { get; set; }
+    public int? Id { get; set; }
+    public int Index { get; set; }
+    public bool Last { get; set; }
 
-    void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns);
+    public void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns);
 }
 
 public class DataTextRow(int id, IEnumerable<object?> values) : List<object?>(values), ITextRow
@@ -73,8 +73,9 @@ public class DoubleBorderTextRow : IBorderTextRow
         { '╘', '╧', '╛' },
     };
 
-    public char DoubleJunction(ITextColumn col, ITextRow row) =>
-        _doubleJunctionChars[
+    public char DoubleJunction(ITextColumn col, ITextRow row)
+    {
+        return _doubleJunctionChars[
             row.First ? 0
             : row.Last ? 2
             : 1,
@@ -82,6 +83,7 @@ public class DoubleBorderTextRow : IBorderTextRow
             : col.Last ? 2
             : 1
         ];
+    }
 
     public void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns)
     {
@@ -93,8 +95,9 @@ public class DoubleBorderTextRow : IBorderTextRow
         output.AppendLine();
     }
 
-    public char SingleJunction(ITextColumn col, ITextRow row) =>
-        _singleJunctionChars[
+    public char SingleJunction(ITextColumn col, ITextRow row)
+    {
+        return _singleJunctionChars[
             row.First ? 0
             : row.Last ? 2
             : 1,
@@ -102,6 +105,7 @@ public class DoubleBorderTextRow : IBorderTextRow
             : col.Last ? 2
             : 1
         ];
+    }
 }
 
 public class EllipsisTextRow : ITextRow
@@ -214,8 +218,9 @@ public class SingleBorderTextRow : IBorderTextRow
         { '└', '┴', '┘' },
     };
 
-    public char DoubleJunction(ITextColumn col, ITextRow row) =>
-        _doubleJunctionChars[
+    public char DoubleJunction(ITextColumn col, ITextRow row)
+    {
+        return _doubleJunctionChars[
             row.First ? 0
             : row.Last ? 2
             : 1,
@@ -223,6 +228,7 @@ public class SingleBorderTextRow : IBorderTextRow
             : col.Last ? 2
             : 1
         ];
+    }
 
     public void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns)
     {
@@ -234,8 +240,9 @@ public class SingleBorderTextRow : IBorderTextRow
         output.AppendLine();
     }
 
-    public char SingleJunction(ITextColumn col, ITextRow row) =>
-        _singleJunctionChars[
+    public char SingleJunction(ITextColumn col, ITextRow row)
+    {
+        return _singleJunctionChars[
             row.First ? 0
             : row.Last ? 2
             : 1,
@@ -243,4 +250,5 @@ public class SingleBorderTextRow : IBorderTextRow
             : col.Last ? 2
             : 1
         ];
+    }
 }

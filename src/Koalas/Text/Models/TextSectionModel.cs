@@ -1,4 +1,4 @@
-﻿namespace Koalas.Text.Models;
+namespace Koalas.Text.Models;
 
 public record class TextSectionModel(string Heading, IRender Body, string HeadingSuffix) : IRender
 {

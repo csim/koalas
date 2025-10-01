@@ -1,4 +1,4 @@
-﻿namespace Koalas.Text;
+namespace Koalas.Text;
 
 public partial class TextListBuilder : ITextBuilder
 {
@@ -26,14 +26,16 @@ public partial class TextListBuilder : ITextBuilder
         string? indicator = null,
         string? separator = null,
         int? trailingBlankLines = null
-    ) =>
-        StartItem()
+    )
+    {
+        return StartItem()
             .Id(id)
             .Indicator(indicator)
             .Separator(separator ?? _separator)
             .Add(builder)
             .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
             .SaveItem();
+    }
 
     public TextListBuilder AddItem(
         TextHangSectionBuilder builder,
@@ -41,14 +43,16 @@ public partial class TextListBuilder : ITextBuilder
         string? indicator = null,
         string? separator = null,
         int? trailingBlankLines = null
-    ) =>
-        StartItem()
+    )
+    {
+        return StartItem()
             .Id(id)
             .Indicator(indicator)
             .Separator(separator ?? _separator)
             .Add(builder)
             .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
             .SaveItem();
+    }
 
     public TextListBuilder AddItem(
         TextListBuilder builder,
@@ -56,14 +60,16 @@ public partial class TextListBuilder : ITextBuilder
         string? indicator = null,
         string? separator = null,
         int? trailingBlankLines = null
-    ) =>
-        StartItem()
+    )
+    {
+        return StartItem()
             .Id(id)
             .Indicator(indicator)
             .Separator(separator)
             .Add(builder)
             .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
             .SaveItem();
+    }
 
     public TextListBuilder AddItem(
         TextFieldSetBuilder builder,
@@ -71,14 +77,16 @@ public partial class TextListBuilder : ITextBuilder
         string? indicator = null,
         string? separator = null,
         int? trailingBlankLines = null
-    ) =>
-        StartItem()
+    )
+    {
+        return StartItem()
             .Id(id)
             .Indicator(indicator)
             .Separator(separator ?? _separator)
             .Add(builder)
             .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
             .SaveItem();
+    }
 
     public TextListBuilder AddItem(
         TextTableBuilder builder,
@@ -86,14 +94,16 @@ public partial class TextListBuilder : ITextBuilder
         string? indicator = null,
         string? separator = null,
         int? trailingBlankLines = null
-    ) =>
-        StartItem()
+    )
+    {
+        return StartItem()
             .Id(id)
             .Indicator(indicator)
             .Separator(separator ?? _separator)
             .AddLine(builder.Render())
             .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
             .SaveItem();
+    }
 
     public TextListBuilder AddItem(
         string body,
@@ -101,14 +111,16 @@ public partial class TextListBuilder : ITextBuilder
         string? indicator = null,
         string? separator = null,
         int? trailingBlankLines = null
-    ) =>
-        StartItem()
+    )
+    {
+        return StartItem()
             .Id(id)
             .Indicator(indicator)
             .Separator(separator ?? _separator)
             .AddLine(body)
             .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
             .SaveItem();
+    }
 
     public TextListBuilder AddItem(
         ITextBuilder body,
@@ -116,14 +128,16 @@ public partial class TextListBuilder : ITextBuilder
         string? indicator = null,
         string? separator = null,
         int? trailingBlankLines = null
-    ) =>
-        StartItem()
+    )
+    {
+        return StartItem()
             .Id(id)
             .Indicator(indicator)
             .Separator(separator ?? _separator)
             .Add(body)
             .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
             .SaveItem();
+    }
 
     public TextListBuilder AddItem(
         Action<TextBuilder> bodyFactory,
@@ -132,7 +146,7 @@ public partial class TextListBuilder : ITextBuilder
         string? separator = null
     )
     {
-        var bodyBuilder = TextBuilder.Create();
+        TextBuilder bodyBuilder = TextBuilder.Create();
         bodyFactory(bodyBuilder);
 
         AddItem(
@@ -147,16 +161,21 @@ public partial class TextListBuilder : ITextBuilder
         return this;
     }
 
-    public IRender Build() => new TextListModel(Items: _items);
+    public IRender Build()
+    {
+        return new TextListModel(Items: _items);
+    }
 
     public static TextListBuilder Create(
         string separator = ":",
         int indentSize = 2,
         int defaultTrailingBlankLines = 0
-    ) =>
-        new TextListBuilder(TextBuilder.Create(indentSize: indentSize))
+    )
+    {
+        return new TextListBuilder(TextBuilder.Create(indentSize: indentSize))
             .DefaultTrailingBlankLines(defaultTrailingBlankLines)
             .Separator(separator);
+    }
 
     public static TextListBuilder Create(
         IEnumerable<string> items,
@@ -186,13 +205,16 @@ public partial class TextListBuilder : ITextBuilder
         return this;
     }
 
-    public string Render() => Build().Render();
+    public string Render()
+    {
+        return Build().Render();
+    }
 
     public TextBuilder SaveList()
     {
         if (_saved)
         {
-            throw new Exception(
+            throw new InvalidOperationException(
                 $"Cannot {nameof(SaveList)}, {nameof(TextListBuilder)} already saved."
             );
         }
@@ -213,7 +235,13 @@ public partial class TextListBuilder : ITextBuilder
         string? id = null,
         string? indicator = null,
         string separator = ":"
-    ) => new TextListItemBuilder(this).Id(id).Indicator(indicator).Separator(separator);
+    )
+    {
+        return new TextListItemBuilder(this).Id(id).Indicator(indicator).Separator(separator);
+    }
 
-    public override string ToString() => Render();
+    public override string ToString()
+    {
+        return Render();
+    }
 }

@@ -8,11 +8,11 @@ public class TextFieldSetBuilderTests
     public void AddField_WithLabelAndValue_AddsFieldToSet()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
-        var fieldSetBuilder = textBuilder.StartFieldSet();
+        TextBuilder textBuilder = TextBuilder.Create();
+        TextFieldSetBuilder fieldSetBuilder = textBuilder.StartFieldSet();
 
         // Act
-        var result = fieldSetBuilder.AddField("Name", "John");
+        TextFieldSetBuilder result = fieldSetBuilder.AddField("Name", "John");
 
         // Assert
         result.Should().BeSameAs(fieldSetBuilder);
@@ -22,7 +22,7 @@ public class TextFieldSetBuilderTests
     public void CompleteFieldSet_RendersCorrectly()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
+        TextBuilder textBuilder = TextBuilder.Create();
 
         // Act
         textBuilder
@@ -32,7 +32,7 @@ public class TextFieldSetBuilderTests
             .AddField("City", "New York")
             .SaveFieldSet();
 
-        var result = textBuilder.Render();
+        string result = textBuilder.Render();
 
         // Assert
         result.Should().NotBeNullOrEmpty();
@@ -48,12 +48,12 @@ public class TextFieldSetBuilderTests
     public void EmptyFieldSet_RendersEmptyOrMinimal()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
+        TextBuilder textBuilder = TextBuilder.Create();
 
         // Act
         textBuilder.StartFieldSet().SaveFieldSet();
 
-        var result = textBuilder.Render();
+        string result = textBuilder.Render();
 
         // Assert
         result.Should().NotBeNull();
@@ -63,7 +63,7 @@ public class TextFieldSetBuilderTests
     public void FieldSetWithCustomSeparator_RendersWithCorrectSeparator()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
+        TextBuilder textBuilder = TextBuilder.Create();
         const string separator = " = ";
 
         // Act
@@ -72,7 +72,7 @@ public class TextFieldSetBuilderTests
             .AddField("Key", "Value")
             .SaveFieldSet();
 
-        var result = textBuilder.Render();
+        string result = textBuilder.Render();
 
         // Assert
         result.Should().NotBeNullOrEmpty();
@@ -84,11 +84,11 @@ public class TextFieldSetBuilderTests
     public void MinLabelWidth_SetsMinimumLabelWidth()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
-        var fieldSetBuilder = textBuilder.StartFieldSet();
+        TextBuilder textBuilder = TextBuilder.Create();
+        TextFieldSetBuilder fieldSetBuilder = textBuilder.StartFieldSet();
 
         // Act
-        var result = fieldSetBuilder.MinLabelWidth(20);
+        TextFieldSetBuilder result = fieldSetBuilder.MinLabelWidth(20);
 
         // Assert
         result.Should().BeSameAs(fieldSetBuilder);
@@ -98,12 +98,12 @@ public class TextFieldSetBuilderTests
     public void SaveFieldSet_ReturnsOriginalTextBuilder()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
-        var fieldSetBuilder = textBuilder.StartFieldSet();
+        TextBuilder textBuilder = TextBuilder.Create();
+        TextFieldSetBuilder fieldSetBuilder = textBuilder.StartFieldSet();
         fieldSetBuilder.AddField("Key", "Value");
 
         // Act
-        var result = fieldSetBuilder.SaveFieldSet();
+        TextBuilder result = fieldSetBuilder.SaveFieldSet();
 
         // Assert
         result.Should().BeSameAs(textBuilder);
@@ -113,10 +113,10 @@ public class TextFieldSetBuilderTests
     public void StartFieldSet_CreatesTextFieldSetBuilder()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
+        TextBuilder textBuilder = TextBuilder.Create();
 
         // Act
-        var fieldSetBuilder = textBuilder.StartFieldSet();
+        TextFieldSetBuilder fieldSetBuilder = textBuilder.StartFieldSet();
 
         // Assert
         fieldSetBuilder.Should().NotBeNull();
@@ -127,11 +127,11 @@ public class TextFieldSetBuilderTests
     public void StartFieldSet_WithCustomSeparator_SetsSeparatorCorrectly()
     {
         // Arrange
-        var textBuilder = TextBuilder.Create();
+        TextBuilder textBuilder = TextBuilder.Create();
         const string separator = "=";
 
         // Act
-        var fieldSetBuilder = textBuilder.StartFieldSet(fieldSeparator: separator);
+        TextFieldSetBuilder fieldSetBuilder = textBuilder.StartFieldSet(fieldSeparator: separator);
 
         // Assert
         fieldSetBuilder.Should().NotBeNull();

@@ -1,4 +1,4 @@
-﻿namespace Koalas.Text;
+namespace Koalas.Text;
 
 public partial class TextListItemBuilder : IRender
 {
@@ -89,16 +89,10 @@ public partial class TextListItemBuilder : IRender
     public TextListItemBuilder AddHangSection(
         string heading,
         ITextBuilder body,
-        int? maxWidth = null,
         int trailingBlankLines = 1
     )
     {
-        _bodyBuilder.AddHangSection(
-            heading,
-            body,
-            maxWidth: maxWidth,
-            trailingBlankLines: trailingBlankLines
-        );
+        _bodyBuilder.AddHangSection(heading, body, trailingBlankLines: trailingBlankLines);
 
         return this;
     }
@@ -106,16 +100,10 @@ public partial class TextListItemBuilder : IRender
     public TextListItemBuilder AddHangSection(
         string heading,
         object body,
-        int? maxWidth = null,
         int trailingBlankLines = 1
     )
     {
-        _bodyBuilder.AddHangSection(
-            heading,
-            body,
-            maxWidth: maxWidth,
-            trailingBlankLines: trailingBlankLines
-        );
+        _bodyBuilder.AddHangSection(heading, body, trailingBlankLines: trailingBlankLines);
 
         return this;
     }
@@ -127,7 +115,10 @@ public partial class TextListItemBuilder : IRender
         return this;
     }
 
-    public TextListItemBuilder AddLine(object source) => AddLine(source.Render());
+    public TextListItemBuilder AddLine(object source)
+    {
+        return AddLine(source.Render());
+    }
 
     public TextListItemBuilder AddList(IEnumerable<string> items, string separator = ":")
     {
@@ -159,7 +150,6 @@ public partial class TextListItemBuilder : IRender
         string heading,
         ITextBuilder body,
         string headingSuffix = "",
-        int? maxWidth = null,
         int trailingBlankLines = 2
     )
     {
@@ -167,7 +157,6 @@ public partial class TextListItemBuilder : IRender
             heading: heading,
             body: body,
             headingSuffix: headingSuffix,
-            maxWidth: maxWidth,
             trailingBlankLines: trailingBlankLines
         );
 
@@ -178,7 +167,6 @@ public partial class TextListItemBuilder : IRender
         string heading,
         object body,
         string headingSuffix = "",
-        int? maxWidth = null,
         int trailingBlankLines = 2
     )
     {
@@ -186,7 +174,6 @@ public partial class TextListItemBuilder : IRender
             heading: heading,
             body: body,
             headingSuffix: headingSuffix,
-            maxWidth: maxWidth,
             trailingBlankLines: trailingBlankLines
         );
 
@@ -201,8 +188,9 @@ public partial class TextListItemBuilder : IRender
         int? defaultColumnMaxWidth = 50,
         Func<object, string>? formatCellValue = null,
         bool includeIdentityColumn = false
-    ) =>
-        Add(
+    )
+    {
+        return Add(
             TextTableBuilder.Create(
                 values: values,
                 border: border,
@@ -213,6 +201,7 @@ public partial class TextListItemBuilder : IRender
                 includeIdentityColumn: includeIdentityColumn
             )
         );
+    }
 
     public TextListItemBuilder ClearIndent()
     {
@@ -263,7 +252,7 @@ public partial class TextListItemBuilder : IRender
     {
         if (_saved)
         {
-            throw new Exception(
+            throw new InvalidOperationException(
                 $"Cannot {nameof(SaveItem)}, {nameof(TextListItemBuilder)} already saved."
             );
         }
@@ -280,8 +269,18 @@ public partial class TextListItemBuilder : IRender
         return this;
     }
 
-    public override string ToString() => Render();
+    public override string ToString()
+    {
+        return Render();
+    }
 
-    private TextListItemModel Build() =>
-        new(Body: _bodyBuilder.Build(), Id: _id, Separator: _separator, Indicator: _indicator);
+    private TextListItemModel Build()
+    {
+        return new(
+            Body: _bodyBuilder.Build(),
+            Id: _id,
+            Separator: _separator,
+            Indicator: _indicator
+        );
+    }
 }

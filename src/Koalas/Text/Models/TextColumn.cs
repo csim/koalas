@@ -1,20 +1,20 @@
-﻿namespace Koalas.Text.Models;
+namespace Koalas.Text.Models;
 
 public interface IBorderTextColumn : ITextColumn
 {
-    bool External { get; }
+    public bool External { get; }
 }
 
 public interface ITextColumn
 {
-    bool First { get; set; }
-    int Index { get; set; }
-    bool Last { get; set; }
-    int Width { get; set; }
+    public bool First { get; set; }
+    public int Index { get; set; }
+    public bool Last { get; set; }
+    public int Width { get; set; }
 
-    IReadOnlyList<string?> Lines(ITextRow row);
-    void Render(StringBuilder output, ITextRow row, int partitionIndex);
-    void RenderHeading(StringBuilder output, string? headingOverride = null);
+    public IReadOnlyList<string?> Lines(ITextRow row);
+    public void Render(StringBuilder output, ITextRow row, int partitionIndex);
+    public void RenderHeading(StringBuilder output, string? headingOverride = null);
 }
 
 public class DoubleBorderTextColumn : TextColumnBase, IBorderTextColumn
@@ -25,9 +25,15 @@ public class DoubleBorderTextColumn : TextColumnBase, IBorderTextColumn
 
     private IReadOnlyList<string>? _lines;
 
-    public virtual string FormatValue(ITextRow row) => _verticalBar.ToString();
+    public virtual string FormatValue(ITextRow row)
+    {
+        return _verticalBar.ToString();
+    }
 
-    public override IReadOnlyList<string> Lines(ITextRow row) => _lines ??= [FormatValue(row)];
+    public override IReadOnlyList<string> Lines(ITextRow row)
+    {
+        return _lines ??= [FormatValue(row)];
+    }
 
     public override void Render(StringBuilder output, ITextRow row, int partitionIndex)
     {
@@ -54,14 +60,23 @@ public class IdentityTextColumn : TextColumnBase, IDynamicWidthTextColumn
     public int MinimumWidth => 1;
     public int? RightPadding { get; set; }
 
-    public virtual string FormatValue(ITextRow row) => (row.Id ?? 0).ToString("N0").PadLeft(Width);
+    public virtual string FormatValue(ITextRow row)
+    {
+        return (row.Id ?? 0).ToString("N0").PadLeft(Width);
+    }
 
-    public override IReadOnlyList<string> Lines(ITextRow row) => [FormatValue(row)];
+    public override IReadOnlyList<string> Lines(ITextRow row)
+    {
+        return [FormatValue(row)];
+    }
 }
 
 public class PaddingTextColumn(int width) : TextColumnBase
 {
-    public override IReadOnlyList<string> Lines(ITextRow row) => [new(Space, width)];
+    public override IReadOnlyList<string> Lines(ITextRow row)
+    {
+        return [new(Space, width)];
+    }
 
     public override void Render(StringBuilder output, ITextRow row, int partitionIndex)
     {
@@ -84,9 +99,15 @@ public class SingleBorderTextColumn : TextColumnBase, IBorderTextColumn
 
     private IReadOnlyList<string>? _lines;
 
-    public static string FormatValue(ITextRow row) => _verticalBar.ToString();
+    public static string FormatValue()
+    {
+        return _verticalBar.ToString();
+    }
 
-    public override IReadOnlyList<string> Lines(ITextRow row) => _lines ??= [FormatValue(row)];
+    public override IReadOnlyList<string> Lines(ITextRow row)
+    {
+        return _lines ??= [FormatValue()];
+    }
 
     public override void Render(StringBuilder output, ITextRow row, int partitionIndex)
     {
@@ -100,8 +121,10 @@ public class SingleBorderTextColumn : TextColumnBase, IBorderTextColumn
         output.Append(_verticalBar);
     }
 
-    public override void RenderHeading(StringBuilder output, string? headingOverride = null) =>
+    public override void RenderHeading(StringBuilder output, string? headingOverride = null)
+    {
         output.Append(_verticalBar);
+    }
 }
 
 public class StaticTextColumn : TextColumnBase
@@ -113,9 +136,15 @@ public class StaticTextColumn : TextColumnBase
 
     private IReadOnlyList<string?>? _lines;
 
-    public virtual string? FormatValue(ITextRow row) => Text;
+    public virtual string? FormatValue(ITextRow row)
+    {
+        return Text;
+    }
 
-    public override IReadOnlyList<string?> Lines(ITextRow row) => (_lines ??= [Text]) ?? [];
+    public override IReadOnlyList<string?> Lines(ITextRow row)
+    {
+        return (_lines ??= [Text]) ?? [];
+    }
 
     public override void Render(StringBuilder output, ITextRow row, int partitionIndex)
     {

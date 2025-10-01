@@ -1,33 +1,36 @@
-﻿namespace Koalas.Text;
+namespace Koalas.Text;
 
 /*************************************************************
  * Column Types
  *************************************************************/
 public interface IDynamicWidthTextColumn : ITextColumn
 {
-    string Heading { get; }
-    int? LeftPadding { get; set; }
-    int? MaximumWidth { get; set; }
-    int MinimumWidth { get; }
-    int? RightPadding { get; set; }
+    public string Heading { get; }
+    public int? LeftPadding { get; set; }
+    public int? MaximumWidth { get; set; }
+    public int MinimumWidth { get; }
+    public int? RightPadding { get; set; }
 }
 
 public interface ITextRowBuilder : IRender
 {
-    IReadOnlyList<ITextRow> Rows { get; }
+    public IReadOnlyList<ITextRow> Rows { get; }
 
-    ITextRowBuilder AddBorderRow();
-    ITextRowBuilder AddDataRow(params object[] cells);
-    ITextRowBuilder AddDataRow(IReadOnlyList<object?> row, int? rowId = null);
-    ITextRowBuilder AddDataRows(IReadOnlyList<IReadOnlyList<object?>> rows, int? startRowId = null);
-    ITextRowBuilder AddDoubleBorderRow();
-    ITextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0);
-    ITextRowBuilder AddHeadingRow();
-    ITextRowBuilder AddHeadingRow(params string[] headingOverrides);
-    ITextRowBuilder ClearRows();
-    ITextRowBuilder InsertRow(int index, ITextRow row);
-    ITextRowBuilder RemoveRow(int index);
-    TextBuilder SaveTable();
+    public ITextRowBuilder AddBorderRow();
+    public ITextRowBuilder AddDataRow(params object[] cells);
+    public ITextRowBuilder AddDataRow(IReadOnlyList<object?> row, int? rowId = null);
+    public ITextRowBuilder AddDataRows(
+        IReadOnlyList<IReadOnlyList<object?>> rows,
+        int? startRowId = null
+    );
+    public ITextRowBuilder AddDoubleBorderRow();
+    public ITextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0);
+    public ITextRowBuilder AddHeadingRow();
+    public ITextRowBuilder AddHeadingRow(params string[] headingOverrides);
+    public ITextRowBuilder ClearRows();
+    public ITextRowBuilder InsertRow(int index, ITextRow row);
+    public ITextRowBuilder RemoveRow(int index);
+    public TextBuilder SaveTable();
 }
 
 //_layoutBorderComputed = false;
@@ -49,10 +52,9 @@ public class TextRowBuilder : ITextRowBuilder
         _table = table;
         _rows = rows;
 
-        var textColumns = columns.OfType<TextColumn>().ToList();
-        _dataColumnCount = textColumns.Any()
-            ? textColumns.Max(static i => i.DataColumnIndex) + 1
-            : 0;
+        List<TextColumn> textColumns = [.. columns.OfType<TextColumn>()];
+        _dataColumnCount =
+            textColumns.Count != 0 ? textColumns.Max(static i => i.DataColumnIndex) + 1 : 0;
     }
 
     public ITextRowBuilder AddBorderRow()
@@ -62,14 +64,16 @@ public class TextRowBuilder : ITextRowBuilder
         return this;
     }
 
-    public ITextRowBuilder AddDataRow(params object[] cells) =>
-        AddDataRow((IReadOnlyList<object>)cells);
+    public ITextRowBuilder AddDataRow(params object[] cells)
+    {
+        return AddDataRow((IReadOnlyList<object>)cells);
+    }
 
     public ITextRowBuilder AddDataRow(IReadOnlyList<object?> row, int? rowId = null)
     {
         if (row.Count != _dataColumnCount)
         {
-            throw new Exception(
+            throw new InvalidOperationException(
                 $"row columns ({row.Count}) does not match scheme columns ({_dataColumnCount})"
             );
         }
@@ -146,11 +150,20 @@ public class TextRowBuilder : ITextRowBuilder
         return this;
     }
 
-    public string Render() => _table.Render();
+    public string Render()
+    {
+        return _table.Render();
+    }
 
-    public TextBuilder SaveTable() => _table.SaveTable();
+    public TextBuilder SaveTable()
+    {
+        return _table.SaveTable();
+    }
 
-    public override string ToString() => _table.ToString();
+    public override string ToString()
+    {
+        return _table.ToString();
+    }
 
     private void ResetLayout()
     {
@@ -188,7 +201,10 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         return this;
     }
 
-    public ITextRowBuilder AddBorderRow() => RowBuilder.AddBorderRow();
+    public ITextRowBuilder AddBorderRow()
+    {
+        return RowBuilder.AddBorderRow();
+    }
 
     public TextTableBuilder AddColumn(
         string heading = "",
@@ -221,16 +237,23 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         return this;
     }
 
-    public ITextRowBuilder AddDataRow(params object?[] cells) =>
-        RowBuilder.AddDataRow((IReadOnlyList<object>)cells);
+    public ITextRowBuilder AddDataRow(params object?[] cells)
+    {
+        return RowBuilder.AddDataRow((IReadOnlyList<object>)cells);
+    }
 
-    public ITextRowBuilder AddDataRow(IReadOnlyList<object?> row, int? rowId = null) =>
-        RowBuilder.AddDataRow(row, rowId);
+    public ITextRowBuilder AddDataRow(IReadOnlyList<object?> row, int? rowId = null)
+    {
+        return RowBuilder.AddDataRow(row, rowId);
+    }
 
     public ITextRowBuilder AddDataRows(
         IReadOnlyList<IReadOnlyList<object?>> rows,
         int? startRowId = null
-    ) => RowBuilder.AddDataRows(rows, startRowId);
+    )
+    {
+        return RowBuilder.AddDataRows(rows, startRowId);
+    }
 
     public TextTableBuilder AddDoubleBorderColumn()
     {
@@ -239,12 +262,20 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         return this;
     }
 
-    public ITextRowBuilder AddDoubleBorderRow() => RowBuilder.AddDoubleBorderRow();
+    public ITextRowBuilder AddDoubleBorderRow()
+    {
+        return RowBuilder.AddDoubleBorderRow();
+    }
 
-    public ITextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0) =>
-        RowBuilder.AddEllipsisRow(indicator, indicatorColumnIndex);
+    public ITextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0)
+    {
+        return RowBuilder.AddEllipsisRow(indicator, indicatorColumnIndex);
+    }
 
-    public ITextRowBuilder AddHeadingRow() => RowBuilder.AddHeadingRow();
+    public ITextRowBuilder AddHeadingRow()
+    {
+        return RowBuilder.AddHeadingRow();
+    }
 
     public ITextRowBuilder AddHeadingRow(params string[] headingOverrides)
     {
@@ -279,8 +310,9 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         string nullProjection = "--",
         int? leftPadding = null,
         int? rightPadding = null
-    ) =>
-        AddColumn(
+    )
+    {
+        return AddColumn(
             heading,
             minWidth: minWidth,
             alignRight: true,
@@ -289,6 +321,7 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
             leftPadding: leftPadding,
             rightPadding: rightPadding
         );
+    }
 
     public TextTableBuilder AddStaticColumn(
         string value,
@@ -317,8 +350,9 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         return this;
     }
 
-    public IRender Build() =>
-        new TextTableModel(
+    public IRender Build()
+    {
+        return new TextTableModel(
             Columns: _columns,
             Rows: _rows,
             Border: _border,
@@ -326,11 +360,17 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
             DefaultColumnPadding: _defaultColumnPadding,
             RowLimit: _rowLimit
         );
+    }
 
-    public ITextRowBuilder ClearRows() => RowBuilder.ClearRows();
+    public ITextRowBuilder ClearRows()
+    {
+        return RowBuilder.ClearRows();
+    }
 
-    public static TextTableBuilder Create(TextTableBorder border = TextTableBorder.Default) =>
-        new TextTableBuilder(TextBuilder.Create()).Border(border);
+    public static TextTableBuilder Create(TextTableBorder border = TextTableBorder.Default)
+    {
+        return new TextTableBuilder(TextBuilder.Create()).Border(border);
+    }
 
     public static TextTableBuilder Create(
         IEnumerable<IEnumerable<object>> values,
@@ -424,11 +464,20 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         return this;
     }
 
-    public ITextRowBuilder InsertRow(int index, ITextRow row) => RowBuilder.InsertRow(index, row);
+    public ITextRowBuilder InsertRow(int index, ITextRow row)
+    {
+        return RowBuilder.InsertRow(index, row);
+    }
 
-    public ITextRowBuilder RemoveRow(int index) => RowBuilder.RemoveRow(index);
+    public ITextRowBuilder RemoveRow(int index)
+    {
+        return RowBuilder.RemoveRow(index);
+    }
 
-    public string Render() => Build().Render();
+    public string Render()
+    {
+        return Build().Render();
+    }
 
     public TextTableBuilder RowLimit(int? rowLimit)
     {
@@ -441,7 +490,7 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
     {
         if (_saved)
         {
-            throw new Exception(
+            throw new InvalidOperationException(
                 $"Cannot {nameof(SaveTable)}, {nameof(TextSectionBuilder)} already saved."
             );
         }
@@ -451,7 +500,10 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         return _parent.Add(this);
     }
 
-    public override string ToString() => $"Table, {_columns.Count} Columns, {_rows.Count} Rows";
+    public override string ToString()
+    {
+        return $"Table, {_columns.Count} Columns, {_rows.Count} Rows";
+    }
 
     internal void ResetLayout()
     {

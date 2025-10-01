@@ -1,4 +1,4 @@
-﻿namespace Koalas.Extensions;
+namespace Koalas.Extensions;
 
 public static class RegexUtils
 {
