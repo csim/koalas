@@ -44,7 +44,7 @@ public partial class TextBuilder : ITextBuilder
         int minLabelWidth = 0,
         int minValueWidth = 0,
         int maxValueWidth = 1000,
-        String fieldSeparator = ":",
+        string fieldSeparator = ":",
         int labelRightPadding = 1,
         int valueLeftPadding = 1,
         bool labelRightAlign = false,
@@ -70,6 +70,8 @@ public partial class TextBuilder : ITextBuilder
         }
 
         fieldSetBuilder.SaveFieldSet();
+
+        this.AddLine("x");
 
         return this;
     }

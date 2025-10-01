@@ -53,18 +53,11 @@ trim_trailing_whitespace = false
 indent_style = space
 indent_size = 2
 
-# Batch files
-[*.{cmd,bat}]
-end_of_line = crlf
-
 # Bash files
 [*.sh]
 end_of_line = lf
 
 [*.cs]
-
-csharp_style_namespace_declarations = file_scoped:suggestion
-
 # Disable discard assignment enforcement rules
 dotnet_diagnostic.IDE0058.severity = none
 dotnet_diagnostic.IDE0059.severity = none
@@ -101,3 +94,7 @@ dotnet_diagnostic.IDE0003.severity = warning
 
 # IDE0049: Simplify Names
 dotnet_diagnostic.IDE0049.severity = warning
+
+
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_predefined_type_keywords = true:warning
