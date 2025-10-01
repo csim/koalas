@@ -180,16 +180,6 @@ csharp_style_throw_expression = true
 csharp_style_unused_value_assignment_preference = discard_variable
 csharp_style_unused_value_expression_statement_preference = discard_variable
 
-# Disable discard assignment enforcement rules
-dotnet_diagnostic.IDE0058.severity = none
-dotnet_diagnostic.IDE0059.severity = none
-
-# Disable static lambda enforcement rules
-dotnet_diagnostic.IDE0320.severity = none
-dotnet_diagnostic.CA1859.severity = none
-dotnet_diagnostic.IDE0062.severity = none
-dotnet_diagnostic.IDE0022.severity = suggestion
-
 # 'using' directive preferences
 csharp_using_directive_placement = outside_namespace
 
@@ -288,6 +278,16 @@ dotnet_naming_style.begins_with_i.required_prefix = I
 dotnet_naming_style.begins_with_i.required_suffix =
 dotnet_naming_style.begins_with_i.word_separator =
 dotnet_naming_style.begins_with_i.capitalization = pascal_case
+
+# Disable discard assignment enforcement rules
+dotnet_diagnostic.IDE0058.severity = none
+dotnet_diagnostic.IDE0059.severity = none
+
+# Disable static lambda enforcement rules
+dotnet_diagnostic.IDE0320.severity = none
+dotnet_diagnostic.CA1859.severity = none
+dotnet_diagnostic.IDE0062.severity = none
+dotnet_diagnostic.IDE0022.severity = suggestion
 
 # CA1305: Specify IFormatProvider
 dotnet_diagnostic.CA1305.severity = none
