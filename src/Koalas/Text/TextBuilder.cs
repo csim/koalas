@@ -4,9 +4,9 @@ public partial class TextBuilder : ITextBuilder
 {
     public int IndentSize { get; private set; }
 
-    private readonly List<IRender> _children = [];
     private readonly int _defaultIndentSize;
     private readonly List<int> _indentStack = [];
+    private readonly List<IRender> _children = [];
 
     private TextBuilder(int indentSize)
     {

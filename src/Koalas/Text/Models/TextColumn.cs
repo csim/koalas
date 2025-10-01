@@ -186,8 +186,7 @@ public class TextColumn : TextColumnBase, IDynamicWidthTextColumn
 
         string formattedContent = FormatValue(row);
 
-        IReadOnlyList<string> rawLines = formattedContent.Lines()
-                                                         .ToList();
+        List<string> rawLines = [.. formattedContent.Lines()];
 
         if (MaximumWidth == null || (rawLines.Count == 1 && rawLines[0].Length < MaximumWidth))
         {
