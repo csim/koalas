@@ -128,60 +128,17 @@ package:
 run:
 	@echo "Running CLI application..."
 	dotnet run --project $(CLI_PROJECT)
-
-.PHONY: run-debug
-run-debug:
-	@echo "Running CLI application (Debug)..."
-	dotnet run --project $(CLI_PROJECT) --configuration Debug
-
 # Code quality targets
 .PHONY: format
 format:
 	@echo "Formatting code..."
 	dotnet csharpier format $(SOLUTION_DIRs) --log-format Console
 
-
-.PHONY: format-check
-format-check:
-	@echo "Checking code formatting..."
-	dotnet format $(SOLUTION) --verify-no-changes --verbosity normal
-
-.PHONY: lint
-lint:
-	@echo "Running code analysis..."
-	dotnet build $(SOLUTION) --configuration $(CONFIGURATION) --verbosity normal
-
-# Install/Uninstall CLI tool
-.PHONY: install
-install: publish
-	@echo "Installing CLI tool globally..."
-	dotnet tool uninstall --global koalas || true
-	dotnet tool install --global --add-source $(PUBLISH_DIR) koalas
-
-.PHONY: uninstall
-uninstall:
-	@echo "Uninstalling CLI tool globally..."
-	dotnet tool uninstall --global koalas
-
-# Development targets
-.PHONY: dev
-dev: restore build-debug test-debug
-	@echo "Development build complete!"
-
-.PHONY: ci
-ci: clean restore build test package
-	@echo "CI build complete!"
-
 # Watch targets
 .PHONY: watch
 watch:
 	@echo "Starting file watcher for build..."
 	dotnet watch build $(MAIN_PROJECT)
-
-.PHONY: watch-run
-watch-run:
-	@echo "Starting file watcher for run..."
-	dotnet watch run --project $(CLI_PROJECT)
 
 # Info targets
 .PHONY: info
@@ -197,12 +154,6 @@ info:
 	@echo "Environment:"
 	@dotnet --version
 	@echo ""
-
-.PHONY: version
-version:
-	@echo "Checking .NET version..."
-	@dotnet --version
-	@dotnet --list-sdks
 
 # Utility targets
 .PHONY: tree
