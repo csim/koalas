@@ -14,7 +14,7 @@ public interface IDynamicWidthTextColumn : ITextColumn
 
 public interface ITextRowBuilder : IRender
 {
-    public IReadOnlyList<ITextRow> Rows { get; }
+    IReadOnlyList<ITextRow> Rows { get; }
 
     ITextRowBuilder AddBorderRow();
     ITextRowBuilder AddDataRow(params object[] cells);
@@ -25,9 +25,9 @@ public interface ITextRowBuilder : IRender
     ITextRowBuilder AddHeadingRow();
     ITextRowBuilder AddHeadingRow(params string[] headingOverrides);
     ITextRowBuilder ClearRows();
-    public ITextRowBuilder InsertRow(int index, ITextRow row);
-    public ITextRowBuilder RemoveRow(int index);
-    public TextBuilder SaveTable();
+    ITextRowBuilder InsertRow(int index, ITextRow row);
+    ITextRowBuilder RemoveRow(int index);
+    TextBuilder SaveTable();
 }
 
 //_layoutBorderComputed = false;
@@ -40,13 +40,19 @@ public class TextRowBuilder : ITextRowBuilder
     private readonly List<ITextRow> _rows;
     private readonly TextTableBuilder _table;
 
-    public TextRowBuilder(TextTableBuilder table, List<ITextRow> rows, IReadOnlyList<ITextColumn> columns)
+    public TextRowBuilder(
+        TextTableBuilder table,
+        List<ITextRow> rows,
+        IReadOnlyList<ITextColumn> columns
+    )
     {
         _table = table;
         _rows = rows;
 
         var textColumns = columns.OfType<TextColumn>().ToList();
-        _dataColumnCount = textColumns.Any() ? textColumns.Max(i => i.DataColumnIndex) + 1 : 0;
+        _dataColumnCount = textColumns.Any()
+            ? textColumns.Max(static i => i.DataColumnIndex) + 1
+            : 0;
     }
 
     public ITextRowBuilder AddBorderRow()
@@ -56,14 +62,16 @@ public class TextRowBuilder : ITextRowBuilder
         return this;
     }
 
-    public ITextRowBuilder AddDataRow(params object[] cells)
-        => AddDataRow((IReadOnlyList<object>)cells);
+    public ITextRowBuilder AddDataRow(params object[] cells) =>
+        AddDataRow((IReadOnlyList<object>)cells);
 
     public ITextRowBuilder AddDataRow(IReadOnlyList<object> row, int? rowId = null)
     {
         if (row.Count != _dataColumnCount)
         {
-            throw new Exception($"row columns ({row.Count}) does not match scheme columns ({_dataColumnCount})");
+            throw new Exception(
+                $"row columns ({row.Count}) does not match scheme columns ({_dataColumnCount})"
+            );
         }
 
         _rows.Add(new DataTextRow(rowId ?? _rowId++, row));
@@ -71,7 +79,10 @@ public class TextRowBuilder : ITextRowBuilder
         return this;
     }
 
-    public ITextRowBuilder AddDataRows(IReadOnlyList<IReadOnlyList<object>> rows, int? startRowId = null)
+    public ITextRowBuilder AddDataRows(
+        IReadOnlyList<IReadOnlyList<object>> rows,
+        int? startRowId = null
+    )
     {
         foreach (IReadOnlyList<object> row in rows)
         {
@@ -90,11 +101,9 @@ public class TextRowBuilder : ITextRowBuilder
 
     public ITextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0)
     {
-        _rows.Add(new EllipsisTextRow
-        {
-            Indicator = indicator,
-            ColumnIndex = indicatorColumnIndex
-        });
+        _rows.Add(
+            new EllipsisTextRow { Indicator = indicator, ColumnIndex = indicatorColumnIndex }
+        );
 
         return this;
     }
@@ -115,7 +124,7 @@ public class TextRowBuilder : ITextRowBuilder
 
     public ITextRowBuilder ClearRows()
     {
-        _rows.RemoveAll(r => r is DataTextRow);
+        _rows.RemoveAll(static r => r is DataTextRow);
         ResetLayout();
 
         return this;
@@ -137,21 +146,17 @@ public class TextRowBuilder : ITextRowBuilder
         return this;
     }
 
-    public string Render()
-        => _table.Render();
+    public string Render() => _table.Render();
 
-    public TextBuilder SaveTable()
-        => _table.SaveTable();
+    public TextBuilder SaveTable() => _table.SaveTable();
 
-    public override string ToString()
-        => _table.ToString();
+    public override string ToString() => _table.ToString();
 
     private void ResetLayout()
     {
         _table.ResetLayout();
         _rowId = 1;
-        _rows.Where(r => r is DataTextRow)
-             .ForEach(r => r.Id = _rowId++);
+        _rows.Where(r => r is DataTextRow).ForEach(r => r.Id = _rowId++);
     }
 }
 
@@ -183,44 +188,49 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         return this;
     }
 
-    public ITextRowBuilder AddBorderRow()
-        => RowBuilder.AddBorderRow();
+    public ITextRowBuilder AddBorderRow() => RowBuilder.AddBorderRow();
 
-    public TextTableBuilder AddColumn(string heading = "",
-                                      int minWidth = 0,
-                                      int? maxWidth = null,
-                                      int? wrapOverflowIndent = null,
-                                      bool alignRight = false,
-                                      string format = null,
-                                      string nullProjection = null,
-                                      int? leftPadding = null,
-                                      int? rightPadding = null)
+    public TextTableBuilder AddColumn(
+        string heading = "",
+        int minWidth = 0,
+        int? maxWidth = null,
+        int? wrapOverflowIndent = null,
+        bool alignRight = false,
+        string format = null,
+        string nullProjection = null,
+        int? leftPadding = null,
+        int? rightPadding = null
+    )
     {
-        _columns.Add(new TextColumn
-        {
-            Heading = heading,
-            MinimumWidth = minWidth,
-            MaximumWidth = maxWidth,
-            WrapOverflowIndent = wrapOverflowIndent ?? 0,
-            DataColumnIndex = _currentDataColumnIndex++,
-            Format = format,
-            AlignRight = alignRight,
-            NullProjection = nullProjection,
-            LeftPadding = leftPadding,
-            RightPadding = rightPadding
-        });
+        _columns.Add(
+            new TextColumn
+            {
+                Heading = heading,
+                MinimumWidth = minWidth,
+                MaximumWidth = maxWidth,
+                WrapOverflowIndent = wrapOverflowIndent ?? 0,
+                DataColumnIndex = _currentDataColumnIndex++,
+                Format = format,
+                AlignRight = alignRight,
+                NullProjection = nullProjection,
+                LeftPadding = leftPadding,
+                RightPadding = rightPadding,
+            }
+        );
 
         return this;
     }
 
-    public ITextRowBuilder AddDataRow(params object[] cells)
-        => RowBuilder.AddDataRow((IReadOnlyList<object>)cells);
+    public ITextRowBuilder AddDataRow(params object[] cells) =>
+        RowBuilder.AddDataRow((IReadOnlyList<object>)cells);
 
-    public ITextRowBuilder AddDataRow(IReadOnlyList<object> row, int? rowId = null)
-        => RowBuilder.AddDataRow(row, rowId);
+    public ITextRowBuilder AddDataRow(IReadOnlyList<object> row, int? rowId = null) =>
+        RowBuilder.AddDataRow(row, rowId);
 
-    public ITextRowBuilder AddDataRows(IReadOnlyList<IReadOnlyList<object>> rows, int? startRowId = null)
-        => RowBuilder.AddDataRows(rows, startRowId);
+    public ITextRowBuilder AddDataRows(
+        IReadOnlyList<IReadOnlyList<object>> rows,
+        int? startRowId = null
+    ) => RowBuilder.AddDataRows(rows, startRowId);
 
     public TextTableBuilder AddDoubleBorderColumn()
     {
@@ -229,14 +239,12 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         return this;
     }
 
-    public ITextRowBuilder AddDoubleBorderRow()
-        => RowBuilder.AddDoubleBorderRow();
+    public ITextRowBuilder AddDoubleBorderRow() => RowBuilder.AddDoubleBorderRow();
 
-    public ITextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0)
-        => RowBuilder.AddEllipsisRow(indicator, indicatorColumnIndex);
+    public ITextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0) =>
+        RowBuilder.AddEllipsisRow(indicator, indicatorColumnIndex);
 
-    public ITextRowBuilder AddHeadingRow()
-        => RowBuilder.AddHeadingRow();
+    public ITextRowBuilder AddHeadingRow() => RowBuilder.AddHeadingRow();
 
     public ITextRowBuilder AddHeadingRow(params string[] headingOverrides)
     {
@@ -245,45 +253,59 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         return this;
     }
 
-    public TextTableBuilder AddIdentityColumn(string heading = "", int? leftPadding = null, int? rightPadding = null)
+    public TextTableBuilder AddIdentityColumn(
+        string heading = "",
+        int? leftPadding = null,
+        int? rightPadding = null
+    )
     {
-        _columns.Add(new IdentityTextColumn
-        {
-            Heading = heading,
-            LeftPadding = leftPadding,
-            RightPadding = rightPadding,
-            AlignRight = true
-        });
+        _columns.Add(
+            new IdentityTextColumn
+            {
+                Heading = heading,
+                LeftPadding = leftPadding,
+                RightPadding = rightPadding,
+                AlignRight = true,
+            }
+        );
 
         return this;
     }
 
-    public TextTableBuilder AddNumberColumn(string heading = "",
-                                            string format = "N0",
-                                            int minWidth = 0,
-                                            string nullProjection = "--",
-                                            int? leftPadding = null,
-                                            int? rightPadding = null)
-        => AddColumn(heading,
-                     minWidth: minWidth,
-                     alignRight: true,
-                     format: format,
-                     nullProjection: nullProjection,
-                     leftPadding: leftPadding,
-                     rightPadding: rightPadding);
+    public TextTableBuilder AddNumberColumn(
+        string heading = "",
+        string format = "N0",
+        int minWidth = 0,
+        string nullProjection = "--",
+        int? leftPadding = null,
+        int? rightPadding = null
+    ) =>
+        AddColumn(
+            heading,
+            minWidth: minWidth,
+            alignRight: true,
+            format: format,
+            nullProjection: nullProjection,
+            leftPadding: leftPadding,
+            rightPadding: rightPadding
+        );
 
-    public TextTableBuilder AddStaticColumn(string value,
-                                            bool showInHeading = false,
-                                            bool showInRow = true,
-                                            bool showInRowExtraLines = false)
+    public TextTableBuilder AddStaticColumn(
+        string value,
+        bool showInHeading = false,
+        bool showInRow = true,
+        bool showInRowExtraLines = false
+    )
     {
-        _columns.Add(new StaticTextColumn
-        {
-            Text = value ?? string.Empty,
-            ShowInHeading = showInHeading,
-            ShowInRow = showInRow,
-            ShowInRowExtraLines = showInRowExtraLines
-        });
+        _columns.Add(
+            new StaticTextColumn
+            {
+                Text = value ?? string.Empty,
+                ShowInHeading = showInHeading,
+                ShowInRow = showInRow,
+                ShowInRowExtraLines = showInRowExtraLines,
+            }
+        );
 
         return this;
     }
@@ -295,42 +317,52 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         return this;
     }
 
-    public IRender Build()
-        => new TextTableModel(Columns: _columns,
-                              Rows: _rows,
-                              Border: _border,
-                              DefaultColumnMaxWidth: _defaultColumnMaxWidth,
-                              DefaultColumnPadding: _defaultColumnPadding,
-                              RowLimit: _rowLimit);
+    public IRender Build() =>
+        new TextTableModel(
+            Columns: _columns,
+            Rows: _rows,
+            Border: _border,
+            DefaultColumnMaxWidth: _defaultColumnMaxWidth,
+            DefaultColumnPadding: _defaultColumnPadding,
+            RowLimit: _rowLimit
+        );
 
-    public ITextRowBuilder ClearRows()
-        => RowBuilder.ClearRows();
+    public ITextRowBuilder ClearRows() => RowBuilder.ClearRows();
 
-    public static TextTableBuilder Create(TextTableBorder border = TextTableBorder.Default)
-        => new TextTableBuilder(TextBuilder.Create()).Border(border);
+    public static TextTableBuilder Create(TextTableBorder border = TextTableBorder.Default) =>
+        new TextTableBuilder(TextBuilder.Create()).Border(border);
 
-    public static TextTableBuilder Create(IEnumerable<IEnumerable<object>> values,
-                                          TextTableBorder border = TextTableBorder.Inner,
-                                          IEnumerable<string> columnNames = null,
-                                          int defaultColumnPadding = 1,
-                                          int? defaultColumnMaxWidth = 50,
-                                          Func<object, string> formatCellValue = null,
-                                          bool includeIdentityColumn = false)
+    public static TextTableBuilder Create(
+        IEnumerable<IEnumerable<object>> values,
+        TextTableBorder border = TextTableBorder.Inner,
+        IEnumerable<string> columnNames = null,
+        int defaultColumnPadding = 1,
+        int? defaultColumnMaxWidth = 50,
+        Func<object, string> formatCellValue = null,
+        bool includeIdentityColumn = false
+    )
     {
         formatCellValue ??= v => v?.ToLiteral() ?? string.Empty;
 
-        TextTableBuilder builder = Create().Border(border)
-                                           .DefaultColumnPadding(defaultColumnPadding)
-                                           .DefaultColumnMaxWidth(defaultColumnMaxWidth);
+        TextTableBuilder builder = Create()
+            .Border(border)
+            .DefaultColumnPadding(defaultColumnPadding)
+            .DefaultColumnMaxWidth(defaultColumnMaxWidth);
 
-        IReadOnlyList<IEnumerable<object>> ivalues = values as IReadOnlyList<IEnumerable<object>> ?? values?.ToList() ?? [];
-        IReadOnlyList<string> icolumnNames = columnNames as IReadOnlyList<string> ?? columnNames?.ToList() ?? [];
+        IReadOnlyList<IEnumerable<object>> ivalues =
+            values as IReadOnlyList<IEnumerable<object>> ?? values?.ToList() ?? [];
+        IReadOnlyList<string> icolumnNames =
+            columnNames as IReadOnlyList<string> ?? columnNames?.ToList() ?? [];
 
         if (!ivalues.Any() && icolumnNames.Any())
         {
             foreach (string columnName in icolumnNames)
             {
-                builder.AddColumn(columnName, maxWidth: defaultColumnMaxWidth, nullProjection: "--");
+                builder.AddColumn(
+                    columnName,
+                    maxWidth: defaultColumnMaxWidth,
+                    nullProjection: "--"
+                );
             }
 
             builder.AddHeadingRow();
@@ -340,9 +372,7 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
 
         icolumnNames = icolumnNames?.ToList() ?? [];
 
-        int maxColumnCount = ivalues.Any()
-                                 ? ivalues.Max(row => row.Count())
-                                 : 0;
+        int maxColumnCount = ivalues.Any() ? ivalues.Max(row => row.Count()) : 0;
         if (includeIdentityColumn)
         {
             builder.AddIdentityColumn();
@@ -350,10 +380,17 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
 
         for (int index = 0; index < maxColumnCount; index++)
         {
-            bool allNumeric = ivalues.All(row => row.ElementAtOrDefault(index)?.IsNumeric() == true);
+            bool allNumeric = ivalues.All(row =>
+                row.ElementAtOrDefault(index)?.IsNumeric() == true
+            );
             string columnName = icolumnNames?.ElementAtOrDefault(index) ?? $"Column{index + 1}";
 
-            builder.AddColumn(columnName, maxWidth: defaultColumnMaxWidth, alignRight: allNumeric, nullProjection: "--");
+            builder.AddColumn(
+                columnName,
+                maxWidth: defaultColumnMaxWidth,
+                alignRight: allNumeric,
+                nullProjection: "--"
+            );
         }
 
         builder.AddHeadingRow();
@@ -387,14 +424,11 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         return this;
     }
 
-    public ITextRowBuilder InsertRow(int index, ITextRow row)
-        => RowBuilder.InsertRow(index, row);
+    public ITextRowBuilder InsertRow(int index, ITextRow row) => RowBuilder.InsertRow(index, row);
 
-    public ITextRowBuilder RemoveRow(int index)
-        => RowBuilder.RemoveRow(index);
+    public ITextRowBuilder RemoveRow(int index) => RowBuilder.RemoveRow(index);
 
-    public string Render()
-        => Build().Render();
+    public string Render() => Build().Render();
 
     public TextTableBuilder RowLimit(int? rowLimit)
     {
@@ -407,7 +441,9 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
     {
         if (_saved)
         {
-            throw new Exception($"Cannot {nameof(SaveTable)}, {nameof(TextSectionBuilder)} already saved.");
+            throw new Exception(
+                $"Cannot {nameof(SaveTable)}, {nameof(TextSectionBuilder)} already saved."
+            );
         }
 
         _saved = true;
@@ -415,14 +451,15 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         return _parent.Add(this);
     }
 
-    public override string ToString()
-        => $"Table, {_columns.Count} Columns, {_rows.Count} Rows";
+    public override string ToString() => $"Table, {_columns.Count} Columns, {_rows.Count} Rows";
 
     internal void ResetLayout()
     {
         //_layoutBorderComputed = false;
-        _columns.RemoveAll(c => c is PaddingTextColumn or IBorderTextColumn { External: false });
-        _rows.RemoveAll(c => c is IBorderTextRow { External: false });
+        _columns.RemoveAll(static c =>
+            c is PaddingTextColumn or IBorderTextColumn { External: false }
+        );
+        _rows.RemoveAll(static c => c is IBorderTextRow { External: false });
     }
 }
 
@@ -439,5 +476,5 @@ public enum TextTableBorder
     InnerFull = Row | Column,
     Inner = 1 << 5,
     Default = None,
-    All = int.MaxValue
+    All = int.MaxValue,
 }

@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace Koalas.Extensions;
+﻿namespace Koalas.Extensions;
 
 public static class NumberExtensions
 {
@@ -29,32 +27,52 @@ public static class NumberExtensions
         return subject?.BetweenInclusive(lowerLimit, upperLimit) ?? false;
     }
 
-    public static bool Between(this double subject, double lowerLimit, double upperLimit, bool inclusive = true)
+    public static bool Between(
+        this double subject,
+        double lowerLimit,
+        double upperLimit,
+        bool inclusive = true
+    )
     {
         return inclusive
-                   ? lowerLimit <= subject && subject <= upperLimit
-                   : lowerLimit < subject && subject < upperLimit;
+            ? lowerLimit <= subject && subject <= upperLimit
+            : lowerLimit < subject && subject < upperLimit;
     }
 
-    public static bool Between(this double? subject, double lowerLimit, double upperLimit, bool inclusive = true)
+    public static bool Between(
+        this double? subject,
+        double lowerLimit,
+        double upperLimit,
+        bool inclusive = true
+    )
     {
         return inclusive
-                   ? lowerLimit <= subject && subject <= upperLimit
-                   : lowerLimit < subject && subject < upperLimit;
+            ? lowerLimit <= subject && subject <= upperLimit
+            : lowerLimit < subject && subject < upperLimit;
     }
 
-    public static bool Between(this decimal subject, decimal lowerLimit, decimal upperLimit, bool inclusive = true)
+    public static bool Between(
+        this decimal subject,
+        decimal lowerLimit,
+        decimal upperLimit,
+        bool inclusive = true
+    )
     {
         return inclusive
-                   ? lowerLimit <= subject && subject <= upperLimit
-                   : lowerLimit < subject && subject < upperLimit;
+            ? lowerLimit <= subject && subject <= upperLimit
+            : lowerLimit < subject && subject < upperLimit;
     }
 
-    public static bool Between(this decimal? subject, decimal lowerLimit, decimal upperLimit, bool inclusive = true)
+    public static bool Between(
+        this decimal? subject,
+        decimal lowerLimit,
+        decimal upperLimit,
+        bool inclusive = true
+    )
     {
         return inclusive
-                   ? lowerLimit <= subject && subject <= upperLimit
-                   : lowerLimit < subject && subject < upperLimit;
+            ? lowerLimit <= subject && subject <= upperLimit
+            : lowerLimit < subject && subject < upperLimit;
     }
 
     public static bool BetweenExclusive(this int? subject, int lowerLimit, int upperLimit)
@@ -177,14 +195,18 @@ public static class NumberExtensions
         decimal roundSubject = Math.Round(subject, scale);
 
         // ReSharper disable once ConvertIfStatementToSwitchExpression
-        if (subject > 0 && roundSubject > subject) return roundSubject - new decimal(1, 0, 0, false, (byte)scale);
-
-        if (subject < 0 && roundSubject < subject) return roundSubject + new decimal(1, 0, 0, false, (byte)scale);
-
-        return roundSubject;
+        return subject > 0 && roundSubject > subject
+                ? roundSubject - new decimal(1, 0, 0, false, (byte)scale)
+            : subject < 0 && roundSubject < subject
+                ? roundSubject + new decimal(1, 0, 0, false, (byte)scale)
+            : roundSubject;
     }
 
-    public static bool TryDecimal(this object subject, out decimal value, bool enableCoalesced = false)
+    public static bool TryDecimal(
+        this object subject,
+        out decimal value,
+        bool enableCoalesced = false
+    )
     {
         if (enableCoalesced && subject is null or "")
         {

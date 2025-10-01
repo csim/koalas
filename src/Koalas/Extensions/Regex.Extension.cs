@@ -40,10 +40,12 @@ public static class RegexUtils
             foreach (Regex regex in regexes)
             {
                 match = regex.Match(s, pos);
-                if (match.Success) break;
+                if (match.Success)
+                    break;
             }
 
-            if (match == null) yield break;
+            if (match == null)
+                yield break;
 
             if (match.Success)
             {

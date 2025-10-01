@@ -1,31 +1,38 @@
 ﻿namespace Koalas.Text.Models;
 
-public record class TextFieldSetModel(IReadOnlyList<TextFieldModel> Items,
-                                      string Separator,
-                                      int MinLabelWidth,
-                                      int LabelRightPadding,
-                                      bool LabelRightAlign,
-                                      int MinValueWidth,
-                                      int MaxValueWidth,
-                                      int ValueLeftPadding,
-                                      bool ValueRightAlign,
-                                      int ValueOverflowIndent,
-                                      string NullProjection) : IRender
+public record class TextFieldSetModel(
+    IReadOnlyList<TextFieldModel> Items,
+    string Separator,
+    int MinLabelWidth,
+    int LabelRightPadding,
+    bool LabelRightAlign,
+    int MinValueWidth,
+    int MaxValueWidth,
+    int ValueLeftPadding,
+    bool ValueRightAlign,
+    int ValueOverflowIndent,
+    string NullProjection
+) : IRender
 {
     public string Render()
     {
-        TextTableBuilder table = TextTableBuilder.Create()
-                                                 .AddColumn(minWidth: MinLabelWidth,
-                                                            leftPadding: 0,
-                                                            rightPadding: LabelRightPadding,
-                                                            alignRight: LabelRightAlign)
-                                                 .AddStaticColumn(Separator)
-                                                 .AddColumn(minWidth: MinValueWidth,
-                                                            maxWidth: MaxValueWidth,
-                                                            wrapOverflowIndent: ValueOverflowIndent,
-                                                            leftPadding: ValueLeftPadding,
-                                                            rightPadding: 0,
-                                                            alignRight: ValueRightAlign);
+        TextTableBuilder table = TextTableBuilder
+            .Create()
+            .AddColumn(
+                minWidth: MinLabelWidth,
+                leftPadding: 0,
+                rightPadding: LabelRightPadding,
+                alignRight: LabelRightAlign
+            )
+            .AddStaticColumn(Separator)
+            .AddColumn(
+                minWidth: MinValueWidth,
+                maxWidth: MaxValueWidth,
+                wrapOverflowIndent: ValueOverflowIndent,
+                leftPadding: ValueLeftPadding,
+                rightPadding: 0,
+                alignRight: ValueRightAlign
+            );
 
         foreach (TextFieldModel item in Items)
         {

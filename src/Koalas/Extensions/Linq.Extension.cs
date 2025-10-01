@@ -4,7 +4,8 @@ public static partial class LinqExtension
 {
     public static void AddDistinctItem<T>(this IList<T> list, T value)
     {
-        if (!list.Contains(value)) list.Add(value);
+        if (!list.Contains(value))
+            list.Add(value);
     }
 
     public static IList<T> AddItem<T>(this IList<T> items, T item)
@@ -21,8 +22,10 @@ public static partial class LinqExtension
 
     public static void ForEach<TSource>(this IEnumerable<TSource> subject, Action<TSource> onNext)
     {
-        if (subject == null) throw new ArgumentNullException(nameof(subject));
-        if (onNext == null) throw new ArgumentNullException(nameof(onNext));
+        if (subject == null)
+            throw new ArgumentNullException(nameof(subject));
+        if (onNext == null)
+            throw new ArgumentNullException(nameof(onNext));
 
         foreach (TSource item in subject)
         {
@@ -52,7 +55,7 @@ public static partial class LinqExtension
 
     public static IEnumerable<string> NotNullOrEmpty(this IEnumerable<string> subject)
     {
-        return subject.Where(s => !string.IsNullOrEmpty(s));
+        return subject.Where(static s => !string.IsNullOrEmpty(s));
     }
 
     public static IEnumerable<T> Page<T>(this IEnumerable<T> items, int page, int pageSize)
@@ -72,15 +75,14 @@ public static partial class LinqExtension
 
     public static IEnumerable<IEnumerable<T>> Partition<T>(this IEnumerable<T> items, int size)
     {
-        items = items as IReadOnlyCollection<T> ?? items.ToList();
+        items = items as IReadOnlyCollection<T> ?? [.. items];
 
         int partitionIndex = 0;
         while (true)
         {
-            IReadOnlyList<T> ret = items.Skip(size * partitionIndex)
-                                        .Take(size)
-                                        .ToList();
-            if (ret.None()) yield break;
+            IReadOnlyList<T> ret = [.. items.Skip(size * partitionIndex).Take(size)];
+            if (ret.None())
+                yield break;
 
             yield return ret;
 
@@ -88,7 +90,10 @@ public static partial class LinqExtension
         }
     }
 
-    public static IEnumerable<string> SerializeJson<T>(this IEnumerable<T> items, Formatting format = Formatting.None)
+    public static IEnumerable<string> SerializeJson<T>(
+        this IEnumerable<T> items,
+        Formatting format = Formatting.None
+    )
     {
         return items.Select(item => JsonConvert.SerializeObject(item, format));
     }
@@ -160,7 +165,8 @@ public static partial class LinqExtension
     {
         foreach (T i in subject)
         {
-            if (!predicate(i)) continue;
+            if (!predicate(i))
+                continue;
 
             item = i;
 

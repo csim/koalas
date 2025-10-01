@@ -2,47 +2,66 @@
 
 public static class FileInfoHelper
 {
-    public static IEnumerable<FileInfo> Files(IEnumerable<string> directoryPaths,
-                                              string searchPattern = "",
-                                              SearchOption options = SearchOption.TopDirectoryOnly)
+    public static IEnumerable<FileInfo> Files(
+        IEnumerable<string> directoryPaths,
+        string searchPattern = "",
+        SearchOption options = SearchOption.TopDirectoryOnly
+    )
     {
-        return directoryPaths.SelectMany(directoryPath => new DirectoryInfo(directoryPath).EnumerateFiles(searchPattern, options));
+        return directoryPaths.SelectMany(directoryPath =>
+            new DirectoryInfo(directoryPath).EnumerateFiles(searchPattern, options)
+        );
     }
 
-    public static IEnumerable<FileInfo> Files(string directoryPath,
-                                              string searchPattern = "",
-                                              SearchOption options = SearchOption.TopDirectoryOnly)
+    public static IEnumerable<FileInfo> Files(
+        string directoryPath,
+        string searchPattern = "",
+        SearchOption options = SearchOption.TopDirectoryOnly
+    )
     {
         return Files([directoryPath], searchPattern, options);
     }
 
-    public static IEnumerable<string> ReadDirectoryFiles(string directoryPath,
-                                                         string searchPattern = "",
-                                                         SearchOption options = SearchOption.TopDirectoryOnly)
+    public static IEnumerable<string> ReadDirectoryFiles(
+        string directoryPath,
+        string searchPattern = "",
+        SearchOption options = SearchOption.TopDirectoryOnly
+    )
     {
         return ReadDirectoryFiles([directoryPath], searchPattern, options);
     }
 
-    public static IEnumerable<string> ReadDirectoryFiles(IEnumerable<string> directoryPaths,
-                                                         string searchPattern = "",
-                                                         SearchOption options = SearchOption.TopDirectoryOnly)
+    public static IEnumerable<string> ReadDirectoryFiles(
+        IEnumerable<string> directoryPaths,
+        string searchPattern = "",
+        SearchOption options = SearchOption.TopDirectoryOnly
+    )
     {
-        return directoryPaths.SelectMany(directoryPath => new DirectoryInfo(directoryPath).EnumerateFiles(searchPattern, options)
-                                                                                          .Select(file => File.ReadAllText(file.FullName)));
+        return directoryPaths.SelectMany(directoryPath =>
+            new DirectoryInfo(directoryPath)
+                .EnumerateFiles(searchPattern, options)
+                .Select(file => File.ReadAllText(file.FullName))
+        );
     }
 
-    public static IEnumerable<string> ReadFileLines(string directoryPath,
-                                                    string searchPattern = "",
-                                                    SearchOption options = SearchOption.TopDirectoryOnly)
+    public static IEnumerable<string> ReadFileLines(
+        string directoryPath,
+        string searchPattern = "",
+        SearchOption options = SearchOption.TopDirectoryOnly
+    )
     {
         return ReadFileLines([directoryPath], searchPattern, options);
     }
 
-    public static IEnumerable<string> ReadFileLines(IEnumerable<string> directoryPaths,
-                                                    string searchPattern = "",
-                                                    SearchOption options = SearchOption.TopDirectoryOnly)
+    public static IEnumerable<string> ReadFileLines(
+        IEnumerable<string> directoryPaths,
+        string searchPattern = "",
+        SearchOption options = SearchOption.TopDirectoryOnly
+    )
     {
-        IEnumerable<FileInfo> files = directoryPaths.SelectMany(directoryPath => new DirectoryInfo(directoryPath).EnumerateFiles(searchPattern, options));
+        IEnumerable<FileInfo> files = directoryPaths.SelectMany(directoryPath =>
+            new DirectoryInfo(directoryPath).EnumerateFiles(searchPattern, options)
+        );
 
         foreach (FileInfo file in files)
         {
@@ -63,30 +82,30 @@ public static class FileInfoHelper
 
     public static IEnumerable<string> ReadFileLines(this IEnumerable<FileInfo> contents)
     {
-        return contents.SelectMany(f => File.ReadLines(f.FullName));
+        return contents.SelectMany(static f => File.ReadLines(f.FullName));
     }
 
     public static IEnumerable<string> ReadLines(this IEnumerable<string> items)
     {
-        return items.SelectMany(c => c.Split([
-                                                 Environment.NewLine,
-                                                 "\n",
-                                                 "\r"
-                                             ],
-                                             StringSplitOptions.RemoveEmptyEntries));
+        return items.SelectMany(static c =>
+            c.Split([Environment.NewLine, "\n", "\r"], StringSplitOptions.RemoveEmptyEntries)
+        );
     }
 
-    public static IReadOnlyList<FileInfo> WriteFileLines(this IEnumerable<string> lines,
-                                                         string directoryPath,
-                                                         string prefix = null,
-                                                         string extension = "json",
-                                                         int maxDirectoryLines = 1_000_000,
-                                                         int maxFileLines = 1,
-                                                         int? maxParallel = null)
+    public static IReadOnlyList<FileInfo> WriteFileLines(
+        this IEnumerable<string> lines,
+        string directoryPath,
+        string prefix = null,
+        string extension = "json",
+        int maxDirectoryLines = 1_000_000,
+        int maxFileLines = 1,
+        int? maxParallel = null
+    )
     {
         prefix ??= $"{DateTime.UtcNow:yyyyMMdd-HHmmss}_";
 
-        if (!prefix.EndsWith('_')) prefix = $"{prefix}_";
+        if (!prefix.EndsWith('_'))
+            prefix = $"{prefix}_";
 
         List<FileInfo> files = [];
         int fileId = 1;
@@ -95,26 +114,41 @@ public static class FileInfoHelper
 
         while (true)
         {
-            List<string> directoryPartition = lines.Skip((partId - 1) * maxDirectoryLines).Take(maxDirectoryLines).ToList();
-            if (!directoryPartition.Any()) break;
+            List<string> directoryPartition =
+            [
+                .. lines.Skip((partId - 1) * maxDirectoryLines).Take(maxDirectoryLines),
+            ];
+            if (!directoryPartition.Any())
+                break;
 
-            foreach (IEnumerable<string> filePartition in directoryPartition.Partition(maxFileLines))
+            foreach (
+                IEnumerable<string> filePartition in directoryPartition.Partition(maxFileLines)
+            )
             {
                 string part = $"part{partId:00000}";
-                string dirPath = lines.Count() < maxDirectoryLines ? directoryPath : Path.Combine(directoryPath, part);
+                string dirPath =
+                    lines.Count() < maxDirectoryLines
+                        ? directoryPath
+                        : Path.Combine(directoryPath, part);
                 //var dirPath = Path.Combine(directoryPath, part);
-                FileInfo file = new(Path.Combine(dirPath, $"{prefix}{part}_file{fileId:00000}.{extension}"));
+                FileInfo file = new(
+                    Path.Combine(dirPath, $"{prefix}{part}_file{fileId:00000}.{extension}")
+                );
                 files.Add(file);
 
-                if (file.Directory?.Exists == false) file.Directory.Create();
+                if (file.Directory?.Exists == false)
+                    file.Directory.Create();
 
-                File.WriteAllText(file.FullName, string.Join(Environment.NewLine, filePartition.ToList()));
+                File.WriteAllText(
+                    file.FullName,
+                    string.Join(Environment.NewLine, filePartition.ToList())
+                );
                 fileId++;
             }
 
             partId++;
         }
 
-        return files.ToList();
+        return [.. files];
     }
 }

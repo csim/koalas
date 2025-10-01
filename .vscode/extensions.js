@@ -1,0 +1,22 @@
+{
+  "recommendations": [
+    // Core C# Development
+    "ms-dotnettools.csdevkit",
+    "ms-dotnettools.csharp",
+    "ms-dotnettools.vscode-dotnet-runtime",
+    
+    // Advanced C# Code Style & Formatting
+    "csharpier.csharpier-vscode",
+    "irongeek.csharpen",
+    "ms-dotnettools.dotnet-interactive-vscode",
+    
+    // Code Quality & Analysis
+    "sonarsource.sonarlint-vscode",
+    "ms-vscode.vscode-json",
+    
+    // Editor Configuration & Formatting
+    "editorconfig.editorconfig",
+    "ms-vscode.powershell",
+    
+  ]
+}

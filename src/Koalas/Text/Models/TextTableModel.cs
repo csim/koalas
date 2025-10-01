@@ -168,7 +168,9 @@ public record class TextTableModel(List<ITextColumn> Columns,
             if (col is IDynamicWidthTextColumn dynamicCol)
             {
                 dynamicCol.MaximumWidth ??= DefaultColumnMaxWidth;
-                int headingWidth = hasHeading ? dynamicCol.Heading?.Length ?? 0 : 0;
+                int headingWidth = hasHeading
+                ? dynamicCol.Heading?.Length ?? 0
+                : 0;
                 dynamicCol.Width = Math.Max(dynamicCol.MinimumWidth, Math.Max(headingWidth, dataWidth));
             }
             else

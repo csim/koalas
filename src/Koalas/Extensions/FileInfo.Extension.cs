@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace Koalas.Extensions;
+﻿namespace Koalas.Extensions;
 
 public static class FileInfoExtensions
 {
@@ -59,7 +57,9 @@ public static class FileInfoExtensions
     /// <returns></returns>
     public static FileInfo AppendJsonLines<T>(this FileInfo fileInfo, IEnumerable<T> items)
     {
-        return fileInfo.AppendAllLines(items.Select(item => JsonConvert.SerializeObject(item, Formatting.None)));
+        return fileInfo.AppendAllLines(
+            items.Select(item => JsonConvert.SerializeObject(item, Formatting.None))
+        );
     }
 
     /// <summary>
@@ -89,7 +89,8 @@ public static class FileInfoExtensions
     /// <returns></returns>
     public static FileInfo EnsureDirectory(this FileInfo subject)
     {
-        if (subject.Directory?.Exists == false) subject.Directory?.Create();
+        if (subject.Directory?.Exists == false)
+            subject.Directory?.Create();
 
         subject.Refresh();
 
@@ -105,7 +106,8 @@ public static class FileInfoExtensions
     {
         subject.EnsureDirectory();
 
-        if (subject.Exists == false) subject.WriteAllText(string.Empty);
+        if (subject.Exists == false)
+            subject.WriteAllText(string.Empty);
 
         subject.Refresh();
 
@@ -228,7 +230,8 @@ public static class FileInfoExtensions
     /// <returns></returns>
     public static FileInfo WriteAllLines(this FileInfo fileInfo, IEnumerable<string> lines)
     {
-        if (fileInfo.Directory?.Exists == false) fileInfo.Directory.Create();
+        if (fileInfo.Directory?.Exists == false)
+            fileInfo.Directory.Create();
 
         File.WriteAllLines(fileInfo.FullName, lines);
 
@@ -244,7 +247,8 @@ public static class FileInfoExtensions
     /// <returns></returns>
     public static FileInfo WriteAllText(this FileInfo fileInfo, string text)
     {
-        if (fileInfo.Directory?.Exists == false) fileInfo.Directory.Create();
+        if (fileInfo.Directory?.Exists == false)
+            fileInfo.Directory.Create();
 
         File.WriteAllText(fileInfo.FullName, text);
 
@@ -262,17 +266,20 @@ public static class FileInfoExtensions
     /// <param name="maxFileLines">Maximum number of text lines for each file.</param>
     /// <param name="maxParallel">Maximum number of parallel file writing tasks.</param>
     /// <returns></returns>
-    public static IReadOnlyList<FileInfo> WriteDirectoryLines(this IEnumerable<string> lines,
-                                                              string rootDirectoryPath,
-                                                              string? filePrefix = null,
-                                                              string extension = "json",
-                                                              int maxDirectoryLines = 1_000,
-                                                              int maxFileLines = 1,
-                                                              int? maxParallel = null)
+    public static IReadOnlyList<FileInfo> WriteDirectoryLines(
+        this IEnumerable<string> lines,
+        string rootDirectoryPath,
+        string? filePrefix = null,
+        string extension = "json",
+        int maxDirectoryLines = 1_000,
+        int maxFileLines = 1,
+        int? maxParallel = null
+    )
     {
         filePrefix ??= $"{DateTime.UtcNow:yyyyMMdd-HHmmss}_";
 
-        if (!filePrefix.EndsWith('_')) filePrefix = $"{filePrefix}_";
+        if (!filePrefix.EndsWith('_'))
+            filePrefix = $"{filePrefix}_";
 
         List<FileInfo> files = [];
         int fileId = 1;
@@ -281,18 +288,24 @@ public static class FileInfoExtensions
 
         while (true)
         {
-            List<string> directoryLines = lines.Skip((partId - 1) * maxDirectoryLines)
-                                               .Take(maxDirectoryLines)
-                                               .ToList();
-            if (!directoryLines.Any()) break;
+            List<string> directoryLines = lines
+                .Skip((partId - 1) * maxDirectoryLines)
+                .Take(maxDirectoryLines)
+                .ToList();
+            if (!directoryLines.Any())
+                break;
 
             foreach (IEnumerable<string> fileLines in directoryLines.Partition(maxFileLines))
             {
                 string partName = $"part{partId:00000}";
-                string dirPath = lines.Count() < maxDirectoryLines
-                                     ? rootDirectoryPath
-                                     : Path.Combine(rootDirectoryPath, partName);
-                string filePath = Path.Combine(dirPath, $"{filePrefix}{partName}_file{fileId:00000}.{extension}");
+                string dirPath =
+                    lines.Count() < maxDirectoryLines
+                        ? rootDirectoryPath
+                        : Path.Combine(rootDirectoryPath, partName);
+                string filePath = Path.Combine(
+                    dirPath,
+                    $"{filePrefix}{partName}_file{fileId:00000}.{extension}"
+                );
                 FileInfo file = new(filePath);
                 files.Add(file);
                 file.WriteAllText(fileLines.ToJoinNewlineString());

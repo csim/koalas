@@ -32,13 +32,12 @@ public static class ByteExtension
 
     public static string Sha256(this byte[] content)
     {
-        HashAlgorithm algo = (HashAlgorithm)CryptoConfig.CreateFromName("SHA256")
-                             ?? throw new Exception("Invalid hash algorithm SHA256");
+        HashAlgorithm algo =
+            (HashAlgorithm)CryptoConfig.CreateFromName("SHA256")
+            ?? throw new Exception("Invalid hash algorithm SHA256");
         byte[] hash = algo.ComputeHash(content);
 
-        return BitConverter.ToString(hash)
-                           .Replace("-", string.Empty)
-                           .ToLower();
+        return BitConverter.ToString(hash).Replace("-", string.Empty).ToLower();
     }
 
     private static void CopyTo(Stream source, Stream destination)

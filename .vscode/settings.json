@@ -1,4 +1,8 @@
 {
+  "subtleBrackets.style": {
+    "borderWidth": "1px",
+    "borderStyle": "none none solid none"
+  },
   "editorconfig.generateAuto": false,
   "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
   "files.associations": {
@@ -126,7 +130,12 @@
   ],
   "csharpen.codingStyles": {
     "useLanguageKeywordsInsteadOfFrameworkTypes": true,
-    "convertNonPrivateFieldsToProperties": true
+    "convertNonPrivateFieldsToProperties": true,
+    "preserveNullableDirectives": true
   },
-  "csharpen.symbolRenamingEnabled": true
+  "csharpen.symbolRenamingEnabled": true,
+  "csharpen.sharpenFilesWhenRemovingUnusedReferences": true,
+  "csharpen.performQuickFixesOnSharpen": true,
+  "csharpen.showFileSizeDifferenceOnSharpen": false,
+  "csharpier.enableDebugLogs": false
 }

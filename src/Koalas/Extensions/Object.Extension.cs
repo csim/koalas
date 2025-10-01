@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 namespace Koalas.Extensions;
 
@@ -23,41 +21,44 @@ public static partial class Extension
 {
     public static string RenderNumbered(this IEnumerable<object>? items, int startNumber = 1)
     {
-        if (items == null) return string.Empty;
+        if (items == null)
+            return string.Empty;
 
         items = items.ToReadOnlyList();
-        if (!items.Any()) return "<none>";
+        if (!items.Any())
+            return "<none>";
 
-        int maxPositionLength = items.Select((_, idx) => (idx + startNumber).ToString().Length).Max();
+        int maxPositionLength = items
+            .Select((_, idx) => (idx + startNumber).ToString().Length)
+            .Max();
         int indent = maxPositionLength + 2;
-        IEnumerable<string> lines = items.Select((item, idx) =>
-        {
-            int position = idx + startNumber;
-            string num = maxPositionLength > 1
-                             ? position.ToString().PadLeft(maxPositionLength)
-                             : position.ToString();
+        IEnumerable<string> lines = items.Select(
+            (item, idx) =>
+            {
+                int position = idx + startNumber;
+                string num =
+                    maxPositionLength > 1
+                        ? position.ToString().PadLeft(maxPositionLength)
+                        : position.ToString();
 
-            return $"{num}: {item.ToString().IndentSkipFirstLine(indent)}";
-        });
+                return $"{num}: {item.ToString().IndentSkipFirstLine(indent)}";
+            }
+        );
 
         return lines.ToJoinNewlineString();
     }
 
     public static string ToLiteral(this object? obj)
     {
-        if (obj is DateTime dt)
-        {
-            return dt.ToString(dt == dt.Date
-                                   ? "yyyy-MM-dd"
-                                   : dt is { Second: 0, Millisecond: 0 }
-                                       ? "yyyy-MM-ddTHH:mm"
-                                       : dt.Millisecond == 0
-                                           ? "s"
-                                           : "yyyy-MM-ddTHH:mm:ss.fff",
-                               CultureInfo.InvariantCulture);
-        }
-
-        return JsonConvert.SerializeObject(obj);
+        return obj is DateTime dt
+            ? dt.ToString(
+                dt == dt.Date ? "yyyy-MM-dd"
+                    : dt is { Second: 0, Millisecond: 0 } ? "yyyy-MM-ddTHH:mm"
+                    : dt.Millisecond == 0 ? "s"
+                    : "yyyy-MM-ddTHH:mm:ss.fff",
+                CultureInfo.InvariantCulture
+            )
+            : JsonConvert.SerializeObject(obj);
     }
 }
 
@@ -82,17 +83,16 @@ public static partial class ObjectExtension
             float item => item.Render(),
             IRender item => item.Render(),
             IToJson item => item.ToJson().ToString(Formatting.Indented),
-            _ => subject.ToLiteral()
+            _ => subject.ToLiteral(),
         };
     }
 
     public static string Render(this string? subject)
     {
-        return subject == null
-                   ? "null"
-                   : subject.Contains('\n')
-                       ? $"\"\"\"{Environment.NewLine}{subject}{Environment.NewLine}\"\"\""
-                       : subject.ToLiteral().Replace(@"\\", @"\");
+        return subject == null ? "null"
+            : subject.Contains('\n')
+                ? $"\"\"\"{Environment.NewLine}{subject}{Environment.NewLine}\"\"\""
+            : subject.ToLiteral().Replace(@"\\", @"\");
     }
 
     public static string Render(this DateTime subject)
@@ -102,7 +102,9 @@ public static partial class ObjectExtension
 
     public static string Render(this int subject)
     {
-        return subject.ToString("#,##0.#####################", CultureInfo.InvariantCulture).Replace(",", "_");
+        return subject
+            .ToString("#,##0.#####################", CultureInfo.InvariantCulture)
+            .Replace(",", "_");
     }
 
     public static string Render(this uint subject)
@@ -128,7 +130,7 @@ public static partial class ObjectExtension
     public static bool SequenceValueEquals<T>(this IEnumerable<T>? left, IEnumerable<T>? right)
     {
         return (left == null && right == null)
-               || (right != null && left?.SequenceEqual(right) == true);
+            || (right != null && left?.SequenceEqual(right) == true);
     }
 
     /// <summary>
@@ -142,7 +144,7 @@ public static partial class ObjectExtension
         {
             string item => item.ToCSharpLiteral(),
             DateTime item => item.ToCSharpLiteral(),
-            _ => subject.Render()
+            _ => subject.Render(),
         };
     }
 
@@ -168,17 +170,16 @@ public static partial class ObjectExtension
 
     public static string ToJsonHash(this object request)
     {
-        string requestJson = JsonConvert.SerializeObject(request, Formatting.None)
-                                        .Replace("\r\n", "\n")
-                                        .Replace("\r", "\n")
-                                        .Replace("\\r\\n", "\\n");
+        string requestJson = JsonConvert
+            .SerializeObject(request, Formatting.None)
+            .Replace("\r\n", "\n")
+            .Replace("\r", "\n")
+            .Replace("\\r\\n", "\\n");
 
         byte[] inputBytes = Encoding.UTF8.GetBytes(requestJson);
 
         StringBuilder output = new();
-        SHA256.Create()
-              .ComputeHash(inputBytes)
-              .ForEach(b => output.Append(b.ToString("X2")));
+        SHA256.Create().ComputeHash(inputBytes).ForEach(b => output.Append(b.ToString("X2")));
 
         return output.ToString();
     }
@@ -203,19 +204,26 @@ public static partial class ObjectExtension
         return ToJsonString(source, Formatting.Indented, converters);
     }
 
-    public static string ToJsonString(this object source, Formatting formatting = Formatting.Indented, params JsonConverter[] converters)
+    public static string ToJsonString(
+        this object source,
+        Formatting formatting = Formatting.Indented,
+        params JsonConverter[] converters
+    )
     {
         return JsonConvert.SerializeObject(source, formatting, converters);
     }
 
-    public static string ToJsonString(this object source, Formatting formatting = Formatting.Indented, JsonSerializerSettings? settings = null)
+    public static string ToJsonString(
+        this object source,
+        Formatting formatting = Formatting.Indented,
+        JsonSerializerSettings? settings = null
+    )
     {
         return JsonConvert.SerializeObject(source, formatting, settings);
     }
 
     public static bool ValueEquals<T>(this T? left, T? right)
     {
-        return (left == null && right == null)
-               || (right != null && left?.Equals(right) == true);
+        return (left == null && right == null) || (right != null && left?.Equals(right) == true);
     }
 }

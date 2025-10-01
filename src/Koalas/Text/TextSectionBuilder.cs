@@ -33,57 +33,81 @@ public partial class TextSectionBuilder : ITextBuilder
         return this;
     }
 
-    public TextSectionBuilder AddFieldSet(IDictionary<string, string> items,
-                                          int minLabelWidth = 0,
-                                          int minValueWidth = 0,
-                                          int maxValueWidth = 1000,
-                                          string fieldSeparator = ":",
-                                          int labelRightPadding = 1,
-                                          int valueLeftPadding = 1,
-                                          bool labelRightAlign = false,
-                                          bool valueRightAlign = false,
-                                          int valueOverflowIndent = 0)
+    public TextSectionBuilder AddFieldSet(
+        IDictionary<string, string> items,
+        int minLabelWidth = 0,
+        int minValueWidth = 0,
+        int maxValueWidth = 1000,
+        string fieldSeparator = ":",
+        int labelRightPadding = 1,
+        int valueLeftPadding = 1,
+        bool labelRightAlign = false,
+        bool valueRightAlign = false,
+        int valueOverflowIndent = 0
+    )
     {
-        _bodyBuilder.StartFieldSet(minLabelWidth: minLabelWidth,
-                                   minValueWidth: minValueWidth,
-                                   maxValueWidth: maxValueWidth,
-                                   fieldSeparator: fieldSeparator,
-                                   labelRightPadding: labelRightPadding,
-                                   valueLeftPadding: valueLeftPadding,
-                                   labelRightAlign: labelRightAlign,
-                                   valueRightAlign: valueRightAlign,
-                                   valueOverflowIndent: valueOverflowIndent);
-
+        _bodyBuilder.StartFieldSet(
+            minLabelWidth: minLabelWidth,
+            minValueWidth: minValueWidth,
+            maxValueWidth: maxValueWidth,
+            fieldSeparator: fieldSeparator,
+            labelRightPadding: labelRightPadding,
+            valueLeftPadding: valueLeftPadding,
+            labelRightAlign: labelRightAlign,
+            valueRightAlign: valueRightAlign,
+            valueOverflowIndent: valueOverflowIndent
+        );
 
         return this;
     }
 
-    public TextSectionBuilder AddHangSection(string heading,
-                                             string body,
-                                             int? maxWidth = null,
-                                             int trailingBlankLines = 1)
+    public TextSectionBuilder AddHangSection(
+        string heading,
+        string body,
+        int? maxWidth = null,
+        int trailingBlankLines = 1
+    )
     {
-        _bodyBuilder.AddHangSection(heading, body, maxWidth: maxWidth, trailingBlankLines: trailingBlankLines);
+        _bodyBuilder.AddHangSection(
+            heading,
+            body,
+            maxWidth: maxWidth,
+            trailingBlankLines: trailingBlankLines
+        );
 
         return this;
     }
 
-    public TextSectionBuilder AddHangSection(string heading,
-                                             ITextBuilder body,
-                                             int? maxWidth = null,
-                                             int trailingBlankLines = 1)
+    public TextSectionBuilder AddHangSection(
+        string heading,
+        ITextBuilder body,
+        int? maxWidth = null,
+        int trailingBlankLines = 1
+    )
     {
-        _bodyBuilder.AddHangSection(heading, body, maxWidth: maxWidth, trailingBlankLines: trailingBlankLines);
+        _bodyBuilder.AddHangSection(
+            heading,
+            body,
+            maxWidth: maxWidth,
+            trailingBlankLines: trailingBlankLines
+        );
 
         return this;
     }
 
-    public TextSectionBuilder AddHangSection(string heading,
-                                             object body,
-                                             int? maxWidth = null,
-                                             int trailingBlankLines = 1)
+    public TextSectionBuilder AddHangSection(
+        string heading,
+        object body,
+        int? maxWidth = null,
+        int trailingBlankLines = 1
+    )
     {
-        _bodyBuilder.AddHangSection(heading, body, maxWidth: maxWidth, trailingBlankLines: trailingBlankLines);
+        _bodyBuilder.AddHangSection(
+            heading,
+            body,
+            maxWidth: maxWidth,
+            trailingBlankLines: trailingBlankLines
+        );
 
         return this;
     }
@@ -95,8 +119,7 @@ public partial class TextSectionBuilder : ITextBuilder
         return this;
     }
 
-    public TextSectionBuilder AddLine(object source)
-        => AddLine(source.Render());
+    public TextSectionBuilder AddLine(object source) => AddLine(source.Render());
 
     public TextSectionBuilder AddList(IEnumerable<string> items, string separator = ":")
     {
@@ -105,25 +128,33 @@ public partial class TextSectionBuilder : ITextBuilder
         return this;
     }
 
-    public TextSectionBuilder AddTable(IEnumerable<IEnumerable<object>> values,
-                                       TextTableBorder border = TextTableBorder.Inner,
-                                       IEnumerable<string> columnNames = null,
-                                       int defaultColumnPadding = 1,
-                                       int? defaultColumnMaxWidth = 50,
-                                       Func<object, string> formatCellValue = null,
-                                       bool includeIdentityColumn = false)
-        => Add(TextTableBuilder.Create(values: values,
-                                       border: border,
-                                       columnNames: columnNames,
-                                       defaultColumnPadding: defaultColumnPadding,
-                                       defaultColumnMaxWidth: defaultColumnMaxWidth,
-                                       formatCellValue: formatCellValue,
-                                       includeIdentityColumn: includeIdentityColumn));
+    public TextSectionBuilder AddTable(
+        IEnumerable<IEnumerable<object>> values,
+        TextTableBorder border = TextTableBorder.Inner,
+        IEnumerable<string> columnNames = null,
+        int defaultColumnPadding = 1,
+        int? defaultColumnMaxWidth = 50,
+        Func<object, string> formatCellValue = null,
+        bool includeIdentityColumn = false
+    ) =>
+        Add(
+            TextTableBuilder.Create(
+                values: values,
+                border: border,
+                columnNames: columnNames,
+                defaultColumnPadding: defaultColumnPadding,
+                defaultColumnMaxWidth: defaultColumnMaxWidth,
+                formatCellValue: formatCellValue,
+                includeIdentityColumn: includeIdentityColumn
+            )
+        );
 
-    public IRender Build()
-        => new TextSectionModel(Heading: _heading,
-                                Body: _bodyBuilder.Build(),
-                                HeadingSuffix: _headingSuffix);
+    public IRender Build() =>
+        new TextSectionModel(
+            Heading: _heading,
+            Body: _bodyBuilder.Build(),
+            HeadingSuffix: _headingSuffix
+        );
 
     public TextSectionBuilder ClearIndent()
     {
@@ -132,8 +163,8 @@ public partial class TextSectionBuilder : ITextBuilder
         return this;
     }
 
-    public static TextSectionBuilder Create(int indentSize = 2)
-        => new(TextBuilder.Create(indentSize: 2));
+    public static TextSectionBuilder Create(int indentSize = 2) =>
+        new(TextBuilder.Create(indentSize: 2));
 
     public TextSectionBuilder Heading(string heading)
     {
@@ -163,14 +194,15 @@ public partial class TextSectionBuilder : ITextBuilder
         return this;
     }
 
-    public string Render()
-        => Build().Render();
+    public string Render() => Build().Render();
 
     public TextBuilder SaveSection()
     {
         if (_saved)
         {
-            throw new Exception($"Cannot {nameof(SaveSection)}, {nameof(TextSectionBuilder)} already saved.");
+            throw new Exception(
+                $"Cannot {nameof(SaveSection)}, {nameof(TextSectionBuilder)} already saved."
+            );
         }
 
         _saved = true;
@@ -178,6 +210,5 @@ public partial class TextSectionBuilder : ITextBuilder
         return _parent.Add(this);
     }
 
-    public override string ToString()
-        => Render();
+    public override string ToString() => Render();
 }

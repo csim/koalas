@@ -24,23 +24,42 @@ public partial class TextFieldSetBuilder : ITextBuilder
     }
 
     public TextFieldSetBuilder AddField(string label, object value)
-        => StartField().Label(label)
-                       .Value(value.Render())
-                       .SaveField();
+    {
+        return StartField().Label(label).Value(value.Render()).SaveField();
+    }
 
     public TextFieldSetBuilder AddField(string label, bool? value, int trailingBlankLines = 0)
-        => AddField(label, value, format: null, trailingBlankLines: trailingBlankLines);
+    {
+        return AddField(label, value, format: null, trailingBlankLines: trailingBlankLines);
+    }
 
-    public TextFieldSetBuilder AddField(string label, int? value, string format = "N0", int trailingBlankLines = 0)
-        => AddField(label, (object)value, format);
+    public TextFieldSetBuilder AddField(
+        string label,
+        int? value,
+        string format = "N0",
+        int trailingBlankLines = 0
+    ) => AddField(label, (object)value, format);
 
-    public TextFieldSetBuilder AddField(string label, double? value, string format = "N3", int trailingBlankLines = 0)
-        => AddField(label, (object)value, format, trailingBlankLines: trailingBlankLines);
+    public TextFieldSetBuilder AddField(
+        string label,
+        double? value,
+        string format = "N3",
+        int trailingBlankLines = 0
+    ) => AddField(label, (object)value, format, trailingBlankLines: trailingBlankLines);
 
-    public TextFieldSetBuilder AddField(string label, decimal? value, string format = "N3", int trailingBlankLines = 0)
-        => AddField(label, (object)value, format, trailingBlankLines: trailingBlankLines);
+    public TextFieldSetBuilder AddField(
+        string label,
+        decimal? value,
+        string format = "N3",
+        int trailingBlankLines = 0
+    ) => AddField(label, (object)value, format, trailingBlankLines: trailingBlankLines);
 
-    public TextFieldSetBuilder AddField(string label, object value, string format, int trailingBlankLines = 0)
+    public TextFieldSetBuilder AddField(
+        string label,
+        object value,
+        string format,
+        int trailingBlankLines = 0
+    )
     {
         value ??= "--";
         format ??= value switch
@@ -49,12 +68,11 @@ public partial class TextFieldSetBuilder : ITextBuilder
             float => "N3",
             double => "N3",
             decimal => "N6",
-            _ => null
+            _ => null,
         };
 
-        string formattedValue = format == null
-                                    ? value.Render().TrimEnd()
-                                    : string.Format($"{{0:{format}}}", value);
+        string formattedValue =
+            format == null ? value.Render().TrimEnd() : string.Format($"{{0:{format}}}", value);
 
         IRender valueModel = new TextLineModel(formattedValue);
 
@@ -70,9 +88,7 @@ public partial class TextFieldSetBuilder : ITextBuilder
             valueModel = new TextRegionModel(childValueModels, IndentSize: 0);
         }
 
-        return AddField(new TextFieldModel(Label: label,
-                                           Value: valueModel,
-                                           Format: format));
+        return AddField(new TextFieldModel(Label: label, Value: valueModel, Format: format));
     }
 
     public TextFieldSetBuilder AddField(TextFieldModel field)
@@ -82,37 +98,42 @@ public partial class TextFieldSetBuilder : ITextBuilder
         return this;
     }
 
-    public IRender Build()
-        => new TextFieldSetModel(Items: _items,
-                                 Separator: _separator,
-                                 MinLabelWidth: _minLabelWidth,
-                                 LabelRightPadding: _labelRightPadding,
-                                 LabelRightAlign: _labelRightAlign,
-                                 MinValueWidth: _minValueWidth,
-                                 MaxValueWidth: _maxValueWidth,
-                                 ValueLeftPadding: _valueLeftPadding,
-                                 ValueRightAlign: _valueRightAlign,
-                                 ValueOverflowIndent: _valueOverflowIndent,
-                                 NullProjection: _nullProjection);
+    public IRender Build() =>
+        new TextFieldSetModel(
+            Items: _items,
+            Separator: _separator,
+            MinLabelWidth: _minLabelWidth,
+            LabelRightPadding: _labelRightPadding,
+            LabelRightAlign: _labelRightAlign,
+            MinValueWidth: _minValueWidth,
+            MaxValueWidth: _maxValueWidth,
+            ValueLeftPadding: _valueLeftPadding,
+            ValueRightAlign: _valueRightAlign,
+            ValueOverflowIndent: _valueOverflowIndent,
+            NullProjection: _nullProjection
+        );
 
-    public static TextFieldSetBuilder Create(int minLabelWidth = 0,
-                                             int minValueWidth = 0,
-                                             int maxValueWidth = 1000,
-                                             string fieldSeparator = ":",
-                                             int labelRightPadding = 1,
-                                             int valueLeftPadding = 1,
-                                             bool labelRightAlign = false,
-                                             bool valueRightAlign = false,
-                                             int valueOverflowIndent = 0)
-        => new TextFieldSetBuilder(TextBuilder.Create()).MinLabelWidth(minLabelWidth)
-                                                        .MinValueWidth(minValueWidth)
-                                                        .MaxValueWidth(maxValueWidth)
-                                                        .FieldSeparator(fieldSeparator)
-                                                        .LabelRightPadding(labelRightPadding)
-                                                        .ValueLeftPadding(valueLeftPadding)
-                                                        .LabelRightAlign(labelRightAlign)
-                                                        .ValueRightAlign(valueRightAlign)
-                                                        .ValueOverflowIndent(valueOverflowIndent);
+    public static TextFieldSetBuilder Create(
+        int minLabelWidth = 0,
+        int minValueWidth = 0,
+        int maxValueWidth = 1000,
+        string fieldSeparator = ":",
+        int labelRightPadding = 1,
+        int valueLeftPadding = 1,
+        bool labelRightAlign = false,
+        bool valueRightAlign = false,
+        int valueOverflowIndent = 0
+    ) =>
+        new TextFieldSetBuilder(TextBuilder.Create())
+            .MinLabelWidth(minLabelWidth)
+            .MinValueWidth(minValueWidth)
+            .MaxValueWidth(maxValueWidth)
+            .FieldSeparator(fieldSeparator)
+            .LabelRightPadding(labelRightPadding)
+            .ValueLeftPadding(valueLeftPadding)
+            .LabelRightAlign(labelRightAlign)
+            .ValueRightAlign(valueRightAlign)
+            .ValueOverflowIndent(valueOverflowIndent);
 
     public TextFieldSetBuilder FieldSeparator(string fieldSeparator)
     {
@@ -163,30 +184,25 @@ public partial class TextFieldSetBuilder : ITextBuilder
         return this;
     }
 
-    public string Render()
-        => Build().Render();
+    public string Render() => Build().Render();
 
     public TextBuilder SaveFieldSet()
     {
         if (_saved)
         {
-            throw new Exception($"Cannot {nameof(SaveFieldSet)}, {nameof(TextFieldSetBuilder)} already saved.");
+            throw new Exception(
+                $"Cannot {nameof(SaveFieldSet)}, {nameof(TextFieldSetBuilder)} already saved."
+            );
         }
 
         _saved = true;
 
-
-
-        return _items.Count > 0
-                   ? _parent.Add(this)
-                   : _parent;
+        return _items.Count > 0 ? _parent.Add(this) : _parent;
     }
 
-    public TextFieldSetItemBuilder StartField()
-        => new(this);
+    public TextFieldSetItemBuilder StartField() => new(this);
 
-    public override string ToString()
-        => Render();
+    public override string ToString() => Render();
 
     public TextFieldSetBuilder ValueLeftPadding(int valueLeftPadding)
     {

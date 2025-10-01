@@ -4,14 +4,15 @@
     <Root>$(MSBuildThisFileDirectory)/</Root>
     <ArtifactsPath>$([MSBuild]::NormalizePath($(Root), 'artifacts'))</ArtifactsPath>
 
+    <!-- Enable nullable reference types globally -->
+    <Nullable>enable</Nullable>
+
     <!-- Enable EditorConfig analyzer support -->
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisMode>Recommended</AnalysisMode>
     <AnalysisLevel>latest</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-
-    <!-- Ensure EditorConfig rules are enforced -->
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>

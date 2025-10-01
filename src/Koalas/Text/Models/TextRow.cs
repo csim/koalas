@@ -3,10 +3,10 @@
 public interface IBorderTextRow : ITextRow
 {
     char Dash { get; }
-    public bool External { get; init; }
+    bool External { get; init; }
 
-    public char DoubleJunction(ITextColumn col, ITextRow row);
-    public char SingleJunction(ITextColumn col, ITextRow row);
+    char DoubleJunction(ITextColumn col, ITextRow row);
+    char SingleJunction(ITextColumn col, ITextRow row);
 }
 
 public interface ITextRow
@@ -19,8 +19,7 @@ public interface ITextRow
     void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns);
 }
 
-public class DataTextRow(int id,
-                         IEnumerable<object> values) : List<object>(values), ITextRow
+public class DataTextRow(int id, IEnumerable<object> values) : List<object>(values), ITextRow
 {
     public bool First { get; set; }
     public int? Id { get; set; } = id;
@@ -29,7 +28,7 @@ public class DataTextRow(int id,
 
     public void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns)
     {
-        int lineIndexMax = columns.Select(c => c.Lines(this).Count).Max();
+        int lineIndexMax = columns.Max(c => c.Lines(this).Count);
 
         for (int lineIndex = 0; lineIndex < lineIndexMax; lineIndex++)
         {
@@ -50,53 +49,39 @@ public class DoubleBorderTextRow : IBorderTextRow
     public char Dash => DashChar;
     public bool External { get; init; }
     public bool First { get; set; }
-    public int? Id { get => null; set { } }
+
+    public int? Id
+    {
+        get => null;
+        set { }
+    }
+
     public int Index { get; set; }
     public bool Last { get; set; }
 
-    private static readonly char[,] DoubleJunctionChars = {
-                                                              {
-                                                                  '╔',
-                                                                  '╦',
-                                                                  '╗'
-                                                              }, {
-                                                                  '╠',
-                                                                  '╬',
-                                                                  '╣'
-                                                              }, {
-                                                                  '╚',
-                                                                  '╩',
-                                                                  '╝'
-                                                              }
-                                                          };
+    private static readonly char[,] _doubleJunctionChars =
+    {
+        { '╔', '╦', '╗' },
+        { '╠', '╬', '╣' },
+        { '╚', '╩', '╝' },
+    };
 
-    private static readonly char[,] SingleJunctionChars = {
-                                                              {
-                                                                  '╒',
-                                                                  '╤',
-                                                                  '╕'
-                                                              }, {
-                                                                  '╞',
-                                                                  '╪',
-                                                                  '╡'
-                                                              }, {
-                                                                  '╘',
-                                                                  '╧',
-                                                                  '╛'
-                                                              }
-                                                          };
+    private static readonly char[,] _singleJunctionChars =
+    {
+        { '╒', '╤', '╕' },
+        { '╞', '╪', '╡' },
+        { '╘', '╧', '╛' },
+    };
 
-    public char DoubleJunction(ITextColumn col, ITextRow row)
-        => DoubleJunctionChars[row.First
-                                   ? 0
-                                   : row.Last
-                                       ? 2
-                                       : 1,
-                               col.First
-                                   ? 0
-                                   : col.Last
-                                       ? 2
-                                       : 1];
+    public char DoubleJunction(ITextColumn col, ITextRow row) =>
+        _doubleJunctionChars[
+            row.First ? 0
+            : row.Last ? 2
+            : 1,
+            col.First ? 0
+            : col.Last ? 2
+            : 1
+        ];
 
     public void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns)
     {
@@ -108,24 +93,28 @@ public class DoubleBorderTextRow : IBorderTextRow
         output.AppendLine();
     }
 
-    public char SingleJunction(ITextColumn col, ITextRow row)
-        => SingleJunctionChars[row.First
-                                   ? 0
-                                   : row.Last
-                                       ? 2
-                                       : 1,
-                               col.First
-                                   ? 0
-                                   : col.Last
-                                       ? 2
-                                       : 1];
+    public char SingleJunction(ITextColumn col, ITextRow row) =>
+        _singleJunctionChars[
+            row.First ? 0
+            : row.Last ? 2
+            : 1,
+            col.First ? 0
+            : col.Last ? 2
+            : 1
+        ];
 }
 
 public class EllipsisTextRow : ITextRow
 {
     public int ColumnIndex { get; set; }
     public bool First { get; set; }
-    public int? Id { get => null; set { } }
+
+    public int? Id
+    {
+        get => null;
+        set { }
+    }
+
     public int Index { get; set; }
     public string Indicator { get; set; } = "...";
     public bool Last { get; set; }
@@ -136,9 +125,7 @@ public class EllipsisTextRow : ITextRow
 
         foreach (ITextColumn col in columns)
         {
-            output.Append(index == ColumnIndex
-                              ? Indicator
-                              : new string(' ', col.Width));
+            output.Append(index == ColumnIndex ? Indicator : new string(' ', col.Width));
             index++;
         }
 
@@ -149,7 +136,13 @@ public class EllipsisTextRow : ITextRow
 public class HeadingTextRow : ITextRow
 {
     public bool First { get; set; }
-    public int? Id { get => null; set { } }
+
+    public int? Id
+    {
+        get => null;
+        set { }
+    }
+
     public int Index { get; set; }
     public bool Last { get; set; }
 
@@ -164,8 +157,10 @@ public class HeadingTextRow : ITextRow
 
     public void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns)
     {
-        if (columns.OfType<TextColumnBase>().All(c => string.IsNullOrEmpty(c.Heading))
-            && _headingOverrides?.Any() is false or null)
+        if (
+            columns.OfType<TextColumnBase>().All(static c => string.IsNullOrEmpty(c.Heading))
+            && _headingOverrides?.Any() is false or null
+        )
         {
             return;
         }
@@ -195,53 +190,39 @@ public class SingleBorderTextRow : IBorderTextRow
     public char Dash => DashChar;
     public bool External { get; init; }
     public bool First { get; set; }
-    public int? Id { get => null; set { } }
+
+    public int? Id
+    {
+        get => null;
+        set { }
+    }
+
     public int Index { get; set; }
     public bool Last { get; set; }
 
-    private static readonly char[,] DoubleJunctionChars = {
-                                                              {
-                                                                  '╓',
-                                                                  '╥',
-                                                                  '╖'
-                                                              }, {
-                                                                  '╟',
-                                                                  '╫',
-                                                                  '╢'
-                                                              }, {
-                                                                  '╙',
-                                                                  '╨',
-                                                                  '╜'
-                                                              }
-                                                          };
+    private static readonly char[,] _doubleJunctionChars =
+    {
+        { '╓', '╥', '╖' },
+        { '╟', '╫', '╢' },
+        { '╙', '╨', '╜' },
+    };
 
-    private static readonly char[,] SingleJunctionChars = {
-                                                              {
-                                                                  '┌',
-                                                                  '┬',
-                                                                  '┐'
-                                                              }, {
-                                                                  '├',
-                                                                  '┼',
-                                                                  '┤'
-                                                              }, {
-                                                                  '└',
-                                                                  '┴',
-                                                                  '┘'
-                                                              }
-                                                          };
+    private static readonly char[,] _singleJunctionChars =
+    {
+        { '┌', '┬', '┐' },
+        { '├', '┼', '┤' },
+        { '└', '┴', '┘' },
+    };
 
-    public char DoubleJunction(ITextColumn col, ITextRow row)
-        => DoubleJunctionChars[row.First
-                                   ? 0
-                                   : row.Last
-                                       ? 2
-                                       : 1,
-                               col.First
-                                   ? 0
-                                   : col.Last
-                                       ? 2
-                                       : 1];
+    public char DoubleJunction(ITextColumn col, ITextRow row) =>
+        _doubleJunctionChars[
+            row.First ? 0
+            : row.Last ? 2
+            : 1,
+            col.First ? 0
+            : col.Last ? 2
+            : 1
+        ];
 
     public void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns)
     {
@@ -253,15 +234,13 @@ public class SingleBorderTextRow : IBorderTextRow
         output.AppendLine();
     }
 
-    public char SingleJunction(ITextColumn col, ITextRow row)
-        => SingleJunctionChars[row.First
-                                   ? 0
-                                   : row.Last
-                                       ? 2
-                                       : 1,
-                               col.First
-                                   ? 0
-                                   : col.Last
-                                       ? 2
-                                       : 1];
+    public char SingleJunction(ITextColumn col, ITextRow row) =>
+        _singleJunctionChars[
+            row.First ? 0
+            : row.Last ? 2
+            : 1,
+            col.First ? 0
+            : col.Last ? 2
+            : 1
+        ];
 }

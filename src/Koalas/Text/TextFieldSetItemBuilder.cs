@@ -13,8 +13,7 @@ public partial class TextFieldSetItemBuilder : IRender
         _parent = parent;
     }
 
-    public TextBuilder Add(IRender subject)
-        => _valueBuilder.Add(subject);
+    public TextBuilder Add(IRender subject) => _valueBuilder.Add(subject);
 
     public TextFieldSetItemBuilder AddBlankLine()
     {
@@ -30,57 +29,81 @@ public partial class TextFieldSetItemBuilder : IRender
         return this;
     }
 
-    public TextFieldSetItemBuilder AddFieldSet(IDictionary<string, string> items,
-                                               int minLabelWidth = 0,
-                                               int minValueWidth = 0,
-                                               int maxValueWidth = 1000,
-                                               string fieldSeparator = ":",
-                                               int labelRightPadding = 1,
-                                               int valueLeftPadding = 1,
-                                               bool labelRightAlign = false,
-                                               bool valueRightAlign = false,
-                                               int valueOverflowIndent = 0)
+    public TextFieldSetItemBuilder AddFieldSet(
+        IDictionary<string, string> items,
+        int minLabelWidth = 0,
+        int minValueWidth = 0,
+        int maxValueWidth = 1000,
+        string fieldSeparator = ":",
+        int labelRightPadding = 1,
+        int valueLeftPadding = 1,
+        bool labelRightAlign = false,
+        bool valueRightAlign = false,
+        int valueOverflowIndent = 0
+    )
     {
-        _valueBuilder.StartFieldSet(minLabelWidth: minLabelWidth,
-                                    minValueWidth: minValueWidth,
-                                    maxValueWidth: maxValueWidth,
-                                    fieldSeparator: fieldSeparator,
-                                    labelRightPadding: labelRightPadding,
-                                    valueLeftPadding: valueLeftPadding,
-                                    labelRightAlign: labelRightAlign,
-                                    valueRightAlign: valueRightAlign,
-                                    valueOverflowIndent: valueOverflowIndent);
-
+        _valueBuilder.StartFieldSet(
+            minLabelWidth: minLabelWidth,
+            minValueWidth: minValueWidth,
+            maxValueWidth: maxValueWidth,
+            fieldSeparator: fieldSeparator,
+            labelRightPadding: labelRightPadding,
+            valueLeftPadding: valueLeftPadding,
+            labelRightAlign: labelRightAlign,
+            valueRightAlign: valueRightAlign,
+            valueOverflowIndent: valueOverflowIndent
+        );
 
         return this;
     }
 
-    public TextFieldSetItemBuilder AddHangSection(string heading,
-                                                  string body,
-                                                  int? maxWidth = null,
-                                                  int trailingBlankLines = 1)
+    public TextFieldSetItemBuilder AddHangSection(
+        string heading,
+        string body,
+        int? maxWidth = null,
+        int trailingBlankLines = 1
+    )
     {
-        _valueBuilder.AddHangSection(heading, body, maxWidth: maxWidth, trailingBlankLines: trailingBlankLines);
+        _valueBuilder.AddHangSection(
+            heading,
+            body,
+            maxWidth: maxWidth,
+            trailingBlankLines: trailingBlankLines
+        );
 
         return this;
     }
 
-    public TextFieldSetItemBuilder AddHangSection(string heading,
-                                                  ITextBuilder body,
-                                                  int? maxWidth = null,
-                                                  int trailingBlankLines = 1)
+    public TextFieldSetItemBuilder AddHangSection(
+        string heading,
+        ITextBuilder body,
+        int? maxWidth = null,
+        int trailingBlankLines = 1
+    )
     {
-        _valueBuilder.AddHangSection(heading, body, maxWidth: maxWidth, trailingBlankLines: trailingBlankLines);
+        _valueBuilder.AddHangSection(
+            heading,
+            body,
+            maxWidth: maxWidth,
+            trailingBlankLines: trailingBlankLines
+        );
 
         return this;
     }
 
-    public TextFieldSetItemBuilder AddHangSection(string heading,
-                                                  object body,
-                                                  int? maxWidth = null,
-                                                  int trailingBlankLines = 1)
+    public TextFieldSetItemBuilder AddHangSection(
+        string heading,
+        object body,
+        int? maxWidth = null,
+        int trailingBlankLines = 1
+    )
     {
-        _valueBuilder.AddHangSection(heading, body, maxWidth: maxWidth, trailingBlankLines: trailingBlankLines);
+        _valueBuilder.AddHangSection(
+            heading,
+            body,
+            maxWidth: maxWidth,
+            trailingBlankLines: trailingBlankLines
+        );
 
         return this;
     }
@@ -92,8 +115,7 @@ public partial class TextFieldSetItemBuilder : IRender
         return this;
     }
 
-    public TextFieldSetItemBuilder AddLine(object source)
-        => AddLine(source.Render());
+    public TextFieldSetItemBuilder AddLine(object source) => AddLine(source.Render());
 
     public TextFieldSetItemBuilder AddList(IEnumerable<string> items, string separator = ":")
     {
@@ -102,66 +124,84 @@ public partial class TextFieldSetItemBuilder : IRender
         return this;
     }
 
-    public TextFieldSetItemBuilder AddSection(string heading,
-                                              string body,
-                                              string headingSuffix = "",
-                                              int? maxWidth = null,
-                                              int trailingBlankLines = 2)
+    public TextFieldSetItemBuilder AddSection(
+        string heading,
+        string body,
+        string headingSuffix = "",
+        int? maxWidth = null,
+        int trailingBlankLines = 2
+    )
     {
-        _valueBuilder.AddSection(heading: heading,
-                                 body: body,
-                                 headingSuffix: headingSuffix,
-                                 maxWidth: maxWidth,
-                                 trailingBlankLines: trailingBlankLines);
+        _valueBuilder.AddSection(
+            heading: heading,
+            body: body,
+            headingSuffix: headingSuffix,
+            maxWidth: maxWidth,
+            trailingBlankLines: trailingBlankLines
+        );
 
         return this;
     }
 
-    public TextFieldSetItemBuilder AddSection(string heading,
-                                              object body,
-                                              string headingSuffix = "",
-                                              int? maxWidth = null,
-                                              int trailingBlankLines = 2)
+    public TextFieldSetItemBuilder AddSection(
+        string heading,
+        object body,
+        string headingSuffix = "",
+        int? maxWidth = null,
+        int trailingBlankLines = 2
+    )
     {
-        _valueBuilder.AddSection(heading: heading,
-                                 body: body,
-                                 headingSuffix: headingSuffix,
-                                 maxWidth: maxWidth,
-                                 trailingBlankLines: trailingBlankLines);
+        _valueBuilder.AddSection(
+            heading: heading,
+            body: body,
+            headingSuffix: headingSuffix,
+            maxWidth: maxWidth,
+            trailingBlankLines: trailingBlankLines
+        );
 
         return this;
     }
 
-    public TextFieldSetItemBuilder AddSection(string heading,
-                                              ITextBuilder body,
-                                              string headingSuffix = "",
-                                              int? maxWidth = null,
-                                              int trailingBlankLines = 2)
+    public TextFieldSetItemBuilder AddSection(
+        string heading,
+        ITextBuilder body,
+        string headingSuffix = "",
+        int? maxWidth = null,
+        int trailingBlankLines = 2
+    )
     {
-        _valueBuilder.AddSection(heading: heading,
-                                 body: body,
-                                 headingSuffix: headingSuffix,
-                                 maxWidth: maxWidth,
-                                 trailingBlankLines: trailingBlankLines);
+        _valueBuilder.AddSection(
+            heading: heading,
+            body: body,
+            headingSuffix: headingSuffix,
+            maxWidth: maxWidth,
+            trailingBlankLines: trailingBlankLines
+        );
 
         return this;
     }
 
-    public TextFieldSetItemBuilder AddTable(IEnumerable<IEnumerable<object>> values,
-                                            TextTableBorder border = TextTableBorder.Inner,
-                                            IEnumerable<string> columnNames = null,
-                                            int defaultColumnPadding = 1,
-                                            int? defaultColumnMaxWidth = 50,
-                                            Func<object, string> formatCellValue = null,
-                                            bool includeIdentityColumn = false)
+    public TextFieldSetItemBuilder AddTable(
+        IEnumerable<IEnumerable<object>> values,
+        TextTableBorder border = TextTableBorder.Inner,
+        IEnumerable<string> columnNames = null,
+        int defaultColumnPadding = 1,
+        int? defaultColumnMaxWidth = 50,
+        Func<object, string> formatCellValue = null,
+        bool includeIdentityColumn = false
+    )
     {
-        _valueBuilder.Add(TextTableBuilder.Create(values: values,
-                                                  border: border,
-                                                  columnNames: columnNames,
-                                                  defaultColumnPadding: defaultColumnPadding,
-                                                  defaultColumnMaxWidth: defaultColumnMaxWidth,
-                                                  formatCellValue: formatCellValue,
-                                                  includeIdentityColumn: includeIdentityColumn));
+        _valueBuilder.Add(
+            TextTableBuilder.Create(
+                values: values,
+                border: border,
+                columnNames: columnNames,
+                defaultColumnPadding: defaultColumnPadding,
+                defaultColumnMaxWidth: defaultColumnMaxWidth,
+                formatCellValue: formatCellValue,
+                includeIdentityColumn: includeIdentityColumn
+            )
+        );
         return this;
     }
 
@@ -214,7 +254,9 @@ public partial class TextFieldSetItemBuilder : IRender
     {
         if (_saved)
         {
-            throw new Exception($"Cannot {nameof(SaveField)}, {nameof(TextFieldSetItemBuilder)} already saved.");
+            throw new Exception(
+                $"Cannot {nameof(SaveField)}, {nameof(TextFieldSetItemBuilder)} already saved."
+            );
         }
 
         _saved = true;
@@ -222,27 +264,22 @@ public partial class TextFieldSetItemBuilder : IRender
         return _parent.AddField(Build());
     }
 
-    public override string ToString()
-        => Render();
+    public override string ToString() => Render();
 
     public TextFieldSetItemBuilder Value(string value)
     {
-        _valueBuilder = TextBuilder.Create()
-                                   .AddLine(value);
+        _valueBuilder = TextBuilder.Create().AddLine(value);
 
         return this;
     }
 
     public TextFieldSetItemBuilder Value(ITextBuilder builder)
     {
-        _valueBuilder = TextBuilder.Create()
-                                   .Add(builder);
+        _valueBuilder = TextBuilder.Create().Add(builder);
 
         return this;
     }
 
-    private TextFieldModel Build()
-        => new(Label: _label,
-               Value: _valueBuilder.Build(),
-               Format: _format);
+    private TextFieldModel Build() =>
+        new(Label: _label, Value: _valueBuilder.Build(), Format: _format);
 }

@@ -5,29 +5,27 @@ namespace Koalas.Extensions;
 public static partial class StringExtensions
 {
     // ReSharper disable once InconsistentNaming
-    private static readonly Regex _indentRegex = new(@"^(\s*)(?:.*)$",
-                                                     RegexOptions.Compiled
-                                                     | RegexOptions.CultureInvariant
-                                                     | RegexOptions.Multiline);
+    private static readonly Regex _indentRegex = new(
+        @"^(\s*)(?:.*)$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline
+    );
 
     public static string After(this string? subject, string findText)
     {
-        if (subject == null || string.IsNullOrEmpty(findText)) return string.Empty;
+        if (subject == null || string.IsNullOrEmpty(findText))
+            return string.Empty;
 
         int index = subject.IndexOf(findText, StringComparison.Ordinal);
-        return index >= 0
-                   ? subject.Substring(index + findText.Length)
-                   : subject;
+        return index >= 0 ? subject.Substring(index + findText.Length) : subject;
     }
 
     public static string Before(this string? subject, string findText)
     {
-        if (subject == null || string.IsNullOrEmpty(findText)) return string.Empty;
+        if (subject == null || string.IsNullOrEmpty(findText))
+            return string.Empty;
 
         int index = subject.IndexOf(findText, StringComparison.Ordinal);
-        return index >= 0
-                   ? subject.Substring(0, index)
-                   : subject;
+        return index >= 0 ? subject.Substring(0, index) : subject;
     }
 
     public static string Compress(this string content)
@@ -57,30 +55,39 @@ public static partial class StringExtensions
 
     public static string HangIndent(this string? subject, string? body, string? suffix = null)
     {
-        if (string.IsNullOrEmpty(subject)) return subject ?? string.Empty;
-
-        return $"{subject}{body?.IndentSkipFirstLine(subject.Length)}{suffix}";
+        return string.IsNullOrEmpty(subject)
+            ? subject ?? string.Empty
+            : $"{subject}{body?.IndentSkipFirstLine(subject.Length)}{suffix}";
     }
 
-    public static IEnumerable<string> Indent(this IEnumerable<string>? subject, int size = 4, bool skipFirstLine = false)
+    public static IEnumerable<string> Indent(
+        this IEnumerable<string>? subject,
+        int size = 4,
+        bool skipFirstLine = false
+    )
     {
         return subject == null
-                   ? []
-                   : subject.Select((s, index) => skipFirstLine && index == 0 ? s : s.Indent(size));
+            ? []
+            : subject.Select((s, index) => skipFirstLine && index == 0 ? s : s.Indent(size));
     }
 
     public static string Indent(this string? subject, int size = 4, bool skipFirstLine = false)
     {
-        if (string.IsNullOrEmpty(subject) || size == 0) return subject ?? string.Empty;
+        if (string.IsNullOrEmpty(subject) || size == 0)
+            return subject ?? string.Empty;
 
         string indent = new(' ', size);
 
-        return subject.Lines()
-                      .Select((line, index) => index == 0 && skipFirstLine ? line : $"{indent}{line}")
-                      .ToJoinNewlineString();
+        return subject
+            .Lines()
+            .Select((line, index) => index == 0 && skipFirstLine ? line : $"{indent}{line}")
+            .ToJoinNewlineString();
     }
 
-    public static IEnumerable<string> IndentSkipFirstLine(this IEnumerable<string> subject, int length = 4)
+    public static IEnumerable<string> IndentSkipFirstLine(
+        this IEnumerable<string> subject,
+        int length = 4
+    )
     {
         return subject.Indent(size: length, skipFirstLine: true);
     }
@@ -107,14 +114,15 @@ public static partial class StringExtensions
 
     public static string LeadingBlankLines(this string? subject, int count)
     {
-        if (subject == null) return string.Empty;
-
-        return Environment.NewLine.Repeat(count + 1) + subject.TrimStart('\r', '\n');
+        return subject == null
+            ? string.Empty
+            : Environment.NewLine.Repeat(count + 1) + subject.TrimStart('\r', '\n');
     }
 
     public static IEnumerable<string> Lines(this string? subject)
     {
-        if (string.IsNullOrEmpty(subject)) yield break;
+        if (string.IsNullOrEmpty(subject))
+            yield break;
 
         using StringReader reader = new(subject);
 
@@ -128,42 +136,40 @@ public static partial class StringExtensions
     {
         int actualLineCount = subject.Lines().Count();
 
-        if (actualLineCount > lineCount) return subject;
-
-        return subject + Environment.NewLine.Repeat(lineCount - actualLineCount);
+        return actualLineCount > lineCount
+            ? subject
+            : subject + Environment.NewLine.Repeat(lineCount - actualLineCount);
     }
 
     public static string? PadLinesLeft(this string? subject, int width)
     {
-        if (subject == null) return null;
+        if (subject == null)
+            return null;
 
-        int maxLength = subject.Lines()
-                               .Max(l => l.Length);
+        int maxLength = subject.Lines().Max(static l => l.Length);
 
         return subject.Indent(width - maxLength);
     }
 
     public static string PadLinesRight(this string? subject, int width)
     {
-        return subject?.Lines()
-                       .Select(l => l.PadRight(width))
-                       .ToJoinNewlineString()
-               ?? string.Empty;
+        return subject?.Lines().Select(l => l.PadRight(width)).ToJoinNewlineString()
+            ?? string.Empty;
     }
 
     public static string PadTop(this string subject, int lineCount)
     {
         int actualLineCount = subject.Lines().Count();
 
-        if (actualLineCount > lineCount) return subject;
-
-        return Environment.NewLine.Repeat(lineCount - actualLineCount) + subject;
+        return actualLineCount > lineCount
+            ? subject
+            : Environment.NewLine.Repeat(lineCount - actualLineCount) + subject;
     }
 
     public static T ParseJson<T>(this string source)
     {
         return JsonConvert.DeserializeObject<T>(source)
-               ?? throw new Exception($"Unable to deserialize: {typeof(T).Name}");
+            ?? throw new Exception($"Unable to deserialize: {typeof(T).Name}");
     }
 
     public static string RemoveTrailingBlankLines(this string? subject)
@@ -173,22 +179,25 @@ public static partial class StringExtensions
 
     public static string Render(this IEnumerable<string?>? items, string separator = ":")
     {
-        if (items == null) return string.Empty;
+        if (items == null)
+            return string.Empty;
 
         items = items.ToReadOnlyList();
-        if (!items.Any()) return "<none>";
-
-        return TextBuilder.Create()
-                          .AddList(items, separator: separator)
-                          .Render();
+        return !items.Any()
+            ? "<none>"
+            : TextBuilder.Create().AddList(items, separator: separator).Render();
     }
 
-    public static string RenderNumbered(this IEnumerable<string?> items, string separator = ":", int startId = 1)
+    public static string RenderNumbered(
+        this IEnumerable<string?> items,
+        string separator = ":",
+        int startId = 1
+    )
     {
-        if (startId == 1) return items.Render(separator: separator);
+        if (startId == 1)
+            return items.Render(separator: separator);
 
-        TextListBuilder builder = TextListBuilder.Create()
-                                                 .Separator(separator);
+        TextListBuilder builder = TextListBuilder.Create().Separator(separator);
 
         int id = startId;
         foreach (string? item in items)
@@ -196,8 +205,7 @@ public static partial class StringExtensions
             builder.AddItem(body: item, id: $"{id++}");
         }
 
-        return builder.SaveList()
-                      .Render();
+        return builder.SaveList().Render();
     }
 
     public static string Repeat(this char subject, int count)
@@ -220,81 +228,80 @@ public static partial class StringExtensions
         return Splice(subject, startIndex, replacement, replacement.Length);
     }
 
-    public static string Splice(this string subject, int startIndex, string replacement, int removeCount)
+    public static string Splice(
+        this string subject,
+        int startIndex,
+        string replacement,
+        int removeCount
+    )
     {
         return subject.Remove(startIndex, removeCount).Insert(startIndex, replacement);
     }
 
     public static string StripAllIndent(this string subject)
     {
-        return subject.Lines()
-                      .Select(l => l.TrimStart())
-                      .ToJoinNewlineString();
+        return subject.Lines().Select(static l => l.TrimStart()).ToJoinNewlineString();
     }
 
     public static string StripIndent(this string subject)
     {
-        IReadOnlyList<string> indentLines = _indentRegex.NonCachingMatches(subject)
-                                                        .Select(m => m.Groups[1].Value)
-                                                        .ToReadOnlyList();
-        if (indentLines.None()) return subject;
+        IReadOnlyList<string> indentLines = _indentRegex
+            .NonCachingMatches(subject)
+            .Select(m => m.Groups[1].Value)
+            .ToReadOnlyList();
+        if (indentLines.None())
+            return subject;
 
         int minIndent = indentLines.Min(i => i.Length);
 
-        return subject.Lines()
-                      .Select(line => line.Length <= minIndent
-                                          ? line
-                                          : line.Substring(minIndent))
-                      .ToJoinNewlineString();
+        return subject
+            .Lines()
+            .Select(line => line.Length <= minIndent ? line : line.Substring(minIndent))
+            .ToJoinNewlineString();
     }
 
     public static string ToAnonymizedString(this string? source)
     {
-        if (source == null) return "<null>";
+        if (source == null)
+            return "<null>";
 
-        IEnumerable<char> chars = from c in source
-                                  select CharUnicodeInfo.GetUnicodeCategory(c) switch
-                                  {
-                                      UnicodeCategory.UppercaseLetter
-                                          => 'A',
-                                      UnicodeCategory.LowercaseLetter
-                                          => 'a',
-                                      UnicodeCategory.DecimalDigitNumber
-                                       or UnicodeCategory.LetterNumber
-                                       or UnicodeCategory.OtherNumber
-                                          => '9',
-                                      UnicodeCategory.ClosePunctuation
-                                       or UnicodeCategory.ConnectorPunctuation
-                                       or UnicodeCategory.CurrencySymbol
-                                       or UnicodeCategory.DashPunctuation
-                                       or UnicodeCategory.FinalQuotePunctuation
-                                       or UnicodeCategory.InitialQuotePunctuation
-                                       or UnicodeCategory.LineSeparator
-                                       or UnicodeCategory.MathSymbol
-                                       or UnicodeCategory.ModifierSymbol
-                                       or UnicodeCategory.OpenPunctuation
-                                       or UnicodeCategory.OtherPunctuation
-                                       or UnicodeCategory.OtherSymbol
-                                       or UnicodeCategory.ParagraphSeparator
-                                       or UnicodeCategory.SpaceSeparator
-                                          => c,
-                                      _ when c is '\r' or '\n'
-                                          => c,
-                                      _
-                                          => 'x'
-                                  };
+        IEnumerable<char> chars =
+            from c in source
+            select CharUnicodeInfo.GetUnicodeCategory(c) switch
+            {
+                UnicodeCategory.UppercaseLetter => 'A',
+                UnicodeCategory.LowercaseLetter => 'a',
+                UnicodeCategory.DecimalDigitNumber
+                or UnicodeCategory.LetterNumber
+                or UnicodeCategory.OtherNumber => '9',
+                UnicodeCategory.ClosePunctuation
+                or UnicodeCategory.ConnectorPunctuation
+                or UnicodeCategory.CurrencySymbol
+                or UnicodeCategory.DashPunctuation
+                or UnicodeCategory.FinalQuotePunctuation
+                or UnicodeCategory.InitialQuotePunctuation
+                or UnicodeCategory.LineSeparator
+                or UnicodeCategory.MathSymbol
+                or UnicodeCategory.ModifierSymbol
+                or UnicodeCategory.OpenPunctuation
+                or UnicodeCategory.OtherPunctuation
+                or UnicodeCategory.OtherSymbol
+                or UnicodeCategory.ParagraphSeparator
+                or UnicodeCategory.SpaceSeparator => c,
+                _ when c is '\r' or '\n' => c,
+                _ => 'x',
+            };
 
-        string ret = new(chars.ToArray());
+        string ret = new([.. chars]);
 
-        return ret.Replace("\r", "\\r")
-                  .Replace("\n", "\\n");
+        return ret.Replace("\r", "\\r").Replace("\n", "\\n");
     }
 
     public static string ToCamelCase(this string str)
     {
-        if (string.IsNullOrEmpty(str) || str.Length < 2) return str;
-
-        return char.ToLowerInvariant(str[0]) + str.Substring(1);
+        return string.IsNullOrEmpty(str) || str.Length < 2
+            ? str
+            : char.ToLowerInvariant(str[0]) + str.Substring(1);
     }
 
     public static string ToValidFilename(this string input, char replacement = '_')
@@ -311,12 +318,21 @@ public static partial class StringExtensions
         return new string(result);
     }
 
-    public static string ToWrapString(this string? text, int? maxLength, int overflowIndentSize = 0, bool showGlyph = false)
+    public static string ToWrapString(
+        this string? text,
+        int? maxLength,
+        int overflowIndentSize = 0,
+        bool showGlyph = false
+    )
     {
-        if (maxLength == null || text == null || text == string.Empty) return text ?? string.Empty;
-
-        return text.Wrap(maxLength: maxLength.Value, overflowIndentSize: overflowIndentSize, showGlyph: showGlyph)
-                   .ToJoinNewlineString();
+        return maxLength == null || text == null || text == string.Empty
+            ? text ?? string.Empty
+            : text.Wrap(
+                    maxLength: maxLength.Value,
+                    overflowIndentSize: overflowIndentSize,
+                    showGlyph: showGlyph
+                )
+                .ToJoinNewlineString();
     }
 
     public static string TrailingBlankLines(this string? subject, int count)
@@ -328,24 +344,24 @@ public static partial class StringExtensions
 
     public static IEnumerable<string> TrimEnd(this IEnumerable<string>? items)
     {
-        return items == null
-                   ? []
-                   : items.Select(i => i.TrimEnd());
+        return items == null ? [] : items.Select(static i => i.TrimEnd());
     }
 
     public static string TruncateLines(this string subject, int lineCount)
     {
-        string[] lines = subject.Lines().ToArray();
+        string[] lines = [.. subject.Lines()];
 
-        if (lines.Length <= lineCount) return subject;
-
-        return lines.Take(lineCount - 1)
-                    .ToJoinNewlineString()
-               + Environment.NewLine
-               + "...";
+        return lines.Length <= lineCount
+            ? subject
+            : lines.Take(lineCount - 1).ToJoinNewlineString() + Environment.NewLine + "...";
     }
 
-    public static IEnumerable<string> Wrap(this string text, int maxLength, int overflowIndentSize = 0, bool showGlyph = false)
+    public static IEnumerable<string> Wrap(
+        this string text,
+        int maxLength,
+        int overflowIndentSize = 0,
+        bool showGlyph = false
+    )
     {
         List<string> chunks = [];
         const string wrapGlyph = "\u21A9";
@@ -357,11 +373,10 @@ public static partial class StringExtensions
             return chunks;
         }
 
-
         // handle newlines
         if (text.Contains('\n'))
         {
-            List<string> lines = text.Lines().ToList();
+            List<string> lines = [.. text.Lines()];
             if (lines.Count > 1)
             {
                 List<string> wrappedLines = [];
@@ -401,7 +416,8 @@ public static partial class StringExtensions
                 int splitIndex = chunk.LastIndexOf(' '); // Find last space in chunk.
 
                 // If space exists in string,
-                if (splitIndex != -1) chunk = chunk.Substring(0, splitIndex); // Remove chars after space.
+                if (splitIndex != -1)
+                    chunk = chunk.Substring(0, splitIndex); // Remove chars after space.
 
                 text = text.Substring(chunk.Length + (splitIndex == -1 ? 0 : 1)); // Remove chunk plus space (if found) from original string
                 AddChunk(chunk);
@@ -413,9 +429,11 @@ public static partial class StringExtensions
         void AddChunk(string localChuck, bool lastLine = false)
         {
             string localIndent = index > 0 ? indent : string.Empty;
-            chunks.Add(showGlyph
-                           ? $"{localIndent}{localChuck}{(!lastLine ? wrapGlyph : string.Empty)}"
-                           : $"{localIndent}{localChuck}");
+            chunks.Add(
+                showGlyph
+                    ? $"{localIndent}{localChuck}{(!lastLine ? wrapGlyph : string.Empty)}"
+                    : $"{localIndent}{localChuck}"
+            );
         }
     }
 }

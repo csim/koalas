@@ -4,11 +4,12 @@ public record class TextListModel(IReadOnlyList<TextListItemModel> Items) : IRen
 {
     public string Render()
     {
-        TextTableBuilder table = TextTableBuilder.Create()
-                                                 .AddColumn(leftPadding: 0, rightPadding: 0, alignRight: true) // Indicator
-                                                 .AddColumn(leftPadding: 0, rightPadding: 0, alignRight: true) // Id
-                                                 .AddColumn(leftPadding: 0, rightPadding: 0)                   // Separator
-                                                 .AddColumn();                                                 // Body
+        TextTableBuilder table = TextTableBuilder
+            .Create()
+            .AddColumn(leftPadding: 0, rightPadding: 0, alignRight: true) // Indicator
+            .AddColumn(leftPadding: 0, rightPadding: 0, alignRight: true) // Id
+            .AddColumn(leftPadding: 0, rightPadding: 0) // Separator
+            .AddColumn(); // Body
 
         int currentDefaultId = 0;
 
@@ -16,13 +17,14 @@ public record class TextListModel(IReadOnlyList<TextListItemModel> Items) : IRen
         {
             currentDefaultId++;
 
-            string body = item.Body
-                              .Render();
+            string body = item.Body.Render();
 
-            table.AddDataRow(item.Indicator ?? string.Empty,
-                             item.Id ?? currentDefaultId.ToString(),
-                             item.Separator,
-                             body);
+            table.AddDataRow(
+                item.Indicator ?? string.Empty,
+                item.Id ?? currentDefaultId.ToString(),
+                item.Separator,
+                body
+            );
         }
 
         return table.Render();

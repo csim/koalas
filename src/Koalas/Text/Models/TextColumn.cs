@@ -2,7 +2,7 @@
 
 public interface IBorderTextColumn : ITextColumn
 {
-    public bool External { get; }
+    bool External { get; }
 }
 
 public interface ITextColumn
@@ -19,17 +19,15 @@ public interface ITextColumn
 
 public class DoubleBorderTextColumn : TextColumnBase, IBorderTextColumn
 {
-    private const char VerticalBar = '║';
+    private const char _verticalBar = '║';
 
     public bool External { get; init; }
 
     private IReadOnlyList<string> _lines;
 
-    public virtual string FormatValue(ITextRow row)
-        => VerticalBar.ToString();
+    public virtual string FormatValue(ITextRow row) => _verticalBar.ToString();
 
-    public override IReadOnlyList<string> Lines(ITextRow row)
-        => _lines ??= [FormatValue(row)];
+    public override IReadOnlyList<string> Lines(ITextRow row) => _lines ??= [FormatValue(row)];
 
     public override void Render(StringBuilder output, ITextRow row, int partitionIndex)
     {
@@ -40,11 +38,11 @@ public class DoubleBorderTextColumn : TextColumnBase, IBorderTextColumn
             return;
         }
 
-        output.Append(VerticalBar);
+        output.Append(_verticalBar);
     }
 
-    public override void RenderHeading(StringBuilder output, string headingOverride = null)
-        => output.Append(VerticalBar);
+    public override void RenderHeading(StringBuilder output, string headingOverride = null) =>
+        output.Append(_verticalBar);
 }
 
 public class IdentityTextColumn : TextColumnBase, IDynamicWidthTextColumn
@@ -54,17 +52,14 @@ public class IdentityTextColumn : TextColumnBase, IDynamicWidthTextColumn
     public int MinimumWidth => 1;
     public int? RightPadding { get; set; }
 
-    public virtual string FormatValue(ITextRow row)
-        => (row.Id ?? 0).ToString("N0").PadLeft(Width);
+    public virtual string FormatValue(ITextRow row) => (row.Id ?? 0).ToString("N0").PadLeft(Width);
 
-    public override IReadOnlyList<string> Lines(ITextRow row)
-        => [FormatValue(row)];
+    public override IReadOnlyList<string> Lines(ITextRow row) => [FormatValue(row)];
 }
 
 public class PaddingTextColumn(int width) : TextColumnBase
 {
-    public override IReadOnlyList<string> Lines(ITextRow row)
-        => [new(Space, width)];
+    public override IReadOnlyList<string> Lines(ITextRow row) => [new(Space, width)];
 
     public override void Render(StringBuilder output, ITextRow row, int partitionIndex)
     {
@@ -81,17 +76,15 @@ public class PaddingTextColumn(int width) : TextColumnBase
 
 public class SingleBorderTextColumn : TextColumnBase, IBorderTextColumn
 {
-    private const char VerticalBar = '│';
+    private const char _verticalBar = '│';
 
     public bool External { get; init; }
 
     private IReadOnlyList<string> _lines;
 
-    public static string FormatValue(ITextRow row)
-        => VerticalBar.ToString();
+    public static string FormatValue(ITextRow row) => _verticalBar.ToString();
 
-    public override IReadOnlyList<string> Lines(ITextRow row)
-        => _lines ??= [FormatValue(row)];
+    public override IReadOnlyList<string> Lines(ITextRow row) => _lines ??= [FormatValue(row)];
 
     public override void Render(StringBuilder output, ITextRow row, int partitionIndex)
     {
@@ -102,11 +95,11 @@ public class SingleBorderTextColumn : TextColumnBase, IBorderTextColumn
             return;
         }
 
-        output.Append(VerticalBar);
+        output.Append(_verticalBar);
     }
 
-    public override void RenderHeading(StringBuilder output, string headingOverride = null)
-        => output.Append(VerticalBar);
+    public override void RenderHeading(StringBuilder output, string headingOverride = null) =>
+        output.Append(_verticalBar);
 }
 
 public class StaticTextColumn : TextColumnBase
@@ -118,11 +111,9 @@ public class StaticTextColumn : TextColumnBase
 
     private IReadOnlyList<string> _lines;
 
-    public virtual string FormatValue(ITextRow row)
-        => Text;
+    public virtual string FormatValue(ITextRow row) => Text;
 
-    public override IReadOnlyList<string> Lines(ITextRow row)
-        => _lines ??= [Text];
+    public override IReadOnlyList<string> Lines(ITextRow row) => _lines ??= [Text];
 
     public override void Render(StringBuilder output, ITextRow row, int partitionIndex)
     {
@@ -143,11 +134,11 @@ public class StaticTextColumn : TextColumnBase
             return;
         }
 
-        output.Append(partitionIndex > 0 && !ShowInRowExtraLines
-                          ? blank
-                          : ShowInRow
-                              ? fdata
-                              : blank);
+        output.Append(
+            partitionIndex > 0 && !ShowInRowExtraLines ? blank
+            : ShowInRow ? fdata
+            : blank
+        );
     }
 }
 
@@ -162,7 +153,7 @@ public class TextColumn : TextColumnBase, IDynamicWidthTextColumn
     public int? RightPadding { get; set; }
     public int WrapOverflowIndent { get; set; }
 
-    private readonly Dictionary<ITextRow, IReadOnlyList<string>> _lineCache = new();
+    private readonly Dictionary<ITextRow, IReadOnlyList<string>> _lineCache = [];
 
     public string FormatValue(ITextRow row)
     {
@@ -172,9 +163,7 @@ public class TextColumn : TextColumnBase, IDynamicWidthTextColumn
         }
 
         object rawData = dataRow[DataColumnIndex] ?? NullProjection;
-        return Format == null
-                   ? rawData?.ToString() ?? string.Empty
-                   : string.Format($"{{0:{Format}}}", rawData);
+        return Format == null ? rawData?.ToString() ?? string.Empty : string.Format($"{{0:{Format}}}", rawData);
     }
 
     public override IReadOnlyList<string> Lines(ITextRow row)
@@ -188,13 +177,15 @@ public class TextColumn : TextColumnBase, IDynamicWidthTextColumn
 
         List<string> rawLines = [.. formattedContent.Lines()];
 
-        if (MaximumWidth == null || (rawLines.Count == 1 && rawLines[0].Length < MaximumWidth))
-        {
-            return _lineCache[row] = rawLines;
-        }
-
-        return _lineCache[row] = rawLines.SelectMany(line => line.Wrap(MaximumWidth.Value, overflowIndentSize: WrapOverflowIndent))
-                                         .ToList();
+        return MaximumWidth == null || (rawLines.Count == 1 && rawLines[0].Length < MaximumWidth)
+            ? (_lineCache[row] = rawLines)
+            : (
+                _lineCache[row] = [
+                    .. rawLines.SelectMany(line =>
+                        line.Wrap(MaximumWidth.Value, overflowIndentSize: WrapOverflowIndent)
+                    ),
+                ]
+            );
     }
 }
 
@@ -227,18 +218,17 @@ public abstract class TextColumnBase : ITextColumn
         }
 
         IReadOnlyList<string> lines = Lines(row);
-        string line = 0 <= partitionIndex && partitionIndex < lines.Count
-                          ? lines[partitionIndex] ?? string.Empty
-                          : string.Empty;
+        string line =
+            0 <= partitionIndex && partitionIndex < lines.Count ? lines[partitionIndex] ?? string.Empty : string.Empty;
 
-        output.Append(AlignRight
-                          ? line.PadLeft(Width)
-                          : Last
-                              ? line
-                              : line.PadRight(Width));
+        output.Append(
+            AlignRight ? line.PadLeft(Width)
+            : Last ? line
+            : line.PadRight(Width)
+        );
     }
 
-    public virtual void RenderHeading(StringBuilder output, string headingOverride = null)
+    public virtual void RenderHeading(StringBuilder output, string? headingOverride = null)
     {
         string heading = headingOverride ?? Heading ?? string.Empty;
 
