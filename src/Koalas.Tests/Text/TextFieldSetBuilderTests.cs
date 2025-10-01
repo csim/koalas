@@ -1,38 +1,9 @@
-using System;
 using Koalas.Text;
 
 namespace Koalas.Tests.Text;
 
 public class TextFieldSetBuilderTests
 {
-    [Fact]
-    public void StartFieldSet_CreatesTextFieldSetBuilder()
-    {
-        // Arrange
-        var textBuilder = TextBuilder.Create();
-
-        // Act
-        var fieldSetBuilder = textBuilder.StartFieldSet();
-
-        // Assert
-        fieldSetBuilder.Should().NotBeNull();
-        fieldSetBuilder.Should().BeOfType<TextFieldSetBuilder>();
-    }
-
-    [Fact]
-    public void StartFieldSet_WithCustomSeparator_SetsSeparatorCorrectly()
-    {
-        // Arrange
-        var textBuilder = TextBuilder.Create();
-        const string separator = "=";
-
-        // Act
-        var fieldSetBuilder = textBuilder.StartFieldSet(fieldSeparator: separator);
-
-        // Assert
-        fieldSetBuilder.Should().NotBeNull();
-    }
-
     [Fact]
     public void AddField_WithLabelAndValue_AddsFieldToSet()
     {
@@ -48,28 +19,14 @@ public class TextFieldSetBuilderTests
     }
 
     [Fact]
-    public void SaveFieldSet_ReturnsOriginalTextBuilder()
-    {
-        // Arrange
-        var textBuilder = TextBuilder.Create();
-        var fieldSetBuilder = textBuilder.StartFieldSet();
-        fieldSetBuilder.AddField("Key", "Value");
-
-        // Act
-        var result = fieldSetBuilder.SaveFieldSet();
-
-        // Assert
-        result.Should().BeSameAs(textBuilder);
-    }
-
-    [Fact]
     public void CompleteFieldSet_RendersCorrectly()
     {
         // Arrange
         var textBuilder = TextBuilder.Create();
 
         // Act
-        textBuilder.StartFieldSet()
+        textBuilder
+            .StartFieldSet()
             .AddField("Name", "John Doe")
             .AddField("Age", "30")
             .AddField("City", "New York")
@@ -88,6 +45,21 @@ public class TextFieldSetBuilderTests
     }
 
     [Fact]
+    public void EmptyFieldSet_RendersEmptyOrMinimal()
+    {
+        // Arrange
+        var textBuilder = TextBuilder.Create();
+
+        // Act
+        textBuilder.StartFieldSet().SaveFieldSet();
+
+        var result = textBuilder.Render();
+
+        // Assert
+        result.Should().NotBeNull();
+    }
+
+    [Fact]
     public void FieldSetWithCustomSeparator_RendersWithCorrectSeparator()
     {
         // Arrange
@@ -95,7 +67,8 @@ public class TextFieldSetBuilderTests
         const string separator = " = ";
 
         // Act
-        textBuilder.StartFieldSet(fieldSeparator: separator)
+        textBuilder
+            .StartFieldSet(fieldSeparator: separator)
             .AddField("Key", "Value")
             .SaveFieldSet();
 
@@ -122,18 +95,45 @@ public class TextFieldSetBuilderTests
     }
 
     [Fact]
-    public void EmptyFieldSet_RendersEmptyOrMinimal()
+    public void SaveFieldSet_ReturnsOriginalTextBuilder()
+    {
+        // Arrange
+        var textBuilder = TextBuilder.Create();
+        var fieldSetBuilder = textBuilder.StartFieldSet();
+        fieldSetBuilder.AddField("Key", "Value");
+
+        // Act
+        var result = fieldSetBuilder.SaveFieldSet();
+
+        // Assert
+        result.Should().BeSameAs(textBuilder);
+    }
+
+    [Fact]
+    public void StartFieldSet_CreatesTextFieldSetBuilder()
     {
         // Arrange
         var textBuilder = TextBuilder.Create();
 
         // Act
-        textBuilder.StartFieldSet()
-            .SaveFieldSet();
-
-        var result = textBuilder.Render();
+        var fieldSetBuilder = textBuilder.StartFieldSet();
 
         // Assert
-        result.Should().NotBeNull();
+        fieldSetBuilder.Should().NotBeNull();
+        fieldSetBuilder.Should().BeOfType<TextFieldSetBuilder>();
+    }
+
+    [Fact]
+    public void StartFieldSet_WithCustomSeparator_SetsSeparatorCorrectly()
+    {
+        // Arrange
+        var textBuilder = TextBuilder.Create();
+        const string separator = "=";
+
+        // Act
+        var fieldSetBuilder = textBuilder.StartFieldSet(fieldSeparator: separator);
+
+        // Assert
+        fieldSetBuilder.Should().NotBeNull();
     }
 }

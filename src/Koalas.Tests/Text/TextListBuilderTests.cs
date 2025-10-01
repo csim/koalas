@@ -1,39 +1,9 @@
-using System;
 using Koalas.Text;
-using Koalas.Text.Models;
 
 namespace Koalas.Tests.Text;
 
 public class TextListBuilderTests
 {
-    [Fact]
-    public void StartList_CreatesTextListBuilder()
-    {
-        // Arrange
-        var textBuilder = TextBuilder.Create();
-
-        // Act
-        var listBuilder = textBuilder.StartList();
-
-        // Assert
-        listBuilder.Should().NotBeNull();
-        listBuilder.Should().BeOfType<TextListBuilder>();
-    }
-
-    [Fact]
-    public void StartList_WithCustomSeparator_SetsSeparatorCorrectly()
-    {
-        // Arrange
-        var textBuilder = TextBuilder.Create();
-        var separator = "-";
-
-        // Act
-        var listBuilder = textBuilder.StartList(separator);
-
-        // Assert
-        listBuilder.Should().NotBeNull();
-    }
-
     [Fact]
     public void AddItem_WithLabel_AddsItemToList()
     {
@@ -63,18 +33,17 @@ public class TextListBuilderTests
     }
 
     [Fact]
-    public void SaveList_ReturnsOriginalTextBuilder()
+    public void AddItem_WithTrailingBlankLines_AddsCorrectSpacing()
     {
         // Arrange
         var textBuilder = TextBuilder.Create();
         var listBuilder = textBuilder.StartList();
-        listBuilder.AddItem("Item 1");
 
         // Act
-        var result = listBuilder.SaveList();
+        var result = listBuilder.AddItem("Item with spacing", trailingBlankLines: 1);
 
         // Assert
-        result.Should().BeSameAs(textBuilder);
+        result.Should().BeSameAs(listBuilder);
     }
 
     [Fact]
@@ -84,7 +53,8 @@ public class TextListBuilderTests
         var textBuilder = TextBuilder.Create();
 
         // Act
-        textBuilder.StartList()
+        textBuilder
+            .StartList()
             .AddItem("First Item")
             .AddItem("Second Item")
             .AddItem("Third Item")
@@ -100,34 +70,13 @@ public class TextListBuilderTests
     }
 
     [Fact]
-    public void ListWithCustomSeparator_RendersWithCorrectSeparator()
-    {
-        // Arrange
-        var textBuilder = TextBuilder.Create();
-        var separator = "->";
-
-        // Act
-        textBuilder.StartList(separator)
-            .AddItem("Key", "Value")
-            .SaveList();
-
-        var result = textBuilder.Render();
-
-        // Assert
-        result.Should().NotBeNullOrEmpty();
-        result.Should().Contain("Key");
-        result.Should().Contain("Value");
-    }
-
-    [Fact]
     public void EmptyList_RendersEmptyOrMinimal()
     {
         // Arrange
         var textBuilder = TextBuilder.Create();
 
         // Act
-        textBuilder.StartList()
-            .SaveList();
+        textBuilder.StartList().SaveList();
 
         var result = textBuilder.Render();
 
@@ -142,7 +91,8 @@ public class TextListBuilderTests
         var textBuilder = TextBuilder.Create();
 
         // Act
-        textBuilder.StartList(defaultTrailingBlankLines: 2)
+        textBuilder
+            .StartList(defaultTrailingBlankLines: 2)
             .AddItem("Item 1")
             .AddItem("Item 2")
             .SaveList();
@@ -156,16 +106,63 @@ public class TextListBuilderTests
     }
 
     [Fact]
-    public void AddItem_WithTrailingBlankLines_AddsCorrectSpacing()
+    public void ListWithCustomSeparator_RendersWithCorrectSeparator()
+    {
+        // Arrange
+        var textBuilder = TextBuilder.Create();
+        var separator = "->";
+
+        // Act
+        textBuilder.StartList(separator).AddItem("Key", "Value").SaveList();
+
+        var result = textBuilder.Render();
+
+        // Assert
+        result.Should().NotBeNullOrEmpty();
+        result.Should().Contain("Key");
+        result.Should().Contain("Value");
+    }
+
+    [Fact]
+    public void SaveList_ReturnsOriginalTextBuilder()
     {
         // Arrange
         var textBuilder = TextBuilder.Create();
         var listBuilder = textBuilder.StartList();
+        listBuilder.AddItem("Item 1");
 
         // Act
-        var result = listBuilder.AddItem("Item with spacing", trailingBlankLines: 1);
+        var result = listBuilder.SaveList();
 
         // Assert
-        result.Should().BeSameAs(listBuilder);
+        result.Should().BeSameAs(textBuilder);
+    }
+
+    [Fact]
+    public void StartList_CreatesTextListBuilder()
+    {
+        // Arrange
+        var textBuilder = TextBuilder.Create();
+
+        // Act
+        var listBuilder = textBuilder.StartList();
+
+        // Assert
+        listBuilder.Should().NotBeNull();
+        listBuilder.Should().BeOfType<TextListBuilder>();
+    }
+
+    [Fact]
+    public void StartList_WithCustomSeparator_SetsSeparatorCorrectly()
+    {
+        // Arrange
+        var textBuilder = TextBuilder.Create();
+        var separator = "-";
+
+        // Act
+        var listBuilder = textBuilder.StartList(separator);
+
+        // Assert
+        listBuilder.Should().NotBeNull();
     }
 }

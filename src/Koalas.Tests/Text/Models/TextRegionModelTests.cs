@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Koalas.Text;
 using Koalas.Text.Models;
@@ -23,22 +22,16 @@ public class TextRegionModelTests
     }
 
     [Fact]
-    public void Render_WithNoIndent_ReturnsChildrenRendered()
+    public void Render_WithEmptyChildren_ReturnsEmptyString()
     {
         // Arrange
-        var children = new List<IRender>
-        {
-            new TextLineModel("Line 1"),
-            new TextLineModel("Line 2")
-        };
-        var model = new TextRegionModel(children.AsReadOnly(), 0);
+        var model = new TextRegionModel(new List<IRender>().AsReadOnly(), 0);
 
         // Act
         var result = model.Render();
 
         // Assert
-        result.Should().Contain("Line 1");
-        result.Should().Contain("Line 2");
+        result.Should().BeEmpty();
     }
 
     [Fact]
@@ -57,15 +50,21 @@ public class TextRegionModelTests
     }
 
     [Fact]
-    public void Render_WithEmptyChildren_ReturnsEmptyString()
+    public void Render_WithNoIndent_ReturnsChildrenRendered()
     {
         // Arrange
-        var model = new TextRegionModel(new List<IRender>().AsReadOnly(), 0);
+        var children = new List<IRender>
+        {
+            new TextLineModel("Line 1"),
+            new TextLineModel("Line 2"),
+        };
+        var model = new TextRegionModel(children.AsReadOnly(), 0);
 
         // Act
         var result = model.Render();
 
         // Assert
-        result.Should().BeEmpty();
+        result.Should().Contain("Line 1");
+        result.Should().Contain("Line 2");
     }
 }
