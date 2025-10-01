@@ -2,8 +2,8 @@
 
 public partial class TextFieldSetItemBuilder : IRender
 {
-    private string _format;
-    private string _label;
+    private string? _format;
+    private string? _label;
     private readonly TextFieldSetBuilder _parent;
     private bool _saved;
     private TextBuilder _valueBuilder = TextBuilder.Create();
@@ -184,10 +184,10 @@ public partial class TextFieldSetItemBuilder : IRender
     public TextFieldSetItemBuilder AddTable(
         IEnumerable<IEnumerable<object>> values,
         TextTableBorder border = TextTableBorder.Inner,
-        IEnumerable<string> columnNames = null,
+        IEnumerable<string>? columnNames = null,
         int defaultColumnPadding = 1,
         int? defaultColumnMaxWidth = 50,
-        Func<object, string> formatCellValue = null,
+        Func<object, string>? formatCellValue = null,
         bool includeIdentityColumn = false
     )
     {

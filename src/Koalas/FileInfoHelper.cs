@@ -95,7 +95,7 @@ public static class FileInfoHelper
     public static IReadOnlyList<FileInfo> WriteFileLines(
         this IEnumerable<string> lines,
         string directoryPath,
-        string prefix = null,
+        string? prefix = null,
         string extension = "json",
         int maxDirectoryLines = 1_000_000,
         int maxFileLines = 1,

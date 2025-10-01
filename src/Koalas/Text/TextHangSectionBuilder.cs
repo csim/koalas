@@ -138,10 +138,10 @@ public partial class TextHangSectionBuilder : ITextBuilder
     public TextHangSectionBuilder AddTable(
         IEnumerable<IEnumerable<object>> values,
         TextTableBorder border = TextTableBorder.Inner,
-        IEnumerable<string> columnNames = null,
+        IEnumerable<string>? columnNames = null,
         int defaultColumnPadding = 1,
         int? defaultColumnMaxWidth = 50,
-        Func<object, string> formatCellValue = null,
+        Func<object, string>? formatCellValue = null,
         bool includeIdentityColumn = false
     ) =>
         Add(

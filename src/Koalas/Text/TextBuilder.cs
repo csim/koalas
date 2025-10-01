@@ -123,13 +123,13 @@ public partial class TextBuilder : ITextBuilder
 
     public TextBuilder AddLine(object source) => AddLine(source.Render());
 
-    public TextBuilder AddList(IEnumerable<string> items, string separator = ":")
+    public TextBuilder AddList(IEnumerable<string?> items, string separator = ":")
     {
         TextListBuilder listBuilder = StartList(separator: separator);
 
-        foreach (string item in items)
+        foreach (string? item in items)
         {
-            listBuilder.AddItem(item);
+            listBuilder.AddItem(item ?? string.Empty);
         }
 
         listBuilder.SaveList();
@@ -144,17 +144,14 @@ public partial class TextBuilder : ITextBuilder
         int trailingBlankLines = 1
     )
     {
-        if (string.IsNullOrEmpty(body))
-        {
-            return this;
-        }
-
-        return AddHangSection(
-            heading: heading,
-            body: body,
-            maxWidth: maxWidth,
-            trailingBlankLines: trailingBlankLines
-        );
+        return string.IsNullOrEmpty(body)
+            ? this
+            : AddHangSection(
+                heading: heading,
+                body: body,
+                maxWidth: maxWidth,
+                trailingBlankLines: trailingBlankLines
+            );
     }
 
     public TextBuilder AddOptionalLine(string content, int trailingBlankLines = 0) =>
@@ -174,18 +171,15 @@ public partial class TextBuilder : ITextBuilder
         int trailingBlankLines = 2
     )
     {
-        if (string.IsNullOrEmpty(body))
-        {
-            return this;
-        }
-
-        return AddSection(
-            heading: heading,
-            body: body,
-            headingSuffix: headingSuffix,
-            maxWidth: maxWidth,
-            trailingBlankLines: trailingBlankLines
-        );
+        return string.IsNullOrEmpty(body)
+            ? this
+            : AddSection(
+                heading: heading,
+                body: body,
+                headingSuffix: headingSuffix,
+                maxWidth: maxWidth,
+                trailingBlankLines: trailingBlankLines
+            );
     }
 
     public TextBuilder AddSection(
@@ -233,10 +227,10 @@ public partial class TextBuilder : ITextBuilder
     public TextBuilder AddTable(
         IEnumerable<IEnumerable<object>> values,
         TextTableBorder border = TextTableBorder.Inner,
-        IEnumerable<string> columnNames = null,
+        IEnumerable<string>? columnNames = null,
         int defaultColumnPadding = 1,
         int? defaultColumnMaxWidth = 50,
-        Func<object, string> formatCellValue = null,
+        Func<object, string>? formatCellValue = null,
         bool includeIdentityColumn = false
     ) =>
         Add(
@@ -258,7 +252,7 @@ public partial class TextBuilder : ITextBuilder
         int length = text.Length;
         if (text.Contains('\n'))
         {
-            length = text.Lines().Max(t => t.Length);
+            length = text.Lines().Max(static t => t.Length);
         }
 
         AddLine(new string('═', length));
@@ -342,16 +336,16 @@ public partial class TextBuilder : ITextBuilder
             .ValueRightAlign(valueRightAlign)
             .ValueOverflowIndent(valueOverflowIndent);
 
-    public TextHangSectionBuilder StartHangSection(string heading = null) =>
-        new TextHangSectionBuilder(this).Heading(heading);
+    public TextHangSectionBuilder StartHangSection(string? heading = null) =>
+        new TextHangSectionBuilder(this).Heading(heading ?? string.Empty);
 
     public TextListBuilder StartList(string separator = ":", int defaultTrailingBlankLines = 0) =>
         new TextListBuilder(this)
             .Separator(separator)
             .DefaultTrailingBlankLines(defaultTrailingBlankLines);
 
-    public TextSectionBuilder StartSection(string heading = null) =>
-        new TextSectionBuilder(this).Heading(heading);
+    public TextSectionBuilder StartSection(string? heading = null) =>
+        new TextSectionBuilder(this).Heading(heading ?? string.Empty);
 
     public TextTableBuilder StartTable(
         TextTableBorder border = TextTableBorder.Default,

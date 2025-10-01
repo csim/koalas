@@ -6,7 +6,7 @@ public partial class TextListBuilder : ITextBuilder
     private readonly List<TextListItemModel> _items = [];
     private readonly TextBuilder _parent;
     private bool _saved;
-    private string _separator;
+    private string? _separator;
 
     internal TextListBuilder(TextBuilder parent)
     {
@@ -22,9 +22,9 @@ public partial class TextListBuilder : ITextBuilder
 
     public TextListBuilder AddItem(
         TextSectionBuilder builder,
-        string id = null,
-        string indicator = null,
-        string separator = null,
+        string? id = null,
+        string? indicator = null,
+        string? separator = null,
         int? trailingBlankLines = null
     ) =>
         StartItem()
@@ -37,9 +37,9 @@ public partial class TextListBuilder : ITextBuilder
 
     public TextListBuilder AddItem(
         TextHangSectionBuilder builder,
-        string id = null,
-        string indicator = null,
-        string separator = null,
+        string? id = null,
+        string? indicator = null,
+        string? separator = null,
         int? trailingBlankLines = null
     ) =>
         StartItem()
@@ -52,23 +52,24 @@ public partial class TextListBuilder : ITextBuilder
 
     public TextListBuilder AddItem(
         TextListBuilder builder,
-        string id = null,
-        string indicator = null,
-        string separator = null,
+        string? id = null,
+        string? indicator = null,
+        string? separator = null,
         int? trailingBlankLines = null
     ) =>
         StartItem()
             .Id(id)
             .Indicator(indicator)
+            .Separator(separator)
             .Add(builder)
             .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
             .SaveItem();
 
     public TextListBuilder AddItem(
         TextFieldSetBuilder builder,
-        string id = null,
-        string indicator = null,
-        string separator = null,
+        string? id = null,
+        string? indicator = null,
+        string? separator = null,
         int? trailingBlankLines = null
     ) =>
         StartItem()
@@ -81,9 +82,9 @@ public partial class TextListBuilder : ITextBuilder
 
     public TextListBuilder AddItem(
         TextTableBuilder builder,
-        string id = null,
-        string indicator = null,
-        string separator = null,
+        string? id = null,
+        string? indicator = null,
+        string? separator = null,
         int? trailingBlankLines = null
     ) =>
         StartItem()
@@ -96,9 +97,9 @@ public partial class TextListBuilder : ITextBuilder
 
     public TextListBuilder AddItem(
         string body,
-        string id = null,
-        string indicator = null,
-        string separator = null,
+        string? id = null,
+        string? indicator = null,
+        string? separator = null,
         int? trailingBlankLines = null
     ) =>
         StartItem()
@@ -111,9 +112,9 @@ public partial class TextListBuilder : ITextBuilder
 
     public TextListBuilder AddItem(
         ITextBuilder body,
-        string id = null,
-        string indicator = null,
-        string separator = null,
+        string? id = null,
+        string? indicator = null,
+        string? separator = null,
         int? trailingBlankLines = null
     ) =>
         StartItem()
@@ -126,9 +127,9 @@ public partial class TextListBuilder : ITextBuilder
 
     public TextListBuilder AddItem(
         Action<TextBuilder> bodyFactory,
-        string id = null,
-        string indicator = null,
-        string separator = null
+        string? id = null,
+        string? indicator = null,
+        string? separator = null
     )
     {
         var bodyBuilder = TextBuilder.Create();
@@ -209,8 +210,8 @@ public partial class TextListBuilder : ITextBuilder
     }
 
     public TextListItemBuilder StartItem(
-        string id = null,
-        string indicator = null,
+        string? id = null,
+        string? indicator = null,
         string separator = ":"
     ) => new TextListItemBuilder(this).Id(id).Indicator(indicator).Separator(separator);
 

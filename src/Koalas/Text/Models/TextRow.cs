@@ -19,7 +19,7 @@ public interface ITextRow
     void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns);
 }
 
-public class DataTextRow(int id, IEnumerable<object> values) : List<object>(values), ITextRow
+public class DataTextRow(int id, IEnumerable<object?> values) : List<object?>(values), ITextRow
 {
     public bool First { get; set; }
     public int? Id { get; set; } = id;
@@ -146,7 +146,7 @@ public class HeadingTextRow : ITextRow
     public int Index { get; set; }
     public bool Last { get; set; }
 
-    private readonly string[] _headingOverrides;
+    private readonly string[]? _headingOverrides;
 
     public HeadingTextRow() { }
 

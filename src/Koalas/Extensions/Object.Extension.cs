@@ -2,228 +2,260 @@
 
 namespace Koalas.Extensions;
 
-/// <summary>
-///     Renders the subject as a string suitable for use in C# code.
-/// </summary>
-/// <param name="subject"></param>
-/// <returns></returns>
-/// <summary>
-///     Renders the subject as a string suitable for use in C# code.
-/// </summary>
-/// <param name="subject"></param>
-/// <returns></returns>
-/// <summary>
-///     Renders the subject as a string suitable for use in C# code.
-/// </summary>
-/// <param name="subject"></param>
-/// <returns></returns>
-public static partial class Extension
+public static partial class ObjectExtensions
 {
-    public static string RenderNumbered(this IEnumerable<object>? items, int startNumber = 1)
-    {
-        if (items == null)
-            return string.Empty;
+    public static bool HasClassAttribute<T>(this object? subject)
+        where T : Attribute =>
+        subject != null && subject.GetType().IsDefined(typeof(T), inherit: true);
 
-        items = items.ToReadOnlyList();
-        if (!items.Any())
-            return "<none>";
-
-        int maxPositionLength = items
-            .Select((_, idx) => (idx + startNumber).ToString().Length)
-            .Max();
-        int indent = maxPositionLength + 2;
-        IEnumerable<string> lines = items.Select(
-            (item, idx) =>
-            {
-                int position = idx + startNumber;
-                string num =
-                    maxPositionLength > 1
-                        ? position.ToString().PadLeft(maxPositionLength)
-                        : position.ToString();
-
-                return $"{num}: {item.ToString().IndentSkipFirstLine(indent)}";
-            }
-        );
-
-        return lines.ToJoinNewlineString();
-    }
-
-    public static string ToLiteral(this object? obj)
-    {
-        return obj is DateTime dt
-            ? dt.ToString(
-                dt == dt.Date ? "yyyy-MM-dd"
-                    : dt is { Second: 0, Millisecond: 0 } ? "yyyy-MM-ddTHH:mm"
-                    : dt.Millisecond == 0 ? "s"
-                    : "yyyy-MM-ddTHH:mm:ss.fff",
-                CultureInfo.InvariantCulture
-            )
-            : JsonConvert.SerializeObject(obj);
-    }
-}
-
-public static partial class ObjectExtension
-{
     /// <summary>
-    ///     Renders the subject as a string suitable to print in a human-readable form.
+    ///     Render <paramref name="subject" /> as a human-readable string.
     /// </summary>
     /// <param name="subject"></param>
     /// <returns></returns>
     public static string Render(this object? subject)
     {
-        return subject switch
+        if (subject == null)
         {
-            null => "null",
+            return "null";
+        }
+
+        string? ret = subject switch
+        {
             string item => item.Render(),
-            DateTime item => item.Render(),
+            bool item => item ? "true" : "false",
             int item => item.Render(),
             uint item => item.Render(),
-            decimal item => item.Render(),
-            double item => item.Render(),
+            long item => item.Render(),
+            ulong item => item.Render(),
             float item => item.Render(),
-            IRender item => item.Render(),
-            IToJson item => item.ToJson().ToString(Formatting.Indented),
-            _ => subject.ToLiteral(),
+            double item => item.Render(),
+            decimal item => item.Render(),
+            DateTime item => item.Render(),
+            IDictionary<string, string> item => item.Render(),
+            IDictionary<string, object> item => item.Render(),
+            IDictionary<object, string> item => item.Render(),
+            _ => null,
         };
+        return ret != null ? ret
+            : subject is IRender renderSubject ? renderSubject.Render()
+            : subject is IToJson || subject.HasClassAttribute<JsonObjectAttribute>()
+                ? $"""
+                    {subject.GetType().Name}
+                    {subject.ToJsonString()}
+                    """
+            : ret ?? subject.ToString();
     }
 
-    public static string Render(this string? subject)
-    {
-        return subject == null ? "null"
-            : subject.Contains('\n')
-                ? $"\"\"\"{Environment.NewLine}{subject}{Environment.NewLine}\"\"\""
-            : subject.ToLiteral().Replace(@"\\", @"\");
-    }
+    /// <summary>
+    ///     Renders the subject as a string suitable for use in C# code.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <returns></returns>
+    public static string Render(this string? subject) =>
+        subject == null ? string.Empty
+        : subject.Contains('\n') || subject.Contains('"')
+            ? $"\"\"\"{Environment.NewLine}{subject}{Environment.NewLine}\"\"\""
+        : subject.ToString();
 
+    /// <summary>
+    ///     Render <paramref name="subject" /> as a human-readable string.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <returns></returns>
     public static string Render(this DateTime subject)
     {
-        return subject.ToLiteral();
+        string mask =
+            subject == subject.Date ? "yyyy-MM-dd"
+            : subject is { Second: 0, Millisecond: 0 } ? "yyyy-MM-ddTHH:mm"
+            : subject.Millisecond == 0 ? "yyyy-MM-ddTHH:mm:ss"
+            : "yyyy-MM-ddTHH:mm:ss.fff";
+
+        return subject.ToString(mask, CultureInfo.InvariantCulture);
     }
 
-    public static string Render(this int subject)
-    {
-        return subject
+    /// <summary>
+    ///     Render <paramref name="subject" /> as a human-readable string.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <returns></returns>
+    public static string Render(this int subject) =>
+        subject
             .ToString("#,##0.#####################", CultureInfo.InvariantCulture)
             .Replace(",", "_");
-    }
 
-    public static string Render(this uint subject)
-    {
-        return $"{subject.ToString("#,##0.#####################", CultureInfo.InvariantCulture).Replace(",", "_")}u";
-    }
+    /// <summary>
+    ///     Render <paramref name="subject" /> as a human-readable string.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <returns></returns>
+    public static string Render(this uint subject) =>
+        $"{subject.ToString("#,##0.#####################", CultureInfo.InvariantCulture).Replace(",", "_")}u";
 
-    public static string Render(this float subject)
-    {
-        return $"{subject.ToString("#,##0.#####################", CultureInfo.InvariantCulture).Replace(",", "_")}f";
-    }
+    /// <summary>
+    ///     Render <paramref name="subject" /> as a human-readable string.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <returns></returns>
+    public static string Render(this long subject) =>
+        subject
+            .ToString("#,##0.#####################", CultureInfo.InvariantCulture)
+            .Replace(",", "_");
 
-    public static string Render(this double subject)
-    {
-        return $"{subject.ToString("#,##0.#####################", CultureInfo.InvariantCulture).Replace(",", "_")}d";
-    }
+    /// <summary>
+    ///     Render <paramref name="subject" /> as a human-readable string.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <returns></returns>
+    public static string Render(this ulong subject) =>
+        subject
+            .ToString("#,##0.#####################", CultureInfo.InvariantCulture)
+            .Replace(",", "_");
 
-    public static string Render(this decimal subject)
-    {
-        return $"{subject.ToString("#,##0.#####################################################", CultureInfo.InvariantCulture).Replace(",", "_")}m";
-    }
+    /// <summary>
+    ///     Render <paramref name="subject" /> as a human-readable string.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <returns></returns>
+    public static string Render(this float subject) =>
+        $"{subject.ToString("#,##0.#####################", CultureInfo.InvariantCulture).Replace(",", "_")}f";
 
-    public static bool SequenceValueEquals<T>(this IEnumerable<T>? left, IEnumerable<T>? right)
-    {
-        return (left == null && right == null)
-            || (right != null && left?.SequenceEqual(right) == true);
-    }
+    /// <summary>
+    ///     Render <paramref name="subject" /> as a human-readable string.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <returns></returns>
+    public static string Render(this double subject) =>
+        $"{subject.ToString("#,##0.#####################", CultureInfo.InvariantCulture).Replace(",", "_")}d";
+
+    /// <summary>
+    ///     Render <paramref name="subject" /> as a human-readable string.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <returns></returns>
+    public static string Render(this decimal subject) =>
+        $"{subject.ToString("#,##0.#####################################################", CultureInfo.InvariantCulture).Replace(",", "_")}m";
+
+    public static bool SequenceValueEquals<T>(this IEnumerable<T>? left, IEnumerable<T>? right) =>
+        (left == null && right == null) || (right != null && left?.SequenceEqual(right) == true);
 
     /// <summary>
     ///     Renders the subject as a string suitable for use in C# code.
     /// </summary>
     /// <param name="subject"></param>
     /// <returns></returns>
-    public static string ToCSharpLiteral(this object? subject)
-    {
-        return subject switch
+    public static string ToCSharpLiteral(this object? subject, bool allowVerbatim = true) =>
+        subject switch
         {
-            string item => item.ToCSharpLiteral(),
+            null => "null",
+            string item => item.ToCSharpLiteral(allowVerbatim: allowVerbatim),
+            bool item => item ? "true" : "false",
+            int item => item.Render(),
+            long item => item.Render(),
+            ulong item => item.Render(),
+            uint item => item.Render(),
+            double item => item.Render(),
+            float item => item.Render(),
+            decimal item => item.Render(),
             DateTime item => item.ToCSharpLiteral(),
-            _ => subject.Render(),
+            _ => subject.ToString(),
         };
-    }
 
     /// <summary>
     ///     Renders the subject as a string suitable for use in C# code.
     /// </summary>
     /// <param name="subject"></param>
     /// <returns></returns>
-    public static string ToCSharpLiteral(this string? subject)
-    {
-        return subject.ToLiteral();
-    }
+    public static string ToCSharpLiteral(this string? subject, bool allowVerbatim = true) =>
+        subject == null ? "null"
+        : allowVerbatim && (subject.Contains('\n') || subject.Contains('"'))
+            ? $"\"\"\"{Environment.NewLine}{subject}{Environment.NewLine}\"\"\""
+        : subject.ToString();
 
     /// <summary>
     ///     Renders the subject as a string suitable for use in C# code.
     /// </summary>
     /// <param name="subject"></param>
     /// <returns></returns>
-    public static string ToCSharpLiteral(this DateTime subject)
-    {
-        return $"DateTime.Parse(\"{subject.ToLiteral()}\")";
-    }
+    public static string ToCSharpLiteral(this DateTime subject) =>
+        $"DateTime.Parse(\"{subject.Render()}\")";
 
-    public static string ToJsonHash(this object request)
+    public static string ToHash(this string? source)
     {
-        string requestJson = JsonConvert
-            .SerializeObject(request, Formatting.None)
+        if (source == null)
+        {
+            return string.Empty;
+        }
+
+        // Replacements necessary for cross-platform compatibility
+        string cleanSource = source
+            .Replace(@"\r\n", @"\n")
             .Replace("\r\n", "\n")
-            .Replace("\r", "\n")
-            .Replace("\\r\\n", "\\n");
+            .Replace("\r", "\n");
 
-        byte[] inputBytes = Encoding.UTF8.GetBytes(requestJson);
+        byte[] inputBytes = Encoding.UTF8.GetBytes(cleanSource);
 
         StringBuilder output = new();
-        SHA256.Create().ComputeHash(inputBytes).ForEach(b => output.Append(b.ToString("X2")));
+        var hash = SHA256.Create().ComputeHash(inputBytes);
+        foreach (var c in hash)
+        {
+            output.Append(c.ToString("X2"));
+        }
 
         return output.ToString();
     }
 
-    public static string ToJsonLineString(this object source, params JsonConverter[] converters)
-    {
-        return ToJsonString(source, Formatting.None, converters);
-    }
+    public static string ToJsonHash(this object? source) =>
+        source?.ToJsonLineString().ToHash() ?? string.Empty;
 
-    public static string ToJsonLineString(this object source)
-    {
-        return ToJsonString(source, Formatting.None);
-    }
+    public static string ToJsonLineString(this object source, params JsonConverter[] converters) =>
+        ToJsonString(source, Formatting.None, converters);
 
-    public static string ToJsonString(this object source, JsonSerializerSettings? settings = null)
-    {
-        return ToJsonString(source, Formatting.None, settings);
-    }
+    public static string ToJsonLineString(this object source) =>
+        ToJsonString(source, Formatting.None);
 
-    public static string ToJsonString(this object source, params JsonConverter[] converters)
-    {
-        return ToJsonString(source, Formatting.Indented, converters);
-    }
+    public static string ToJsonString(this object source) =>
+        ToJsonString(source, Formatting.Indented);
+
+    public static string ToJsonString(this object source, JsonSerializerSettings? settings) =>
+        ToJsonString(source, Formatting.Indented, settings);
+
+    public static string ToJsonString(this object source, params JsonConverter[] converters) =>
+        ToJsonString(source, Formatting.Indented, converters);
 
     public static string ToJsonString(
         this object source,
-        Formatting formatting = Formatting.Indented,
+        Formatting formatting,
         params JsonConverter[] converters
     )
     {
+        if (source is IToJson sourceJson)
+        {
+            source = sourceJson.ToJson();
+        }
+
         return JsonConvert.SerializeObject(source, formatting, converters);
     }
 
     public static string ToJsonString(
         this object source,
-        Formatting formatting = Formatting.Indented,
-        JsonSerializerSettings? settings = null
+        Formatting formatting,
+        JsonSerializerSettings? settings
     )
     {
+        if (source is IToJson sourceJson)
+        {
+            source = sourceJson.ToJson();
+        }
+
         return JsonConvert.SerializeObject(source, formatting, settings);
     }
 
-    public static bool ValueEquals<T>(this T? left, T? right)
+    public static bool ValueEquals<T>(this T? left, T? right) =>
+        (left == null && right == null) || (right != null && left?.Equals(right) == true);
+
+    public static IEnumerable<T> Yield<T>(this T item)
     {
-        return (left == null && right == null) || (right != null && left?.Equals(right) == true);
+        yield return item;
     }
 }

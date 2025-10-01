@@ -45,12 +45,12 @@ public static class PrintExtensions
     /// <param name="label"></param>
     /// <param name="limit"></param>
     public static void Print<T>(
-        this IEnumerable<T>? items,
+        this IEnumerable<T?>? items,
         string? label = null,
         int limit = _defaultItemLimit
     )
     {
-        IReadOnlyList<T> list = items.ToReadOnlyList();
+        IReadOnlyList<T?> list = items.ToReadOnlyList();
 
         int headCount = list.Count;
         int tailCount = 0;
@@ -65,7 +65,7 @@ public static class PrintExtensions
         int position = 0;
         TextListBuilder? builder = TextListBuilder.Create();
 
-        foreach (T item in list.Head(headCount))
+        foreach (T? item in list.Head(headCount))
         {
             position++;
             builder.AddItem(item.Render(), id: position.ToString());
@@ -83,7 +83,7 @@ public static class PrintExtensions
             }
 
             position = list.Count - tailCount;
-            foreach (T item in list.Tail(tailCount))
+            foreach (T? item in list.Tail(tailCount))
             {
                 position++;
                 builder.AddItem(item.Render(), id: position.ToString());

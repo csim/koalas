@@ -3,11 +3,11 @@
 public partial class TextListItemBuilder : IRender
 {
     private readonly TextBuilder _bodyBuilder = TextBuilder.Create();
-    private string _id;
-    private string _indicator;
+    private string? _id;
+    private string? _indicator;
     private readonly TextListBuilder _parent;
     private bool _saved;
-    private string _separator;
+    private string? _separator;
 
     internal TextListItemBuilder(TextListBuilder parent)
     {
@@ -196,10 +196,10 @@ public partial class TextListItemBuilder : IRender
     public TextListItemBuilder AddTable(
         IEnumerable<IEnumerable<object>> values,
         TextTableBorder border = TextTableBorder.Inner,
-        IEnumerable<string> columnNames = null,
+        IEnumerable<string>? columnNames = null,
         int defaultColumnPadding = 1,
         int? defaultColumnMaxWidth = 50,
-        Func<object, string> formatCellValue = null,
+        Func<object, string>? formatCellValue = null,
         bool includeIdentityColumn = false
     ) =>
         Add(
@@ -221,14 +221,14 @@ public partial class TextListItemBuilder : IRender
         return this;
     }
 
-    public TextListItemBuilder Id(string id)
+    public TextListItemBuilder Id(string? id)
     {
         _id = id;
 
         return this;
     }
 
-    public TextListItemBuilder Indicator(string indicator)
+    public TextListItemBuilder Indicator(string? indicator)
     {
         _indicator = indicator;
 
@@ -273,7 +273,7 @@ public partial class TextListItemBuilder : IRender
         return _parent.AddItem(Build());
     }
 
-    public TextListItemBuilder Separator(string separator)
+    public TextListItemBuilder Separator(string? separator)
     {
         _separator = separator;
 

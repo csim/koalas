@@ -10,10 +10,10 @@ public partial class TextFieldSetBuilder : ITextBuilder
     private int _maxValueWidth;
     private int _minLabelWidth;
     private int _minValueWidth;
-    private string _nullProjection;
+    private string? _nullProjection;
     private readonly TextBuilder _parent;
     private bool _saved;
-    private string _separator;
+    private string? _separator;
     private int _valueLeftPadding = 1;
     private int _valueOverflowIndent;
     private bool _valueRightAlign;
@@ -38,26 +38,26 @@ public partial class TextFieldSetBuilder : ITextBuilder
         int? value,
         string format = "N0",
         int trailingBlankLines = 0
-    ) => AddField(label, (object)value, format);
+    ) => AddField(label, (object?)value, format);
 
     public TextFieldSetBuilder AddField(
         string label,
         double? value,
         string format = "N3",
         int trailingBlankLines = 0
-    ) => AddField(label, (object)value, format, trailingBlankLines: trailingBlankLines);
+    ) => AddField(label, (object?)value, format, trailingBlankLines: trailingBlankLines);
 
     public TextFieldSetBuilder AddField(
         string label,
         decimal? value,
         string format = "N3",
         int trailingBlankLines = 0
-    ) => AddField(label, (object)value, format, trailingBlankLines: trailingBlankLines);
+    ) => AddField(label, (object?)value, format, trailingBlankLines: trailingBlankLines);
 
     public TextFieldSetBuilder AddField(
-        string label,
-        object value,
-        string format,
+        string? label,
+        object? value,
+        string? format,
         int trailingBlankLines = 0
     )
     {
@@ -101,7 +101,7 @@ public partial class TextFieldSetBuilder : ITextBuilder
     public IRender Build() =>
         new TextFieldSetModel(
             Items: _items,
-            Separator: _separator,
+            Separator: _separator ?? ":",
             MinLabelWidth: _minLabelWidth,
             LabelRightPadding: _labelRightPadding,
             LabelRightAlign: _labelRightAlign,

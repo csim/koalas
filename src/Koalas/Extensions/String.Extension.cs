@@ -202,7 +202,7 @@ public static partial class StringExtensions
         int id = startId;
         foreach (string? item in items)
         {
-            builder.AddItem(body: item, id: $"{id++}");
+            builder.AddItem(body: item ?? string.Empty, id: $"{id++}");
         }
 
         return builder.SaveList().Render();

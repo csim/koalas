@@ -18,8 +18,8 @@ public interface ITextRowBuilder : IRender
 
     ITextRowBuilder AddBorderRow();
     ITextRowBuilder AddDataRow(params object[] cells);
-    ITextRowBuilder AddDataRow(IReadOnlyList<object> row, int? rowId = null);
-    ITextRowBuilder AddDataRows(IReadOnlyList<IReadOnlyList<object>> rows, int? startRowId = null);
+    ITextRowBuilder AddDataRow(IReadOnlyList<object?> row, int? rowId = null);
+    ITextRowBuilder AddDataRows(IReadOnlyList<IReadOnlyList<object?>> rows, int? startRowId = null);
     ITextRowBuilder AddDoubleBorderRow();
     ITextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0);
     ITextRowBuilder AddHeadingRow();
@@ -65,7 +65,7 @@ public class TextRowBuilder : ITextRowBuilder
     public ITextRowBuilder AddDataRow(params object[] cells) =>
         AddDataRow((IReadOnlyList<object>)cells);
 
-    public ITextRowBuilder AddDataRow(IReadOnlyList<object> row, int? rowId = null)
+    public ITextRowBuilder AddDataRow(IReadOnlyList<object?> row, int? rowId = null)
     {
         if (row.Count != _dataColumnCount)
         {
@@ -80,11 +80,11 @@ public class TextRowBuilder : ITextRowBuilder
     }
 
     public ITextRowBuilder AddDataRows(
-        IReadOnlyList<IReadOnlyList<object>> rows,
+        IReadOnlyList<IReadOnlyList<object?>> rows,
         int? startRowId = null
     )
     {
-        foreach (IReadOnlyList<object> row in rows)
+        foreach (IReadOnlyList<object?> row in rows)
         {
             AddDataRow(row, startRowId == null ? null : startRowId++);
         }
@@ -171,7 +171,7 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
     private int? _defaultColumnMaxWidth;
     private int _defaultColumnPadding = 1;
     private readonly TextBuilder _parent;
-    private TextRowBuilder _rowBuilder;
+    private TextRowBuilder? _rowBuilder;
     private int? _rowLimit;
     private readonly List<ITextRow> _rows = [];
     private bool _saved;
@@ -196,8 +196,8 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         int? maxWidth = null,
         int? wrapOverflowIndent = null,
         bool alignRight = false,
-        string format = null,
-        string nullProjection = null,
+        string? format = null,
+        string? nullProjection = null,
         int? leftPadding = null,
         int? rightPadding = null
     )
@@ -221,14 +221,14 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         return this;
     }
 
-    public ITextRowBuilder AddDataRow(params object[] cells) =>
+    public ITextRowBuilder AddDataRow(params object?[] cells) =>
         RowBuilder.AddDataRow((IReadOnlyList<object>)cells);
 
-    public ITextRowBuilder AddDataRow(IReadOnlyList<object> row, int? rowId = null) =>
+    public ITextRowBuilder AddDataRow(IReadOnlyList<object?> row, int? rowId = null) =>
         RowBuilder.AddDataRow(row, rowId);
 
     public ITextRowBuilder AddDataRows(
-        IReadOnlyList<IReadOnlyList<object>> rows,
+        IReadOnlyList<IReadOnlyList<object?>> rows,
         int? startRowId = null
     ) => RowBuilder.AddDataRows(rows, startRowId);
 
@@ -335,14 +335,14 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
     public static TextTableBuilder Create(
         IEnumerable<IEnumerable<object>> values,
         TextTableBorder border = TextTableBorder.Inner,
-        IEnumerable<string> columnNames = null,
+        IEnumerable<string>? columnNames = null,
         int defaultColumnPadding = 1,
         int? defaultColumnMaxWidth = 50,
-        Func<object, string> formatCellValue = null,
+        Func<object, string>? formatCellValue = null,
         bool includeIdentityColumn = false
     )
     {
-        formatCellValue ??= v => v?.ToLiteral() ?? string.Empty;
+        formatCellValue ??= v => v?.Render() ?? string.Empty;
 
         TextTableBuilder builder = Create()
             .Border(border)
@@ -397,7 +397,7 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
 
         foreach (IEnumerable<object> row in ivalues)
         {
-            List<object> rowValues = [.. row.Select(formatCellValue).ToArray()];
+            List<object?> rowValues = [.. row.Select(formatCellValue).ToArray()];
 
             for (int position = rowValues.Count; position < maxColumnCount; position++)
             {

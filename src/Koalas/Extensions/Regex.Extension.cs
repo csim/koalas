@@ -36,7 +36,7 @@ public static class RegexUtils
             // avoiding LINQ here. Might be a premature optimization. This is equivalent to
             //Match match = regexes.Select(regex => regex.Match(s, pos)).FirstOrDefault();
             // and changing the checks for match.Success to match != null.
-            Match match = null;
+            Match? match = null;
             foreach (Regex regex in regexes)
             {
                 match = regex.Match(s, pos);

@@ -11,7 +11,7 @@ public record class TextFieldSetModel(
     int ValueLeftPadding,
     bool ValueRightAlign,
     int ValueOverflowIndent,
-    string NullProjection
+    string? NullProjection
 ) : IRender
 {
     public string Render()
@@ -22,7 +22,8 @@ public record class TextFieldSetModel(
                 minWidth: MinLabelWidth,
                 leftPadding: 0,
                 rightPadding: LabelRightPadding,
-                alignRight: LabelRightAlign
+                alignRight: LabelRightAlign,
+                nullProjection: NullProjection
             )
             .AddStaticColumn(Separator)
             .AddColumn(

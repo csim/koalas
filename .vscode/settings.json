@@ -137,5 +137,23 @@
   "csharpen.sharpenFilesWhenRemovingUnusedReferences": true,
   "csharpen.performQuickFixesOnSharpen": true,
   "csharpen.showFileSizeDifferenceOnSharpen": false,
-  "csharpier.enableDebugLogs": false
+  "csharpier.enableDebugLogs": false,
+  "csharpen.quickFixFilters": [
+    "^Fix All",
+    "^Suppress or configure issues",
+    "^Add braces",
+    "^Use block body for method",
+    "^Use explicit type instead of 'var'",
+    "^Fix using Copilot",
+    "^Explain using Copilot",
+    "^Modify using Copilot",
+    "^(Extract|Encapsulate|Foreach|Disable|Try|Else|More|Generate Equals|Replace)",
+    "DebuggerDisplay",
+    "^Generate constructor",
+    "^Add parameters",
+    "^Add optional parameters",
+    "^Use expression body",
+    "Use block body",
+    "^Convert to"
+  ]
 }
