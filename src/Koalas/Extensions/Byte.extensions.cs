@@ -38,6 +38,7 @@ public static class ByteExtension
         return BitConverter.ToString(hash).Replace("-", string.Empty).ToUpperInvariant();
     }
 
+    //11
     private static void CopyTo(Stream source, Stream destination)
     {
         byte[] bytes = new byte[4096];
