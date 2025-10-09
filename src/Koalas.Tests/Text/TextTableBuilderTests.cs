@@ -1,3 +1,4 @@
+using System;
 using Koalas.Text;
 
 namespace Koalas.Tests.Text;
@@ -29,7 +30,11 @@ public class TextTableBuilderTests
         TextTableBuilder result = tableBuilder.AddColumn("Name", minWidth: 20);
 
         // Assert
+        //result.Should().BeSameAs(tableBuilder);
         result.Should().BeSameAs(tableBuilder);
+        Console.WriteLine("yo2xx2");
+        ;
+        ;
     }
 
     [Fact]
