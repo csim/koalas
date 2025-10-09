@@ -112,6 +112,11 @@ public partial class TextFieldSetBuilder : ITextBuilder
         return this;
     }
 
+    public TextFieldSetBuilder AddField(string label, string value)
+    {
+        return StartField().Label(label).Value(value).SaveField();
+    }
+
     public IRender Build()
     {
         return new TextFieldSetModel(

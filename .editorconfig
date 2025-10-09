@@ -545,6 +545,7 @@ dotnet_diagnostic.CA1515.severity = none # CA1515: Consider making public types 
 dotnet_diagnostic.CA1303.severity = none # CA1303: Do not pass literals as localized parameters
 dotnet_diagnostic.CS1068.severity = none
 dotnet_diagnostic.IDE0005.severity = none
+dotnet_diagnostic.IDE0089.severity = none # IDE0089: Use 'static' local function or lambda
 
 # CShapier recommended rules
 dotnet_diagnostic.IDE0055.severity = none

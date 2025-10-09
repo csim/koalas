@@ -165,7 +165,7 @@ public static class PrintExtensions
     /// <param name="label"></param>
     public static void PrintRaw(this object? source, string? label = null)
     {
-        PrintInternal(source.Render(), label, includeEndSeparator: false);
+        PrintInternal(source as string ?? source.Render(), label, includeEndSeparator: false);
     }
 
     /// <summary>

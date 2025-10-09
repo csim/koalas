@@ -41,7 +41,6 @@ public static class ByteExtension
     private static void CopyTo(Stream source, Stream destination)
     {
         byte[] bytes = new byte[4096];
-
         int cnt;
 
         while ((cnt = source.Read(bytes, 0, bytes.Length)) != 0)
