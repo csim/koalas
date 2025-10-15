@@ -32,7 +32,7 @@ jobs:
       - name: Extract version from tag or branch
         id: version
         run: |
-          if [[ "${{ github.ref }}" == "refs/tags/v*" ]]; then
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             # Extract version from tag (e.g., v1.1.0 -> 1.1.0)
             VERSION="${{ github.ref_name }}"
             VERSION="${VERSION#v}"
@@ -40,23 +40,23 @@ jobs:
             echo "suffix=" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             # Main branch gets a preview version
-            VERSION="${{ env.PREVIEW_VERSION }}
+            VERSION="${{ env.PREVIEW_VERSION }}"
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "suffix=-preview-${{ github.run_number }}" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
             # Develop branch gets a dev version
-            VERSION="${{ env.PREVIEW_VERSION }}
+            VERSION="${{ env.PREVIEW_VERSION }}"
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "suffix=-dev-${{ github.run_number }}" >> $GITHUB_OUTPUT
           else
             # Other branches get a branch-specific version
-            VERSION="${{ env.PREVIEW_VERSION }}
+            VERSION="${{ env.PREVIEW_VERSION }}"
             BRANCH_NAME="${{ github.ref_name }}"
             SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9]/-/g')
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "suffix=-$SAFE_BRANCH_NAME-${{ github.run_number }}" >> $GITHUB_OUTPUT
           fi
-          echo "Full version will be: $VERSION$suffix"
+          echo "Full version will be: ${VERSION}${suffix}"
 
       - name: Restore dependencies
         run: dotnet restore ${{ env.SOLUTION }}
