@@ -18,8 +18,7 @@
       },
       "presentation": {
         "clear": true
-      },
-      "isBackground": true
+      }
     },
     {
       "label": "test",
@@ -37,8 +36,7 @@
       "group": "test",
       "presentation": {
         "clear": true
-      },
-      "isBackground": true
+      }
     },
     {
       "label": "watch-test",

@@ -23,6 +23,7 @@ public static class RegexExtensions
     {
         int pos = 0;
         bool done;
+
         do
         {
             Match? match = null;

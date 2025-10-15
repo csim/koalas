@@ -32,9 +32,6 @@ public class TextTableBuilderTests
         // Assert
         //result.Should().BeSameAs(tableBuilder);
         result.Should().BeSameAs(tableBuilder);
-        Console.WriteLine("yo2xx2");
-        ;
-        ;
     }
 
     [Fact]
