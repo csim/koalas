@@ -546,6 +546,7 @@ dotnet_diagnostic.CA1303.severity = none # CA1303: Do not pass literals as local
 dotnet_diagnostic.CS1068.severity = none
 dotnet_diagnostic.IDE0005.severity = none
 dotnet_diagnostic.IDE0089.severity = none # IDE0089: Use 'static' local function or lambda
+dotnet_diagnostic.IDE0320.severity = none # IDE0320: Use static lambda when possible
 
 # CShapier recommended rules
 dotnet_diagnostic.IDE0055.severity = none

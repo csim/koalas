@@ -2,67 +2,103 @@ namespace Koalas;
 
 public static class FileInfoHelper
 {
+    /// <summary>
+    /// Get all files from a directory.
+    /// </summary>
+    /// <param name="directory"></param>
+    /// <param name="searchPattern"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
     public static IEnumerable<FileInfo> Files(
-        IEnumerable<string> directoryPaths,
+        DirectoryInfo directory,
         string searchPattern = "",
         SearchOption options = SearchOption.TopDirectoryOnly
     )
     {
-        return directoryPaths.SelectMany(directoryPath =>
-            new DirectoryInfo(directoryPath).EnumerateFiles(searchPattern, options)
-        );
+        return Files([directory], searchPattern, options);
     }
 
+    /// <summary>
+    /// Get all files from directories.
+    /// </summary>
+    /// <param name="directory"></param>
+    /// <param name="searchPattern"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
     public static IEnumerable<FileInfo> Files(
-        string directoryPath,
+        IEnumerable<DirectoryInfo> directories,
         string searchPattern = "",
         SearchOption options = SearchOption.TopDirectoryOnly
     )
     {
-        return Files([directoryPath], searchPattern, options);
+        foreach (DirectoryInfo directory in directories)
+        {
+            foreach (FileInfo file in directory.EnumerateFiles(searchPattern, options))
+            {
+                yield return file;
+            }
+        }
     }
 
-    public static IEnumerable<string> ReadDirectoryFiles(
-        string directoryPath,
+    /// <summary>
+    /// Get all text lines from files in a directory.
+    /// </summary>
+    /// <param name="directory"></param>
+    /// <param name="searchPattern"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static IEnumerable<string> ReadLines(
+        DirectoryInfo directory,
         string searchPattern = "",
         SearchOption options = SearchOption.TopDirectoryOnly
     )
     {
-        return ReadDirectoryFiles([directoryPath], searchPattern, options);
+        return ReadLines([directory], searchPattern, options);
     }
 
-    public static IEnumerable<string> ReadDirectoryFiles(
-        IEnumerable<string> directoryPaths,
+    /// <summary>
+    /// Get all text lines from files in directories.
+    /// </summary>
+    /// <param name="directories"></param>
+    /// <param name="searchPattern"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static IEnumerable<string> ReadLines(
+        this IEnumerable<DirectoryInfo> directories,
         string searchPattern = "",
         SearchOption options = SearchOption.TopDirectoryOnly
     )
     {
-        return directoryPaths.SelectMany(directoryPath =>
-            new DirectoryInfo(directoryPath)
-                .EnumerateFiles(searchPattern, options)
-                .Select(file => File.ReadAllText(file.FullName))
-        );
+        foreach (DirectoryInfo directory in directories)
+        {
+            foreach (FileInfo file in directory.EnumerateFiles(searchPattern, options))
+            {
+                using StreamReader reader = new(file.FullName);
+                while (!reader.EndOfStream)
+                {
+                    yield return reader.ReadLine();
+                }
+            }
+        }
     }
 
-    public static IEnumerable<string> ReadFileLines(
-        string directoryPath,
-        string searchPattern = "",
-        SearchOption options = SearchOption.TopDirectoryOnly
-    )
+    /// <summary>
+    /// Read lines from a text file.
+    /// </summary>
+    /// <param name="file"></param>
+    /// <returns></returns>
+    public static IEnumerable<string> ReadLines(this FileInfo file)
     {
-        return ReadFileLines([directoryPath], searchPattern, options);
+        return ReadLines([file]);
     }
 
-    public static IEnumerable<string> ReadFileLines(
-        IEnumerable<string> directoryPaths,
-        string searchPattern = "",
-        SearchOption options = SearchOption.TopDirectoryOnly
-    )
+    /// <summary>
+    /// Read lines from a text file.
+    /// </summary>
+    /// <param name="files"></param>
+    /// <returns></returns>
+    public static IEnumerable<string> ReadLines(this IEnumerable<FileInfo> files)
     {
-        IEnumerable<FileInfo> files = directoryPaths.SelectMany(directoryPath =>
-            new DirectoryInfo(directoryPath).EnumerateFiles(searchPattern, options)
-        );
-
         foreach (FileInfo file in files)
         {
             using StreamReader reader = new(file.FullName);
@@ -71,83 +107,5 @@ public static class FileInfoHelper
                 yield return reader.ReadLine();
             }
         }
-
-        //foreach (var file in files) {
-        //    IEnumerable<string> lines = File.ReadLines(file.FullName);
-        //    foreach (string line in lines) {
-        //        yield return line;
-        //    }
-        //}
-    }
-
-    public static IEnumerable<string> ReadFileLines(this IEnumerable<FileInfo> contents)
-    {
-        return contents.SelectMany(static f => File.ReadLines(f.FullName));
-    }
-
-    public static IEnumerable<string> ReadLines(this IEnumerable<string> items)
-    {
-        return items.SelectMany(static c =>
-            c.Split([Environment.NewLine, "\n", "\r"], StringSplitOptions.RemoveEmptyEntries)
-        );
-    }
-
-    public static IReadOnlyList<FileInfo> WriteFileLines(
-        this IEnumerable<string> lines,
-        string directoryPath,
-        string? prefix = null,
-        string extension = "json",
-        int maxDirectoryLines = 1_000_000,
-        int maxFileLines = 1
-    )
-    {
-        prefix ??= $"{DateTime.UtcNow:yyyyMMdd-HHmmss}_";
-
-        if (!prefix.EndsWith('_'))
-            prefix = $"{prefix}_";
-
-        List<FileInfo> files = [];
-        int fileId = 1;
-        int partId = 1;
-        lines = lines.ToReadOnlyList();
-
-        while (true)
-        {
-            List<string> directoryPartition =
-            [
-                .. lines.Skip((partId - 1) * maxDirectoryLines).Take(maxDirectoryLines),
-            ];
-            if (directoryPartition.Count == 0)
-                break;
-
-            foreach (
-                IEnumerable<string> filePartition in directoryPartition.Partition(maxFileLines)
-            )
-            {
-                string part = $"part{partId:00000}";
-                string dirPath =
-                    lines.Count() < maxDirectoryLines
-                        ? directoryPath
-                        : Path.Combine(directoryPath, part);
-                //var dirPath = Path.Combine(directoryPath, part);
-                FileInfo file = new(
-                    Path.Combine(dirPath, $"{prefix}{part}_file{fileId:00000}.{extension}")
-                );
-                files.Add(file);
-
-                if (file.Directory?.Exists == false)
-                    file.Directory.Create();
-
-                File.WriteAllText(
-                    file.FullName,
-                    string.Join(Environment.NewLine, filePartition.ToList())
-                );
-                fileId++;
-            }
-
-            partId++;
-        }
-
-        return [.. files];
     }
 }

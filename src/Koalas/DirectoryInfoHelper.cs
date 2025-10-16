@@ -2,7 +2,20 @@ namespace Koalas;
 
 public static class DirectoryHelper
 {
-    public static DirectoryInfo? SolutionDirectory(Assembly assembly, string solutionFileName)
+    public static IEnumerable<DirectoryInfo> Directories(IEnumerable<string> directoryPaths)
+    {
+        foreach (string directoryPath in directoryPaths)
+        {
+            yield return new DirectoryInfo(directoryPath);
+        }
+    }
+
+    public static DirectoryInfo Directory(string directoryPath)
+    {
+        return new DirectoryInfo(directoryPath);
+    }
+
+    public static DirectoryInfo FindDirectory(Assembly assembly, string searchFileName)
     {
         DirectoryInfo assemblyDirectory = new(
             new FileInfo(assembly.Location).Directory?.FullName
@@ -11,7 +24,7 @@ public static class DirectoryHelper
 
         return assemblyDirectory
             .Ancestors()
-            .FirstOrDefault(dir => File.Exists(Path.Combine(dir.FullName, solutionFileName)));
+            .FirstOrDefault(dir => File.Exists(Path.Combine(dir.FullName, searchFileName)));
     }
 
     private static IEnumerable<DirectoryInfo> Ancestors(this DirectoryInfo directory)
