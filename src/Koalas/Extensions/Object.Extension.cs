@@ -2,8 +2,18 @@ using System.Security.Cryptography;
 
 namespace Koalas.Extensions;
 
-public static partial class ObjectExtensions
+public static class ObjectExtensions
 {
+    private static readonly JsonSerializerOptions _defaultCompactOptions = new()
+    {
+        WriteIndented = false,
+    };
+
+    private static readonly JsonSerializerOptions _defaultIndentedOptions = new()
+    {
+        WriteIndented = true,
+    };
+
     public static bool HasClassAttribute<T>(this object? subject)
         where T : Attribute
     {
@@ -42,7 +52,7 @@ public static partial class ObjectExtensions
         return ret
             ?? (
                 subject is IRender renderSubject ? renderSubject.Render()
-                : subject is IToJson || subject.HasClassAttribute<JsonObjectAttribute>()
+                : subject is IToJson
                     ? $"""
                         {subject.GetType().Name}
                         {subject.ToJsonString()}
@@ -240,57 +250,43 @@ public static partial class ObjectExtensions
         return source?.ToJsonLineString().ToHash() ?? string.Empty;
     }
 
-    public static string ToJsonLineString(this object source, params JsonConverter[] converters)
+    public static string ToJsonLineString(this object source, JsonSerializerOptions? options = null)
     {
-        return ToJsonString(source, Formatting.None, converters);
-    }
-
-    public static string ToJsonLineString(this object source)
-    {
-        return ToJsonString(source, Formatting.None);
+        return ToJsonString(source, indented: false, options);
     }
 
     public static string ToJsonString(this object source)
     {
-        return ToJsonString(source, Formatting.Indented);
+        return ToJsonString(source, indented: true);
     }
 
-    public static string ToJsonString(this object source, JsonSerializerSettings? settings)
+    public static string ToJsonString(this object source, JsonSerializerOptions? options)
     {
-        return ToJsonString(source, Formatting.Indented, settings);
-    }
-
-    public static string ToJsonString(this object source, params JsonConverter[] converters)
-    {
-        return ToJsonString(source, Formatting.Indented, converters);
+        return ToJsonString(source, indented: true, options);
     }
 
     public static string ToJsonString(
         this object source,
-        Formatting formatting,
-        params JsonConverter[] converters
+        bool indented,
+        JsonSerializerOptions? options = null
     )
     {
+        object? serializationSource = source;
         if (source is IToJson sourceJson)
         {
-            source = sourceJson.ToJson();
+            serializationSource = sourceJson.ToJson();
         }
 
-        return JsonConvert.SerializeObject(source, formatting, converters);
+        JsonSerializerOptions serializerOptions =
+            options ?? (indented ? _defaultIndentedOptions : _defaultCompactOptions);
+
+        return JsonSerializer.Serialize(serializationSource, serializerOptions);
     }
 
-    public static string ToJsonString(
-        this object source,
-        Formatting formatting,
-        JsonSerializerSettings? settings
-    )
+    public static string ToJsonString(this JsonNode? node, bool indented = true)
     {
-        if (source is IToJson sourceJson)
-        {
-            source = sourceJson.ToJson();
-        }
-
-        return JsonConvert.SerializeObject(source, formatting, settings);
+        JsonSerializerOptions options = indented ? _defaultIndentedOptions : _defaultCompactOptions;
+        return node?.ToJsonString(options) ?? "null";
     }
 
     public static bool ValueEquals<T>(this T? left, T? right)

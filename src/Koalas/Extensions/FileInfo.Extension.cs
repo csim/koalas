@@ -2,6 +2,11 @@ namespace Koalas.Extensions;
 
 public static class FileInfoExtensions
 {
+    private static readonly JsonSerializerOptions _defaultCompactOptions = new()
+    {
+        WriteIndented = false,
+    };
+
     /// <summary>
     ///     Appends lines to a file, and then closes the file. If the specified file does
     ///     not exist, this method creates a file, writes the specified lines to the file,
@@ -58,7 +63,7 @@ public static class FileInfoExtensions
     public static FileInfo AppendJsonLines<T>(this FileInfo fileInfo, IEnumerable<T> items)
     {
         return fileInfo.AppendAllLines(
-            items.Select(item => JsonConvert.SerializeObject(item, Formatting.None))
+            items.Select(static item => JsonSerializer.Serialize(item, _defaultCompactOptions))
         );
     }
 
@@ -134,7 +139,7 @@ public static class FileInfoExtensions
     /// <returns></returns>
     public static IEnumerable<T> ParseJson<T>(this IEnumerable<FileInfo> files)
     {
-        return files.Select(file => file.ReadAllText().ParseJson<T>());
+        return files.Select(static file => file.ReadAllText().ParseJson<T>());
     }
 
     /// <summary>
@@ -166,7 +171,7 @@ public static class FileInfoExtensions
     /// <returns></returns>
     public static T? ReadJson<T>(this FileInfo subject)
     {
-        return JsonConvert.DeserializeObject<T>(subject.ReadAllText());
+        return JsonSerializer.Deserialize<T>(subject.ReadAllText());
     }
 
     /// <summary>
@@ -186,7 +191,7 @@ public static class FileInfoExtensions
     /// <returns></returns>
     public static IEnumerable<string> ReadLines(this IEnumerable<FileInfo> fileInfo)
     {
-        return fileInfo.SelectMany(f => File.ReadLines(f.FullName));
+        return fileInfo.SelectMany(static f => File.ReadLines(f.FullName));
     }
 
     /// <summary>
@@ -197,7 +202,7 @@ public static class FileInfoExtensions
     /// <returns></returns>
     public static IEnumerable<string> ReadLines(this IEnumerable<string> items)
     {
-        return items.SelectMany(c => c.Lines());
+        return items.SelectMany(static c => c.Lines());
     }
 
     /// <summary>
@@ -221,7 +226,7 @@ public static class FileInfoExtensions
     /// <returns></returns>
     public static FileInfo WriteAllJsonLine<T>(this FileInfo fileInfo, T content)
     {
-        return fileInfo.WriteAllText(JsonConvert.SerializeObject(content, Formatting.None));
+        return fileInfo.WriteAllText(JsonSerializer.Serialize(content, _defaultCompactOptions));
     }
 
     /// <summary>

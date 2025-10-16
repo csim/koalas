@@ -79,6 +79,24 @@ public static partial class LinqExtensions
         return items?.Any(i => (i == null && item == null) || i?.Equals(item) == true) ?? false;
     }
 
+    public static void ForEach<TSource>(this IEnumerable<TSource> source, Action<TSource> onNext)
+    {
+        if (source == null)
+        {
+            throw new ArgumentNullException(nameof(source));
+        }
+
+        if (onNext == null)
+        {
+            throw new ArgumentNullException(nameof(onNext));
+        }
+
+        foreach (TSource? item in source)
+        {
+            onNext(item);
+        }
+    }
+
     public static IEnumerable<T> Head<T>(this IEnumerable<T> items, int size = 10)
     {
         return items.Take(size);
@@ -101,7 +119,7 @@ public static partial class LinqExtensions
 
     public static IEnumerable<string> NotNullOrEmpty(this IEnumerable<string> subject)
     {
-        return subject.Where(s => !string.IsNullOrEmpty(s));
+        return subject.Where(static s => !string.IsNullOrEmpty(s));
     }
 
     public static IEnumerable<T> Page<T>(this IEnumerable<T> items, int page, int pageSize)
@@ -116,8 +134,8 @@ public static partial class LinqExtensions
 
     public static IEnumerable<T> ParseJson<T>(this IEnumerable<string>? items)
     {
-        return items?.Select(i =>
-                JsonConvert.DeserializeObject<T>(i)
+        return items?.Select(static i =>
+                JsonSerializer.Deserialize<T>(i)
                 ?? throw new ArgumentOutOfRangeException(typeof(T).Name)
             ) ?? [];
     }
@@ -237,23 +255,5 @@ public static partial class LinqExtensions
         item = default;
 
         return false;
-    }
-
-    public static void ForEach<TSource>(this IEnumerable<TSource> source, Action<TSource> onNext)
-    {
-        if (source == null)
-        {
-            throw new ArgumentNullException(nameof(source));
-        }
-
-        if (onNext == null)
-        {
-            throw new ArgumentNullException(nameof(onNext));
-        }
-
-        foreach (TSource? item in source)
-        {
-            onNext(item);
-        }
     }
 }

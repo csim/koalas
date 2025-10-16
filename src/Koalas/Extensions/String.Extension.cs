@@ -166,7 +166,7 @@ public static partial class StringExtensions
 
     public static T ParseJson<T>(this string source)
     {
-        return JsonConvert.DeserializeObject<T>(source)
+        return JsonSerializer.Deserialize<T>(source)
             ?? throw new InvalidOperationException($"Unable to deserialize: {typeof(T).Name}");
     }
 

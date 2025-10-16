@@ -129,12 +129,12 @@ public static class PrintExtensions
     public static void PrintJson(
         this object? subject,
         string? label = null,
-        Formatting format = Formatting.Indented,
+        bool indented = true,
         bool includeEndSeparator = true
     )
     {
         PrintInternal(
-            FormatJson(subject, label, format: format),
+            FormatJson(subject, label, indented: indented),
             includeEndSeparator: includeEndSeparator
         );
     }
@@ -151,11 +151,7 @@ public static class PrintExtensions
         bool includeEndSeparator = true
     )
     {
-        subject.PrintJson(
-            label: label,
-            format: Formatting.None,
-            includeEndSeparator: includeEndSeparator
-        );
+        subject.PrintJson(label: label, indented: false, includeEndSeparator: includeEndSeparator);
     }
 
     /// <summary>
@@ -251,15 +247,11 @@ public static class PrintExtensions
         return output.TrimEnd();
     }
 
-    private static string FormatJson(
-        object? source,
-        string? label = null,
-        Formatting format = Formatting.Indented
-    )
+    private static string FormatJson(object? source, string? label = null, bool indented = true)
     {
         string? output = source is IToJson json
-            ? json.ToJson().ToString(format)
-            : source?.ToJsonString(format);
+            ? json.ToJson()?.ToJsonString(indented: indented)
+            : source?.ToJsonString(indented: indented);
 
         return Format(output, label);
     }
