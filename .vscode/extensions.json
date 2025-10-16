@@ -8,11 +8,8 @@
     "csharpier.csharpier-vscode",
     "irongeek.csharpen",
     "ms-dotnettools.dotnet-interactive-vscode",
-    // Code Quality & Analysis
-    "sonarsource.sonarlint-vscode",
     "ms-vscode.vscode-json",
     // Editor Configuration & Formatting
     "editorconfig.editorconfig",
-    "ms-vscode.powershell",
   ]
 }

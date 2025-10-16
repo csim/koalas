@@ -19,9 +19,9 @@ public static class FileInfoHelper
     }
 
     /// <summary>
-    /// Get all files from directories.
+    /// Get all files from <see cref="directories"/>.
     /// </summary>
-    /// <param name="directory"></param>
+    /// <param name="directories"></param>
     /// <param name="searchPattern"></param>
     /// <param name="options"></param>
     /// <returns></returns>
