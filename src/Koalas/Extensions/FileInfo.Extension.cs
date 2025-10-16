@@ -191,7 +191,7 @@ public static class FileInfoExtensions
     /// <returns></returns>
     public static IEnumerable<string> ReadLines(this IEnumerable<FileInfo> fileInfo)
     {
-        return fileInfo.SelectMany(static f => File.ReadLines(f.FullName));
+        return fileInfo.SelectMany(f => File.ReadLines(f.FullName));
     }
 
     /// <summary>

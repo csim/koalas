@@ -155,5 +155,25 @@
     "^Use expression body",
     "Use block body",
     "^Convert to"
+  ],
+  "csharpen.quickFixesToPerform": [
+    "Collection initialization can be simplified$",
+    "Convert to conditional expression",
+    "Deconstruct variable declaration",
+    "Make static",
+    "Remove accessibility modifiers",
+    "Remove Unnecessary Usings",
+    "Simplify LINQ expression",
+    "Simplify member access",
+    "Use 'Count' check instead",
+    "Use 'TryGetValue",
+    "Use Length/Count property instead",
+    "Use discard",
+    "Use pattern matching",
+    "Use simple 'using'",
+    "use 'var' instead",
+    "Use collection expression",
+    "Use null propagation",
+    "Rename to "
   ]
 }

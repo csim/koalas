@@ -220,14 +220,16 @@ public class SingleBorderTextRow : IBorderTextRow
 
     public char DoubleJunction(ITextColumn col, ITextRow row)
     {
-        return _doubleJunctionChars[
+        int rowIndex =
             row.First ? 0
             : row.Last ? 2
-            : 1,
+            : 1;
+        int columnIndex =
             col.First ? 0
             : col.Last ? 2
-            : 1
-        ];
+            : 1;
+
+        return _doubleJunctionChars[rowIndex, columnIndex];
     }
 
     public void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns)
@@ -242,13 +244,15 @@ public class SingleBorderTextRow : IBorderTextRow
 
     public char SingleJunction(ITextColumn col, ITextRow row)
     {
-        return _singleJunctionChars[
+        int rowIndex =
             row.First ? 0
             : row.Last ? 2
-            : 1,
+            : 1;
+        int columnIndex =
             col.First ? 0
             : col.Last ? 2
-            : 1
-        ];
+            : 1;
+
+        return _singleJunctionChars[rowIndex, columnIndex];
     }
 }

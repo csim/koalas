@@ -31,7 +31,7 @@ public static class Program
             //.Print(limit: 6, where: i => i.Name.Contains("7"), select: i => i.Name)
             //.PrintJsonLine(limit: 6, where: i => i.Name.Contains("7"), select: i => new { i.Name })
             //.PrintJsonLine()
-            .Where(static i => i.Count > 5)
+            .Where(i => i.Count > 5)
             .PrintJson();
 
         //new[] { "1", "2", "3", "4", "5", "6" }.PrintJson();
