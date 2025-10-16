@@ -284,7 +284,7 @@ public static class FileInfoExtensions
     {
         filePrefix ??= $"{DateTime.UtcNow:yyyyMMdd-HHmmss}_";
 
-        if (!filePrefix.EndsWith('_'))
+        if (!filePrefix.EndsWith("_"))
             filePrefix = $"{filePrefix}_";
 
         List<FileInfo> files = [];

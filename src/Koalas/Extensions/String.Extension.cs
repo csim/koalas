@@ -14,7 +14,7 @@ public static partial class StringExtensions
             return string.Empty;
 
         int index = subject.IndexOf(findText, StringComparison.Ordinal);
-        return index >= 0 ? subject[(index + findText.Length)..] : subject;
+        return index >= 0 ? subject.Substring(index + findText.Length) : subject;
     }
 
     public static string Before(this string? subject, string findText)
@@ -23,7 +23,7 @@ public static partial class StringExtensions
             return string.Empty;
 
         int index = subject.IndexOf(findText, StringComparison.Ordinal);
-        return index >= 0 ? subject[..index] : subject;
+        return index >= 0 ? subject.Substring(0, index) : subject;
     }
 
     public static string Compress(this string content)
@@ -43,7 +43,7 @@ public static partial class StringExtensions
 
     public static bool ContainsIgnoreCase(this string subject, string target)
     {
-        return subject.Contains(target, StringComparison.OrdinalIgnoreCase);
+        return subject.IndexOf(target, StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     public static string Decompress(this string base64Content)
@@ -55,7 +55,7 @@ public static partial class StringExtensions
     {
         return string.IsNullOrEmpty(subject)
             ? subject ?? string.Empty
-            : $"{subject}{body?.IndentSkipFirstLine(subject.Length)}{suffix}";
+            : $"{subject}{body?.IndentSkipFirstLine(subject!.Length)}{suffix}";
     }
 
     public static IEnumerable<string> Indent(
@@ -254,7 +254,7 @@ public static partial class StringExtensions
 
         return subject
             .Lines()
-            .Select(line => line.Length <= minIndent ? line : line[minIndent..])
+            .Select(line => line.Length <= minIndent ? line : line.Substring(minIndent))
             .ToJoinNewlineString();
     }
 
@@ -299,7 +299,7 @@ public static partial class StringExtensions
     {
         return string.IsNullOrEmpty(str) || str.Length < 2
             ? str
-            : char.ToLowerInvariant(str[0]) + str[1..];
+            : char.ToLowerInvariant(str[0]) + str.Substring(1);
     }
 
     public static string ToValidFilename(this string input, char replacement = '_')
@@ -401,13 +401,13 @@ public static partial class StringExtensions
             }
 
             // Get maxLength chunk from string.
-            string chunk = text[..maxLength];
+            string chunk = text.Substring(0, maxLength);
 
             // If next char is a space, we can use the whole chunk and remove the space for the next line
             if (char.IsWhiteSpace(text[maxLength]))
             {
                 AddChunk(chunk);
-                text = text[(chunk.Length + 1)..]; // Remove chunk plus space from original string
+                text = text.Substring(chunk.Length + 1); // Remove chunk plus space from original string
             }
             else
             {
@@ -415,9 +415,9 @@ public static partial class StringExtensions
 
                 // If space exists in string,
                 if (splitIndex != -1)
-                    chunk = chunk[..splitIndex]; // Remove chars after space.
+                    chunk = chunk.Substring(0, splitIndex); // Remove chars after space.
 
-                text = text[(chunk.Length + (splitIndex == -1 ? 0 : 1))..]; // Remove chunk plus space (if found) from original string
+                text = text.Substring(chunk.Length + (splitIndex == -1 ? 0 : 1)); // Remove chunk plus space (if found) from original string
                 AddChunk(chunk);
             }
         }

@@ -202,7 +202,7 @@ public record class TextTableModel(
                 Columns.Insert(0, new SingleBorderTextColumn());
             }
 
-            if (Columns[^1] is not IBorderTextColumn)
+            if (Columns[Columns.Count - 1] is not IBorderTextColumn)
             {
                 Columns.Add(new SingleBorderTextColumn());
             }
@@ -212,7 +212,7 @@ public record class TextTableModel(
                 Rows.Insert(0, new SingleBorderTextRow());
             }
 
-            if (Rows[^1] is not IBorderTextRow)
+            if (Rows[Rows.Count - 1] is not IBorderTextRow)
             {
                 Rows.Add(new SingleBorderTextRow());
             }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Title>Notebook ready C# data science tools and utilities inspired by Python pandas module.</Title>
     <PackageReadmeFile>README.md</PackageReadmeFile>
