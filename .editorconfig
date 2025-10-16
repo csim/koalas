@@ -547,9 +547,10 @@ dotnet_diagnostic.CS1068.severity = none
 dotnet_diagnostic.IDE0005.severity = none
 dotnet_diagnostic.IDE0089.severity = none # IDE0089: Use 'static' local function or lambda
 dotnet_diagnostic.IDE0320.severity = none # IDE0320: Use static lambda when possible
-
-# CShapier recommended rules
-dotnet_diagnostic.IDE0055.severity = none
+dotnet_diagnostic.IDE0062.severity = none # IDE0062: Make local function static
+dotnet_diagnostic.CS8321.severity = none # CS8321: The local function is declared but never used
+csharp_prefer_static_local_functions = false # Disable all static lambda/function suggestions
+dotnet_diagnostic.IDE0055.severity = none # CShapier recommended rules
 
 dotnet_diagnostic.SA1000.severity = none
 dotnet_diagnostic.SA1009.severity = none

@@ -32,7 +32,7 @@ public static class Program
             //.PrintJsonLine(limit: 6, where: i => i.Name.Contains("7"), select: i => new { i.Name })
             //.PrintJsonLine()
             .Where(static i => i.Count > 5)
-            .PrintJsonLine();
+            .PrintJson();
 
         //new[] { "1", "2", "3", "4", "5", "6" }.PrintJson();
 
