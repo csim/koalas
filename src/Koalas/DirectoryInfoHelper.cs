@@ -3,6 +3,29 @@ namespace Koalas;
 public static class DirectoryHelper
 {
     /// <summary>
+    /// Enumerate all parent directories
+    /// </summary>
+    /// <param name="directory"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public static IEnumerable<DirectoryInfo> Ancestors(this DirectoryInfo directory)
+    {
+        if (!directory.Exists)
+        {
+            throw new ArgumentException($"{directory} not found.");
+        }
+
+        DirectoryInfo? currentDirectory = directory.Parent;
+
+        while (currentDirectory != null)
+        {
+            yield return currentDirectory;
+
+            currentDirectory = currentDirectory.Parent;
+        }
+    }
+
+    /// <summary>
     /// Transform <see cref="directoryPahts"/> into <see cref="DirectoryInfo"/>
     /// </summary>
     /// <param name="directoryPaths"></param>
@@ -18,7 +41,7 @@ public static class DirectoryHelper
     /// <summary>
     /// Transform <see cref="directoryPahts"/> into <see cref="DirectoryInfo"/>
     /// </summary>
-    /// <param name="directoryPaths"></param>
+    /// <param name="directoryPath"></param>
     /// <returns></returns>
     public static DirectoryInfo Directory(string directoryPath)
     {
@@ -42,28 +65,5 @@ public static class DirectoryHelper
         return assemblyDirectory
             .Ancestors()
             .FirstOrDefault(dir => File.Exists(Path.Combine(dir.FullName, searchFilename)));
-    }
-
-    /// <summary>
-    /// Enumerate all parent directories
-    /// </summary>
-    /// <param name="directory"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentException"></exception>
-    private static IEnumerable<DirectoryInfo> Ancestors(this DirectoryInfo directory)
-    {
-        if (!directory.Exists)
-        {
-            throw new ArgumentException($"{directory} not found.");
-        }
-
-        DirectoryInfo? currentDirectory = directory.Parent;
-
-        while (currentDirectory != null)
-        {
-            yield return currentDirectory;
-
-            currentDirectory = currentDirectory.Parent;
-        }
     }
 }
