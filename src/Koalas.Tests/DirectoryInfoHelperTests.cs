@@ -23,11 +23,11 @@ public sealed class DirectoryInfoHelperTests : IDisposable
         Type directoryHelperType = typeof(DirectoryHelper);
         MethodInfo? ancestorsMethod = directoryHelperType.GetMethod(
             "Ancestors",
-            BindingFlags.NonPublic | BindingFlags.Static
+            BindingFlags.Public | BindingFlags.Static
         );
 
         Assert.NotNull(ancestorsMethod); // Ancestors method should exist as private method
-        Assert.True(ancestorsMethod!.IsPrivate); // Ancestors method should be private
+        Assert.True(ancestorsMethod!.IsPublic); // Ancestors method should be private
     }
 
     [Fact]

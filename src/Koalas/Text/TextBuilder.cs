@@ -278,11 +278,6 @@ public partial class TextBuilder : ITextBuilder
         return this;
     }
 
-    public IRender Build()
-    {
-        return new TextRegionModel(Children: _children, IndentSize: 0);
-    }
-
     public TextBuilder ClearIndent()
     {
         _indentStack.Clear();
@@ -338,7 +333,9 @@ public partial class TextBuilder : ITextBuilder
 
     public string Render()
     {
-        return Build().Render();
+        TextRegionModel region = new(Children: _children, IndentSize: 0);
+
+        return region.Render();
     }
 
     public TextFieldSetBuilder StartFieldSet(

@@ -67,21 +67,6 @@ public class TextBuilderTests
     }
 
     [Fact]
-    public void Build_ReturnsTextRegionModel()
-    {
-        // Arrange
-        TextBuilder builder = TextBuilder.Create();
-        builder.AddLine("Test content");
-
-        // Act
-        IRender result = builder.Build();
-
-        // Assert
-        result.Should().BeOfType<TextRegionModel>();
-        result.Render().Should().Contain("Test content");
-    }
-
-    [Fact]
     public void Create_WithCustomIndentSize_ReturnsTextBuilderWithCorrectIndentSize()
     {
         // Arrange

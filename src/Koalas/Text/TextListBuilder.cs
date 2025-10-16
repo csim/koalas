@@ -154,7 +154,7 @@ public partial class TextListBuilder : ITextBuilder
                 Indicator: indicator,
                 Id: id,
                 Separator: separator,
-                Body: bodyBuilder.Build()
+                Body: bodyBuilder
             )
         );
 

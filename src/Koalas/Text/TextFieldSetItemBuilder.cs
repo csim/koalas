@@ -282,6 +282,6 @@ public partial class TextFieldSetItemBuilder : IRender
 
     private TextFieldModel Build()
     {
-        return new(Label: _label, Value: _valueBuilder.Build(), Format: _format);
+        return new(Label: _label, Value: _valueBuilder, Format: _format);
     }
 }

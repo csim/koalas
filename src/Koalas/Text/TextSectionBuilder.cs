@@ -158,7 +158,7 @@ public partial class TextSectionBuilder : ITextBuilder
     {
         return new TextSectionModel(
             Heading: _heading,
-            Body: _bodyBuilder.Build(),
+            Body: _bodyBuilder,
             HeadingSuffix: _headingSuffix
         );
     }

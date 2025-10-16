@@ -92,7 +92,11 @@
       "problemMatcher": "$msCompile",
       "group": "test",
       "presentation": {
-        "clear": true
+        "clear": true,
+        "echo": true,
+        "reveal": "never",
+        "focus": false,
+        "panel": "shared"
       },
       "isBackground": true
     }

@@ -164,7 +164,7 @@ public partial class TextHangSectionBuilder : ITextBuilder
 
     public IRender Build()
     {
-        return new TextHangSectionModel(Heading: _heading, Body: _bodyBuilder.Build());
+        return new TextHangSectionModel(Heading: _heading, Body: _bodyBuilder);
     }
 
     public TextHangSectionBuilder ClearIndent()

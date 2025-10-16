@@ -276,11 +276,6 @@ public partial class TextListItemBuilder : IRender
 
     private TextListItemModel Build()
     {
-        return new(
-            Body: _bodyBuilder.Build(),
-            Id: _id,
-            Separator: _separator,
-            Indicator: _indicator
-        );
+        return new(Body: _bodyBuilder, Id: _id, Separator: _separator, Indicator: _indicator);
     }
 }
