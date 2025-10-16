@@ -53,9 +53,9 @@ public static partial class StringExtensions
 
     public static string HangIndent(this string? subject, string? body, string? suffix = null)
     {
-        return string.IsNullOrEmpty(subject)
-            ? subject ?? string.Empty
-            : $"{subject}{body?.IndentSkipFirstLine(subject!.Length)}{suffix}";
+        return subject == null
+            ? string.Empty
+            : $"{subject}{body?.IndentSkipFirstLine(subject.Length)}{suffix}";
     }
 
     public static IEnumerable<string> Indent(
@@ -258,7 +258,7 @@ public static partial class StringExtensions
             .ToJoinNewlineString();
     }
 
-    public static string ToAnonymizedString(this string? source)
+    public static string ToAnonymousString(this string? source)
     {
         if (source == null)
             return "<null>";
@@ -435,9 +435,3 @@ public static partial class StringExtensions
         }
     }
 }
-// ReSharper disable once InconsistentNaming
-// handle newlines
-// If remaining string is less than length, add to list and break out of loop
-// Get maxLength chunk from string.
-// If next char is a space, we can use the whole chunk and remove the space for the next line
-// If space exists in string,
