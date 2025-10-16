@@ -14,6 +14,7 @@ public static partial class StringExtensions
             return string.Empty;
 
         int index = subject.IndexOf(findText, StringComparison.Ordinal);
+
         return index >= 0 ? subject.Substring(index + findText.Length) : subject;
     }
 
@@ -23,6 +24,7 @@ public static partial class StringExtensions
             return string.Empty;
 
         int index = subject.IndexOf(findText, StringComparison.Ordinal);
+
         return index >= 0 ? subject.Substring(0, index) : subject;
     }
 

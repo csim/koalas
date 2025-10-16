@@ -5,12 +5,7 @@ namespace Koalas.CommandLine;
 
 public static class Program
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
-        "Style",
-        "IDE0060:Remove unused parameter",
-        Justification = "<Pending>"
-    )]
-    public static void Main(string[] args)
+    public static void Main()
     {
         var items = new[]
         {
