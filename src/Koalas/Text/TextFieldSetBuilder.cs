@@ -117,23 +117,6 @@ public partial class TextFieldSetBuilder : ITextBuilder
         return StartField().Label(label).Value(value).SaveField();
     }
 
-    public IRender Build()
-    {
-        return new TextFieldSetModel(
-            Items: _items,
-            Separator: _separator ?? ":",
-            MinLabelWidth: _minLabelWidth,
-            LabelRightPadding: _labelRightPadding,
-            LabelRightAlign: _labelRightAlign,
-            MinValueWidth: _minValueWidth,
-            MaxValueWidth: _maxValueWidth,
-            ValueLeftPadding: _valueLeftPadding,
-            ValueRightAlign: _valueRightAlign,
-            ValueOverflowIndent: _valueOverflowIndent,
-            NullProjection: _nullProjection
-        );
-    }
-
     public static TextFieldSetBuilder Create(
         int minLabelWidth = 0,
         int minValueWidth = 0,
@@ -209,7 +192,21 @@ public partial class TextFieldSetBuilder : ITextBuilder
 
     public string Render()
     {
-        return Build().Render();
+        TextFieldSetModel model = new(
+            Items: _items,
+            Separator: _separator ?? ":",
+            MinLabelWidth: _minLabelWidth,
+            LabelRightPadding: _labelRightPadding,
+            LabelRightAlign: _labelRightAlign,
+            MinValueWidth: _minValueWidth,
+            MaxValueWidth: _maxValueWidth,
+            ValueLeftPadding: _valueLeftPadding,
+            ValueRightAlign: _valueRightAlign,
+            ValueOverflowIndent: _valueOverflowIndent,
+            NullProjection: _nullProjection
+        );
+
+        return model.Render();
     }
 
     public TextBuilder SaveFieldSet()

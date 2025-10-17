@@ -1,6 +1,6 @@
 namespace Koalas;
 
-public static class DirectoryHelper
+public static class DirectoryInfoHelper
 {
     /// <summary>
     /// Enumerate all parent directories

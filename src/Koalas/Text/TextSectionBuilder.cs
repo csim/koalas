@@ -154,15 +154,6 @@ public partial class TextSectionBuilder : ITextBuilder
         );
     }
 
-    public IRender Build()
-    {
-        return new TextSectionModel(
-            Heading: _heading,
-            Body: _bodyBuilder,
-            HeadingSuffix: _headingSuffix
-        );
-    }
-
     public TextSectionBuilder ClearIndent()
     {
         _bodyBuilder.ClearIndent();
@@ -205,7 +196,11 @@ public partial class TextSectionBuilder : ITextBuilder
 
     public string Render()
     {
-        return Build().Render();
+        return new TextSectionModel(
+            Heading: _heading,
+            Body: _bodyBuilder,
+            HeadingSuffix: _headingSuffix
+        ).Render();
     }
 
     public TextBuilder SaveSection()

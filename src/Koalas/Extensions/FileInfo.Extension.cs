@@ -179,19 +179,57 @@ public static class FileInfoExtensions
     /// </summary>
     /// <param name="fileInfo"></param>
     /// <returns></returns>
-    public static IEnumerable<string> ReadLines(this FileInfo fileInfo)
+    /// <summary>
+    /// Get all text lines from files in directories.
+    /// </summary>
+    /// <param name="directories"></param>
+    /// <param name="searchPattern"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static IEnumerable<string> ReadLines(
+        this IEnumerable<DirectoryInfo> directories,
+        string searchPattern = "",
+        SearchOption options = SearchOption.TopDirectoryOnly
+    )
     {
-        return File.ReadLines(fileInfo.FullName);
+        foreach (DirectoryInfo directory in directories)
+        {
+            foreach (FileInfo file in directory.EnumerateFiles(searchPattern, options))
+            {
+                using StreamReader reader = new(file.FullName);
+                while (!reader.EndOfStream)
+                {
+                    yield return reader.ReadLine();
+                }
+            }
+        }
     }
 
     /// <summary>
-    ///     Reads all lines of a file and returns them as an enumerable collection of containing each line as a string.
+    /// Read lines from a text file.
     /// </summary>
-    /// <param name="fileInfo"></param>
+    /// <param name="file"></param>
     /// <returns></returns>
-    public static IEnumerable<string> ReadLines(this IEnumerable<FileInfo> fileInfo)
+    public static IEnumerable<string> ReadLines(this FileInfo file)
     {
-        return fileInfo.SelectMany(f => File.ReadLines(f.FullName));
+        return ReadLines([file]);
+    }
+
+    /// <summary>
+    /// Read lines from a text file.
+    /// </summary>
+    /// <param name="files"></param>
+    /// <returns></returns>
+    public static IEnumerable<string> ReadLines(this IEnumerable<FileInfo> files)
+    {
+        foreach (FileInfo file in files)
+        {
+            using StreamReader reader = new(file.FullName);
+            while (!reader.EndOfStream)
+            {
+                yield return reader.ReadLine();
+            }
+        }
     }
 
     /// <summary>

@@ -49,6 +49,7 @@ public static class ObjectExtensions
             IDictionary<object, string> item => item.Render(),
             _ => null,
         };
+
         return ret
             ?? (
                 subject is IRender renderSubject ? renderSubject.Render()

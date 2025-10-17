@@ -17,7 +17,11 @@ public static class PrintExtensions
         bool includeEndSeparator = true
     )
     {
-        PrintInternal(source.Render(), label, includeEndSeparator: includeEndSeparator);
+        PrintInternal(
+            source is string sourceString ? sourceString : source.Render(),
+            label,
+            includeEndSeparator: includeEndSeparator
+        );
     }
 
     /// <summary>
@@ -66,7 +70,8 @@ public static class PrintExtensions
         foreach (T? item in list.Head(headCount))
         {
             position++;
-            builder.AddItem(item.Render(), id: position.ToString());
+            string itemOutput = item is string itemString ? itemString : item.Render();
+            builder.AddItem(itemOutput, id: position.ToString());
         }
 
         if (tailCount > 0)
@@ -84,7 +89,8 @@ public static class PrintExtensions
             foreach (T? item in list.Tail(tailCount))
             {
                 position++;
-                builder.AddItem(item.Render(), id: position.ToString());
+                string itemOutput = item is string itemString ? itemString : item.Render();
+                builder.AddItem(itemOutput, id: position.ToString());
             }
         }
 

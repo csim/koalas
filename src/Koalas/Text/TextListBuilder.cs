@@ -161,11 +161,6 @@ public partial class TextListBuilder : ITextBuilder
         return this;
     }
 
-    public IRender Build()
-    {
-        return new TextListModel(Items: _items);
-    }
-
     public static TextListBuilder Create(
         string separator = ":",
         int indentSize = 2,
@@ -207,7 +202,7 @@ public partial class TextListBuilder : ITextBuilder
 
     public string Render()
     {
-        return Build().Render();
+        return new TextListModel(Items: _items).Render();
     }
 
     public TextBuilder SaveList()

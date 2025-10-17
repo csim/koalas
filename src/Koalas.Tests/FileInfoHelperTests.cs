@@ -1,3 +1,5 @@
+using Koalas.Extensions;
+
 namespace Koalas.Tests;
 
 public sealed class FileInfoHelperTests : IDisposable
@@ -174,7 +176,7 @@ public sealed class FileInfoHelperTests : IDisposable
         File.WriteAllText(Path.Combine(_tempDirectoryPath, "file1.txt"), "line1");
 
         // Act
-        IEnumerable<string> result = FileInfoHelper.ReadLines(_tempDirectory);
+        IEnumerable<string> result = _tempDirectory.ReadLines();
 
         // Create another file after getting the enumerable
         File.WriteAllText(Path.Combine(_tempDirectoryPath, "file2.txt"), "line2");
@@ -305,7 +307,7 @@ public sealed class FileInfoHelperTests : IDisposable
         File.WriteAllText(Path.Combine(_tempDirectoryPath, "file2.cs"), "line3\nline4");
 
         // Act
-        List<string> result = [.. FileInfoHelper.ReadLines(_tempDirectory, "*.txt")];
+        List<string> result = [.. _tempDirectory.ReadLines("*.txt")];
 
         // Assert
         Assert.Equal(2, result.Count);
@@ -323,7 +325,7 @@ public sealed class FileInfoHelperTests : IDisposable
         File.WriteAllText(Path.Combine(_tempDirectoryPath, "file2.txt"), "line3\nline4");
 
         // Act
-        List<string> result = [.. FileInfoHelper.ReadLines(_tempDirectory)];
+        List<string> result = [.. _tempDirectory.ReadLines()];
 
         // Assert
         Assert.Equal(4, result.Count);

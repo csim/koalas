@@ -20,7 +20,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
     public void Ancestors_IsPrivate_CannotBeAccessedDirectly()
     {
         // Arrange & Act & Assert
-        Type directoryHelperType = typeof(DirectoryHelper);
+        Type directoryHelperType = typeof(DirectoryInfoHelper);
         MethodInfo? ancestorsMethod = directoryHelperType.GetMethod(
             "Ancestors",
             BindingFlags.Public | BindingFlags.Static
@@ -42,7 +42,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
         ];
 
         // Act
-        List<DirectoryInfo> result = [.. DirectoryHelper.Directories(orderedPaths)];
+        List<DirectoryInfo> result = [.. DirectoryInfoHelper.Directories(orderedPaths)];
 
         // Assert
         Assert.Equal(3, result.Count);
@@ -58,7 +58,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
         string[] emptyPaths = [];
 
         // Act
-        List<DirectoryInfo> result = [.. DirectoryHelper.Directories(emptyPaths)];
+        List<DirectoryInfo> result = [.. DirectoryInfoHelper.Directories(emptyPaths)];
 
         // Assert
         Assert.Empty(result);
@@ -74,7 +74,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
         ];
 
         // Act
-        IEnumerable<DirectoryInfo> result = DirectoryHelper.Directories(largePaths);
+        IEnumerable<DirectoryInfo> result = DirectoryInfoHelper.Directories(largePaths);
 
         // Assert - Test that it's lazy evaluated
         Assert.NotNull(result);
@@ -95,7 +95,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
         ];
 
         // Act
-        List<DirectoryInfo> result = [.. DirectoryHelper.Directories(nonExistentPaths)];
+        List<DirectoryInfo> result = [.. DirectoryInfoHelper.Directories(nonExistentPaths)];
 
         // Assert
         Assert.Equal(2, result.Count);
@@ -114,7 +114,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
         string[] directoryPaths = [subDir1.FullName, subDir2.FullName];
 
         // Act
-        List<DirectoryInfo> result = [.. DirectoryHelper.Directories(directoryPaths)];
+        List<DirectoryInfo> result = [.. DirectoryInfoHelper.Directories(directoryPaths)];
 
         // Assert
         Assert.Equal(2, result.Count);
@@ -131,7 +131,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
         string nonExistentPath = Path.Combine(_tempDirectoryPath, "nonexistent");
 
         // Act
-        DirectoryInfo result = DirectoryHelper.Directory(nonExistentPath);
+        DirectoryInfo result = DirectoryInfoHelper.Directory(nonExistentPath);
 
         // Assert
         Assert.IsType<DirectoryInfo>(result);
@@ -146,7 +146,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
         string specialPath = Path.Combine(_tempDirectoryPath, "test with spaces & symbols!");
 
         // Act
-        DirectoryInfo result = DirectoryHelper.Directory(specialPath);
+        DirectoryInfo result = DirectoryInfoHelper.Directory(specialPath);
 
         // Assert
         Assert.IsType<DirectoryInfo>(result);
@@ -160,7 +160,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
         DirectoryInfo subDir = _tempDirectory.CreateSubdirectory("testdir");
 
         // Act
-        DirectoryInfo result = DirectoryHelper.Directory(subDir.FullName);
+        DirectoryInfo result = DirectoryInfoHelper.Directory(subDir.FullName);
 
         // Assert
         Assert.IsType<DirectoryInfo>(result);
@@ -172,7 +172,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
     public void DirectoryHelper_IsStaticClass()
     {
         // Arrange & Act & Assert
-        Type type = typeof(DirectoryHelper);
+        Type type = typeof(DirectoryInfoHelper);
 
         Assert.True(type.IsClass);
         Assert.True(type.IsAbstract);
@@ -202,7 +202,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
         // Act & Assert - This test is tricky because it depends on actual assembly location
         // Let's test the logic by creating a scenario where we know the file exists
         Exception? exception = Record.Exception(() =>
-            DirectoryHelper.FindDirectory(assembly, "Koalas.Tests.csproj")
+            DirectoryInfoHelper.FindDirectory(assembly, "Koalas.Tests.csproj")
         );
         Assert.Null(exception);
     }
@@ -215,7 +215,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
         string nonExistentFile = "nonexistent-file-12345.txt";
 
         // Act
-        DirectoryInfo? result = DirectoryHelper.FindDirectory(assembly, nonExistentFile);
+        DirectoryInfo? result = DirectoryInfoHelper.FindDirectory(assembly, nonExistentFile);
 
         // Assert
         Assert.Null(result);

@@ -333,9 +333,7 @@ public partial class TextBuilder : ITextBuilder
 
     public string Render()
     {
-        TextRegionModel region = new(Children: _children, IndentSize: 0);
-
-        return region.Render();
+        return new TextRegionModel(Children: _children, IndentSize: 0).Render();
     }
 
     public TextFieldSetBuilder StartFieldSet(
@@ -380,7 +378,7 @@ public partial class TextBuilder : ITextBuilder
     }
 
     public TextTableBuilder StartTable(
-        TextTableBorder border = TextTableBorder.Default,
+        TextTableBorder border = TextTableBorder.None,
         int defaultColumnPadding = 1,
         int? defaultColumnMaxWidth = null
     )

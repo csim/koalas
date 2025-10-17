@@ -162,11 +162,6 @@ public partial class TextHangSectionBuilder : ITextBuilder
         );
     }
 
-    public IRender Build()
-    {
-        return new TextHangSectionModel(Heading: _heading, Body: _bodyBuilder);
-    }
-
     public TextHangSectionBuilder ClearIndent()
     {
         _bodyBuilder.ClearIndent();
@@ -202,7 +197,7 @@ public partial class TextHangSectionBuilder : ITextBuilder
 
     public string Render()
     {
-        return Build().Render();
+        return new TextHangSectionModel(Heading: _heading, Body: _bodyBuilder).Render();
     }
 
     public TextBuilder SaveHangSection()

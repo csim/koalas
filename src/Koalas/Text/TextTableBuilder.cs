@@ -178,7 +178,7 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
     public IReadOnlyList<ITextRow> Rows => _rows;
     private ITextRowBuilder RowBuilder => _rowBuilder ??= new TextRowBuilder(this, _rows, _columns);
 
-    private TextTableBorder _border = TextTableBorder.Default;
+    private TextTableBorder _border = TextTableBorder.None;
     private readonly List<ITextColumn> _columns = [];
     private int _currentDataColumnIndex;
     private int? _defaultColumnMaxWidth;
@@ -350,24 +350,12 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         return this;
     }
 
-    public IRender Build()
-    {
-        return new TextTableModel(
-            Columns: _columns,
-            Rows: _rows,
-            Border: _border,
-            DefaultColumnMaxWidth: _defaultColumnMaxWidth,
-            DefaultColumnPadding: _defaultColumnPadding,
-            RowLimit: _rowLimit
-        );
-    }
-
     public ITextRowBuilder ClearRows()
     {
         return RowBuilder.ClearRows();
     }
 
-    public static TextTableBuilder Create(TextTableBorder border = TextTableBorder.Default)
+    public static TextTableBuilder Create(TextTableBorder border = TextTableBorder.None)
     {
         return new TextTableBuilder(TextBuilder.Create()).Border(border);
     }
@@ -476,7 +464,14 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
 
     public string Render()
     {
-        return Build().Render();
+        return new TextTableModel(
+            Columns: _columns,
+            Rows: _rows,
+            Border: _border,
+            DefaultColumnMaxWidth: _defaultColumnMaxWidth,
+            DefaultColumnPadding: _defaultColumnPadding,
+            RowLimit: _rowLimit
+        ).Render();
     }
 
     public TextTableBuilder RowLimit(int? rowLimit)
@@ -522,11 +517,10 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
 public enum TextTableBorder
 {
     None = 0,
-    Column = 1 << 2,
-    Row = 1 << 3,
-    Outer = 1 << 4,
+    Column = 1 << 1,
+    Row = 1 << 2,
+    Outer = 1 << 3,
+    Inner = 1 << 4,
     InnerFull = Row | Column,
-    Inner = 1 << 5,
-    Default = None,
     All = int.MaxValue,
 }

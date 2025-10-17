@@ -1,21 +1,21 @@
-namespace Koalas;
+namespace Koalas.Extensions;
 
-public static class FileInfoHelper
+public static class DirectoryInfoExtensions
 {
     /// <summary>
-    /// Get all files from a directory.
+    /// Get all text lines from files in a directory.
     /// </summary>
     /// <param name="directory"></param>
     /// <param name="searchPattern"></param>
     /// <param name="options"></param>
     /// <returns></returns>
-    public static IEnumerable<FileInfo> Files(
-        DirectoryInfo directory,
+    public static IEnumerable<string> ReadLines(
+        this DirectoryInfo directory,
         string searchPattern = "",
         SearchOption options = SearchOption.TopDirectoryOnly
     )
     {
-        return Files([directory], searchPattern, options);
+        return directory.Yield().ReadLines(searchPattern, options);
     }
 
     /// <summary>
