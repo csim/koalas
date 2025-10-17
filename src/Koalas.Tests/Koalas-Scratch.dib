@@ -13,25 +13,27 @@ using static Koalas.DirectoryInfoHelper;
 
 #!csharp
 
-var build = TextBuilder.Create();
-
-var output = build.AddLine("0. Indented line")
-                .PushIndent()
-                .AddLine("1. Indented line")
-                .PushIndent()
-                .AddLine("2. Indented line 2")
-                .AddBlankLine()
-                .ClearIndent();
-
-build.AddSection("section 1", "body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. ", maxWidth: 50);
-
-output.Print()
-
-#!csharp
-
 //var files = Files(Directory(@"C:\\src\\koalas\\src\\Koalas\\Extensions"));
 var files = Directory(@"C:\\src\\koalas\\src\\Koalas\\Extensions").Files();
 files.Print();
 
 var lines = files.ReadLines();
 lines.Count().Print();
+
+#!csharp
+
+var build = TextBuilder.Create();
+
+build.AddLine("0. Indented line")
+                .PushIndent()
+                .AddLine("1. Indented line")
+                .PushIndent()
+                .AddLine("2. Indented line 2")
+                .AddLine("3. Indented line")
+                .AddBlankLine()
+                .ClearIndent()
+                ;
+
+build.AddSection("section 1", "body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. body 1. ", maxWidth: 50);
+
+build.Print();

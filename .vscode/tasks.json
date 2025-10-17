@@ -11,7 +11,7 @@
       "type": "process",
       "args": [
         "build",
-        "./src/",
+        "./src/Koalas.slnx",
         "/property:GenerateFullPaths=true",
       ],
       "problemMatcher": "$msCompile",
