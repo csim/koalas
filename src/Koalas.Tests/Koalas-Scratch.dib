@@ -29,8 +29,9 @@ output.Print()
 
 #!csharp
 
-var files = Files(Directory(@"C:\\src\\koalas\\src\\Koalas\\Extensions"));
+//var files = Files(Directory(@"C:\\src\\koalas\\src\\Koalas\\Extensions"));
+var files = Directory(@"C:\\src\\koalas\\src\\Koalas\\Extensions").Files();
 files.Print();
 
 var lines = files.ReadLines();
-lines.Print(limit: 100000);
+lines.Count().Print();
