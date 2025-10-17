@@ -96,9 +96,10 @@ public record class TextTableModel(
             IEnumerable<int> insertIndexes =
                 from row in Rows
                 where row is HeadingTextRow
-                from index in row.First ? (row.Index + 1).Yield()
+                let indexes = row.First ? (row.Index + 1).Yield()
                 : row.Last ? row.Index.Yield()
                 : [row.Index, row.Index + 1]
+                from index in indexes
                 orderby index descending
                 select index;
             foreach (int index in insertIndexes.ToList())
@@ -161,16 +162,6 @@ public record class TextTableModel(
         ComputeMeta();
         foreach (ITextColumn col in Columns)
         {
-            IEnumerable<string> x =
-                from row in Rows
-                from partition in col.Lines(row)
-                select partition;
-
-            if (x.Any(y => y == null))
-            {
-                Console.Write('x');
-            }
-
             IReadOnlyList<int> partitionLengths =
             [
                 .. from row in Rows from partition in col.Lines(row) select partition.Length,
