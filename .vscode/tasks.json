@@ -3,33 +3,18 @@
   "tasks": [
     {
       "label": "build",
-      "dependsOrder": "sequence",
-      "dependsOn": [
-        "format",
-        "build-only"
-      ],
       "group": {
         "kind": "build",
         "isDefault": true
       },
-      "presentation": {
-        "clear": true,
-        "echo": true,
-        "reveal": "never",
-        "focus": false,
-        "panel": "shared"
-      },
-    },
-    {
-      "group": "build",
-      "label": "format",
-      "command": "csharpier",
+      "command": "dotnet",
       "type": "process",
       "args": [
-        "format",
-        "./src/"
+        "build",
+        "./src/",
+        "/property:GenerateFullPaths=true",
       ],
-      "problemMatcher": [],
+      "problemMatcher": "$msCompile",
       "presentation": {
         "clear": true,
         "echo": true,
@@ -39,17 +24,14 @@
       }
     },
     {
-      "group": "build",
-      "label": "build-only",
-      "command": "dotnet",
+      "label": "format",
+      "command": "csharpier",
       "type": "process",
       "args": [
-        "build",
-        "./src/",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
+        "format",
+        "./src/"
       ],
-      "problemMatcher": "$msCompile",
+      "problemMatcher": [],
       "presentation": {
         "clear": true,
         "echo": true,
