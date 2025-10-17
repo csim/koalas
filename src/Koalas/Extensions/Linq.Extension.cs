@@ -119,7 +119,7 @@ public static partial class LinqExtensions
 
     public static IEnumerable<string> NotNullOrEmpty(this IEnumerable<string> subject)
     {
-        return subject.Where(static s => !string.IsNullOrEmpty(s));
+        return subject.Where(s => !string.IsNullOrEmpty(s));
     }
 
     public static IEnumerable<T> Page<T>(this IEnumerable<T> items, int page, int pageSize)

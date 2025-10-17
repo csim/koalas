@@ -146,7 +146,7 @@ public static partial class StringExtensions
         if (subject == null)
             return null;
 
-        int maxLength = subject.Lines().Max(static l => l.Length);
+        int maxLength = subject.Lines().Max(l => l.Length);
 
         return subject.Indent(width - maxLength);
     }
@@ -240,7 +240,7 @@ public static partial class StringExtensions
 
     public static string StripAllIndent(this string subject)
     {
-        return subject.Lines().Select(static l => l.TrimStart()).ToJoinNewlineString();
+        return subject.Lines().Select(l => l.TrimStart()).ToJoinNewlineString();
     }
 
     public static string StripIndent(this string subject)
@@ -344,7 +344,7 @@ public static partial class StringExtensions
 
     public static IEnumerable<string> TrimEnd(this IEnumerable<string>? items)
     {
-        return items == null ? [] : items.Select(static i => i.TrimEnd());
+        return items == null ? [] : items.Select(i => i.TrimEnd());
     }
 
     public static string TruncateLines(this string subject, int lineCount)

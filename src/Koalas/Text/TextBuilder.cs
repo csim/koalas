@@ -270,7 +270,7 @@ public partial class TextBuilder : ITextBuilder
         int length = text.Length;
         if (text.Contains('\n'))
         {
-            length = text.Lines().Max(static t => t.Length);
+            length = text.Lines().Max(t => t.Length);
         }
 
         AddLine(new string('═', length));

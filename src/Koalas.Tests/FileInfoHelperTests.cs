@@ -97,8 +97,8 @@ public sealed class FileInfoHelperTests : IDisposable
 
         // Assert
         Assert.Equal(2, result.Count);
-        Assert.Contains(result, static f => f.Name == "file1.txt");
-        Assert.Contains(result, static f => f.Name == "file2.txt");
+        Assert.Contains(result, f => f.Name == "file1.txt");
+        Assert.Contains(result, f => f.Name == "file2.txt");
     }
 
     [Fact]
@@ -117,8 +117,8 @@ public sealed class FileInfoHelperTests : IDisposable
 
         // Assert
         Assert.Equal(2, result.Count);
-        Assert.Contains(result, static f => f.Name == "file1.txt");
-        Assert.Contains(result, static f => f.Name == "file2.txt");
+        Assert.Contains(result, f => f.Name == "file1.txt");
+        Assert.Contains(result, f => f.Name == "file2.txt");
     }
 
     [Fact]
@@ -134,7 +134,7 @@ public sealed class FileInfoHelperTests : IDisposable
 
         // Assert
         Assert.Equal(2, result.Count);
-        Assert.All(result, static f => Assert.Equal(".txt", f.Extension));
+        Assert.All(result, f => Assert.Equal(".txt", f.Extension));
     }
 
     [Fact]
@@ -149,9 +149,9 @@ public sealed class FileInfoHelperTests : IDisposable
 
         // Assert
         Assert.Equal(2, result.Count);
-        Assert.All(result, static f => Assert.True(f.Exists));
-        Assert.Contains(result, static f => f.Name == "file1.txt");
-        Assert.Contains(result, static f => f.Name == "file2.txt");
+        Assert.All(result, f => Assert.True(f.Exists));
+        Assert.Contains(result, f => f.Name == "file1.txt");
+        Assert.Contains(result, f => f.Name == "file2.txt");
     }
 
     [Fact]

@@ -63,7 +63,7 @@ public static class FileInfoExtensions
     public static FileInfo AppendJsonLines<T>(this FileInfo fileInfo, IEnumerable<T> items)
     {
         return fileInfo.AppendAllLines(
-            items.Select(static item => JsonSerializer.Serialize(item, _defaultCompactOptions))
+            items.Select(item => JsonSerializer.Serialize(item, _defaultCompactOptions))
         );
     }
 
@@ -139,7 +139,7 @@ public static class FileInfoExtensions
     /// <returns></returns>
     public static IEnumerable<T> ParseJson<T>(this IEnumerable<FileInfo> files)
     {
-        return files.Select(static file => file.ReadAllText().ParseJson<T>());
+        return files.Select(file => file.ReadAllText().ParseJson<T>());
     }
 
     /// <summary>
@@ -209,7 +209,7 @@ public static class FileInfoExtensions
     /// <returns></returns>
     public static IEnumerable<string> ReadLines(this IEnumerable<string> items)
     {
-        return items.SelectMany(static c => c.Lines());
+        return items.SelectMany(c => c.Lines());
     }
 
     /// <summary>

@@ -162,7 +162,7 @@ public class HeadingTextRow : ITextRow
     public void Render(StringBuilder output, IReadOnlyList<ITextColumn> columns)
     {
         if (
-            columns.OfType<TextColumnBase>().All(static c => string.IsNullOrEmpty(c.Heading))
+            columns.OfType<TextColumnBase>().All(c => string.IsNullOrEmpty(c.Heading))
             && _headingOverrides?.Any() is false or null
         )
         {

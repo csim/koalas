@@ -50,7 +50,7 @@ public record class TextTableModel(
             return ret;
         }
 
-        int totalDataRowCount = Rows.Count(static r => r is DataTextRow);
+        int totalDataRowCount = Rows.Count(r => r is DataTextRow);
         ret += $"[{totalDataRowCount - rowLimit:N0} more]{Environment.NewLine}";
 
         return ret;

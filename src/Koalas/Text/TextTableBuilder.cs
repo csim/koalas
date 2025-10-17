@@ -53,8 +53,7 @@ public class TextRowBuilder : ITextRowBuilder
         _rows = rows;
 
         List<TextColumn> textColumns = [.. columns.OfType<TextColumn>()];
-        _dataColumnCount =
-            textColumns.Count != 0 ? textColumns.Max(static i => i.DataColumnIndex) + 1 : 0;
+        _dataColumnCount = textColumns.Count != 0 ? textColumns.Max(i => i.DataColumnIndex) + 1 : 0;
     }
 
     public ITextRowBuilder AddBorderRow()
@@ -128,7 +127,7 @@ public class TextRowBuilder : ITextRowBuilder
 
     public ITextRowBuilder ClearRows()
     {
-        _rows.RemoveAll(static r => r is DataTextRow);
+        _rows.RemoveAll(r => r is DataTextRow);
         ResetLayout();
 
         return this;
@@ -506,7 +505,7 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
         _columns.RemoveAll(static c =>
             c is PaddingTextColumn or IBorderTextColumn { External: false }
         );
-        _rows.RemoveAll(static c => c is IBorderTextRow { External: false });
+        _rows.RemoveAll(c => c is IBorderTextRow { External: false });
     }
 }
 
