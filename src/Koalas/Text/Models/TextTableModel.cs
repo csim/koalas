@@ -43,7 +43,7 @@ public record class TextTableModel(
             row.Render(output, Columns);
         }
 
-        string ret = output.ToString().TrimEnd('\r', '\n') + Environment.NewLine;
+        string ret = string.Concat(output.ToString().TrimEnd('\r', '\n'), Environment.NewLine);
 
         if (!limitReached)
         {

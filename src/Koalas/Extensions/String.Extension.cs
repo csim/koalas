@@ -116,7 +116,7 @@ public static partial class StringExtensions
     {
         return subject == null
             ? string.Empty
-            : Environment.NewLine.Repeat(count + 1) + subject.TrimStart('\r', '\n');
+            : string.Concat(Environment.NewLine.Repeat(count + 1), subject.TrimStart('\r', '\n'));
     }
 
     public static IEnumerable<string> Lines(this string? subject)
@@ -138,7 +138,7 @@ public static partial class StringExtensions
 
         return actualLineCount > lineCount
             ? subject
-            : subject + Environment.NewLine.Repeat(lineCount - actualLineCount);
+            : string.Concat(subject, Environment.NewLine.Repeat(lineCount - actualLineCount));
     }
 
     public static string? PadLinesLeft(this string? subject, int width)
@@ -163,7 +163,7 @@ public static partial class StringExtensions
 
         return actualLineCount > lineCount
             ? subject
-            : Environment.NewLine.Repeat(lineCount - actualLineCount) + subject;
+            : string.Concat(Environment.NewLine.Repeat(lineCount - actualLineCount), subject);
     }
 
     public static T ParseJson<T>(this string source)
@@ -301,7 +301,7 @@ public static partial class StringExtensions
     {
         return string.IsNullOrEmpty(str) || str.Length < 2
             ? str
-            : char.ToLowerInvariant(str[0]) + str.Substring(1);
+            : string.Concat(char.ToLowerInvariant(str[0]), str.Substring(1));
     }
 
     public static string ToValidFilename(this string input, char replacement = '_')
@@ -339,7 +339,7 @@ public static partial class StringExtensions
     {
         subject ??= string.Empty;
 
-        return subject.TrimEnd('\r', '\n') + Environment.NewLine.Repeat(count + 1);
+        return string.Concat(subject.TrimEnd('\r', '\n'), Environment.NewLine.Repeat(count + 1));
     }
 
     public static IEnumerable<string> TrimEnd(this IEnumerable<string>? items)
@@ -353,7 +353,11 @@ public static partial class StringExtensions
 
         return lines.Length <= lineCount
             ? subject
-            : lines.Take(lineCount - 1).ToJoinNewlineString() + Environment.NewLine + "...";
+            : string.Concat(
+                lines.Take(lineCount - 1).ToJoinNewlineString(),
+                Environment.NewLine,
+                "..."
+            );
     }
 
     public static IEnumerable<string> Wrap(

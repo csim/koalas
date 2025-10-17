@@ -4,6 +4,6 @@ public record class TextLineModel(string? Text) : IRender
 {
     public string Render()
     {
-        return Text + Environment.NewLine;
+        return string.Concat(Text, Environment.NewLine);
     }
 }
