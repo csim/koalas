@@ -2,7 +2,6 @@ namespace Koalas.Extensions;
 
 public static partial class StringExtensions
 {
-    // ReSharper disable once InconsistentNaming
     private static readonly Regex _indentRegex = new(
         @"^(\s*)(?:.*)$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline

@@ -1,6 +1,5 @@
 namespace Koalas.Extensions;
 
-// ReSharper disable once InconsistentNaming
 public static class IDictionaryExtension
 {
     public static string Render<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> subject)

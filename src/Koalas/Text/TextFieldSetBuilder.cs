@@ -93,13 +93,13 @@ public partial class TextFieldSetBuilder : ITextBuilder
         // ReSharper disable once InvertIf
         if (trailingBlankLines > 0)
         {
-            List<IRender> childValueModels = [valueModel];
+            List<IRender> children = [valueModel];
             for (int i = 0; i < trailingBlankLines; i++)
             {
-                childValueModels.Add(new TextLineModel(string.Empty));
+                children.Add(new TextLineModel(string.Empty));
             }
 
-            valueModel = new TextRegionModel(childValueModels, IndentSize: 0);
+            valueModel = new TextRegionModel(children, IndentSize: 0);
         }
 
         return AddField(new TextFieldModel(Label: label, Value: valueModel, Format: format));

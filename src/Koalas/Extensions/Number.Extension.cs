@@ -107,7 +107,6 @@ public static class NumberExtensions
         int subjectScale = subject.Scale();
         int otherScale = other.Scale();
 
-        // ReSharper disable once InvertIf
         if (subjectScale != otherScale)
         {
             int minScale = Math.Min(subjectScale, otherScale);
@@ -194,7 +193,6 @@ public static class NumberExtensions
     {
         decimal roundSubject = Math.Round(subject, scale);
 
-        // ReSharper disable once ConvertIfStatementToSwitchExpression
         return subject > 0 && roundSubject > subject
                 ? roundSubject - new decimal(1, 0, 0, false, (byte)scale)
             : subject < 0 && roundSubject < subject

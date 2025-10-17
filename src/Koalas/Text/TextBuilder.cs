@@ -13,16 +13,16 @@ public partial class TextBuilder : ITextBuilder
         _defaultIndentSize = indentSize;
     }
 
-    public TextBuilder Add(IRender model)
+    public TextBuilder Add(IRender child)
     {
         if (IndentSize > 0)
         {
-            _children.Add(new TextRegionModel(Children: [model], IndentSize: IndentSize));
+            _children.Add(new TextRegionModel(Children: [child], IndentSize: IndentSize));
 
             return this;
         }
 
-        _children.Add(model);
+        _children.Add(child);
 
         return this;
     }

@@ -2,7 +2,6 @@ namespace Koalas.Extensions;
 
 public static class PrintExtensions
 {
-    // ReSharper disable once InconsistentNaming
     private const int _defaultItemLimit = 200;
 
     /// <summary>

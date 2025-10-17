@@ -147,7 +147,6 @@ public record class TextTableModel(
                     );
                 }
 
-                // ReSharper disable once InvertIf
                 if (dynamicColumn.LeftPadding > 0)
                 {
                     Columns.Insert(
