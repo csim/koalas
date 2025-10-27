@@ -1,4 +1,4 @@
-namespace Koalas;
+﻿namespace Koalas;
 
 public static class FileInfoHelper
 {

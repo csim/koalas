@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Koalas.Text;
 using Koalas.Text.Models;
 

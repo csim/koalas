@@ -1,4 +1,4 @@
-namespace Koalas.Text.Models;
+﻿namespace Koalas.Text.Models;
 
 public interface IBorderTextColumn : ITextColumn
 {
@@ -8,22 +8,26 @@ public interface IBorderTextColumn : ITextColumn
 public interface ITextColumn
 {
     public bool First { get; set; }
+
     public int Index { get; set; }
+
     public bool Last { get; set; }
+
     public int Width { get; set; }
 
     public IReadOnlyList<string?> Lines(ITextRow row);
+
     public void Render(StringBuilder output, ITextRow row, int partitionIndex);
+
     public void RenderHeading(StringBuilder output, string? headingOverride = null);
 }
 
 public class DoubleBorderTextColumn : TextColumnBase, IBorderTextColumn
 {
+    private IReadOnlyList<string>? _lines;
     private const char _verticalBar = '║';
 
     public bool External { get; init; }
-
-    private IReadOnlyList<string>? _lines;
 
     public virtual string FormatValue(ITextRow row)
     {
@@ -56,8 +60,11 @@ public class DoubleBorderTextColumn : TextColumnBase, IBorderTextColumn
 public class IdentityTextColumn : TextColumnBase, IDynamicWidthTextColumn
 {
     public int? LeftPadding { get; set; }
+
     public int? MaximumWidth { get; set; }
+
     public int MinimumWidth => 1;
+
     public int? RightPadding { get; set; }
 
     public virtual string FormatValue(ITextRow row)
@@ -93,11 +100,10 @@ public class PaddingTextColumn(int width) : TextColumnBase
 
 public class SingleBorderTextColumn : TextColumnBase, IBorderTextColumn
 {
+    private IReadOnlyList<string>? _lines;
     private const char _verticalBar = '│';
 
     public bool External { get; init; }
-
-    private IReadOnlyList<string>? _lines;
 
     public static string FormatValue()
     {
@@ -129,12 +135,15 @@ public class SingleBorderTextColumn : TextColumnBase, IBorderTextColumn
 
 public class StaticTextColumn : TextColumnBase
 {
-    public bool ShowInHeading { get; init; }
-    public bool ShowInRow { get; init; }
-    public bool ShowInRowExtraLines { get; init; }
-    public string? Text { get; init; }
-
     private IReadOnlyList<string?>? _lines;
+
+    public bool ShowInHeading { get; init; }
+
+    public bool ShowInRow { get; init; }
+
+    public bool ShowInRowExtraLines { get; init; }
+
+    public string? Text { get; init; }
 
     public virtual string? FormatValue(ITextRow row)
     {
@@ -175,16 +184,23 @@ public class StaticTextColumn : TextColumnBase
 
 public class TextColumn : TextColumnBase, IDynamicWidthTextColumn
 {
-    public int DataColumnIndex { get; init; }
-    public string? Format { get; init; }
-    public int? LeftPadding { get; set; }
-    public int? MaximumWidth { get; set; }
-    public int MinimumWidth { get; init; }
-    public string? NullProjection { get; init; }
-    public int? RightPadding { get; set; }
-    public int WrapOverflowIndent { get; set; }
-
     private readonly Dictionary<ITextRow, IReadOnlyList<string>> _lineCache = [];
+
+    public int DataColumnIndex { get; init; }
+
+    public string? Format { get; init; }
+
+    public int? LeftPadding { get; set; }
+
+    public int? MaximumWidth { get; set; }
+
+    public int MinimumWidth { get; init; }
+
+    public string? NullProjection { get; init; }
+
+    public int? RightPadding { get; set; }
+
+    public int WrapOverflowIndent { get; set; }
 
     public string FormatValue(ITextRow row)
     {
@@ -225,11 +241,17 @@ public class TextColumn : TextColumnBase, IDynamicWidthTextColumn
 public abstract class TextColumnBase : ITextColumn
 {
     public bool AlignRight { get; init; }
+
     public bool First { get; set; }
+
     public string Heading { get; set; } = string.Empty;
+
     public int Index { get; set; }
+
     public bool Last { get; set; }
+
     public static char Space { get; set; } = ' ';
+
     public int Width { get; set; }
 
     public abstract IReadOnlyList<string?> Lines(ITextRow row);

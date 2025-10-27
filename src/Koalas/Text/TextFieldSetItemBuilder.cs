@@ -1,4 +1,4 @@
-namespace Koalas.Text;
+﻿namespace Koalas.Text;
 
 public partial class TextFieldSetItemBuilder : IRender
 {
@@ -69,23 +69,6 @@ public partial class TextFieldSetItemBuilder : IRender
 
     public TextFieldSetItemBuilder AddHangSection(
         string heading,
-        string body,
-        int? maxWidth = null,
-        int trailingBlankLines = 1
-    )
-    {
-        _valueBuilder.AddHangSection(
-            heading,
-            body,
-            maxWidth: maxWidth,
-            trailingBlankLines: trailingBlankLines
-        );
-
-        return this;
-    }
-
-    public TextFieldSetItemBuilder AddHangSection(
-        string heading,
         ITextBuilder body,
         int trailingBlankLines = 1
     )
@@ -102,6 +85,23 @@ public partial class TextFieldSetItemBuilder : IRender
     )
     {
         _valueBuilder.AddHangSection(heading, body, trailingBlankLines: trailingBlankLines);
+
+        return this;
+    }
+
+    public TextFieldSetItemBuilder AddHangSection(
+        string heading,
+        string body,
+        int? maxWidth = null,
+        int trailingBlankLines = 1
+    )
+    {
+        _valueBuilder.AddHangSection(
+            heading,
+            body,
+            maxWidth: maxWidth,
+            trailingBlankLines: trailingBlankLines
+        );
 
         return this;
     }
@@ -127,25 +127,6 @@ public partial class TextFieldSetItemBuilder : IRender
 
     public TextFieldSetItemBuilder AddSection(
         string heading,
-        string body,
-        string headingSuffix = "",
-        int? maxWidth = null,
-        int trailingBlankLines = 2
-    )
-    {
-        _valueBuilder.AddSection(
-            heading: heading,
-            body: body,
-            headingSuffix: headingSuffix,
-            maxWidth: maxWidth,
-            trailingBlankLines: trailingBlankLines
-        );
-
-        return this;
-    }
-
-    public TextFieldSetItemBuilder AddSection(
-        string heading,
         object body,
         string headingSuffix = "",
         int trailingBlankLines = 2
@@ -172,6 +153,25 @@ public partial class TextFieldSetItemBuilder : IRender
             heading: heading,
             body: body,
             headingSuffix: headingSuffix,
+            trailingBlankLines: trailingBlankLines
+        );
+
+        return this;
+    }
+
+    public TextFieldSetItemBuilder AddSection(
+        string heading,
+        string body,
+        string headingSuffix = "",
+        int? maxWidth = null,
+        int trailingBlankLines = 2
+    )
+    {
+        _valueBuilder.AddSection(
+            heading: heading,
+            body: body,
+            headingSuffix: headingSuffix,
+            maxWidth: maxWidth,
             trailingBlankLines: trailingBlankLines
         );
 

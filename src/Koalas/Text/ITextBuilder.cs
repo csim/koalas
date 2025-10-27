@@ -1,3 +1,3 @@
-namespace Koalas.Text;
+﻿namespace Koalas.Text;
 
 public interface ITextBuilder : IRender { }

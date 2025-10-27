@@ -1,4 +1,4 @@
-using Koalas.Extensions;
+﻿using Koalas.Extensions;
 
 namespace Koalas.Tests;
 

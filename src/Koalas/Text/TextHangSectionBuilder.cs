@@ -1,4 +1,4 @@
-namespace Koalas.Text;
+﻿namespace Koalas.Text;
 
 public partial class TextHangSectionBuilder : ITextBuilder
 {
@@ -71,23 +71,6 @@ public partial class TextHangSectionBuilder : ITextBuilder
 
     public TextHangSectionBuilder AddHangSection(
         string heading,
-        string body,
-        int? maxWidth = null,
-        int trailingBlankLines = 1
-    )
-    {
-        _bodyBuilder.AddHangSection(
-            heading,
-            body,
-            maxWidth: maxWidth,
-            trailingBlankLines: trailingBlankLines
-        );
-
-        return this;
-    }
-
-    public TextHangSectionBuilder AddHangSection(
-        string heading,
         ITextBuilder body,
         int trailingBlankLines = 1
     )
@@ -104,6 +87,23 @@ public partial class TextHangSectionBuilder : ITextBuilder
     )
     {
         _bodyBuilder.AddHangSection(heading, body, trailingBlankLines: trailingBlankLines);
+
+        return this;
+    }
+
+    public TextHangSectionBuilder AddHangSection(
+        string heading,
+        string body,
+        int? maxWidth = null,
+        int trailingBlankLines = 1
+    )
+    {
+        _bodyBuilder.AddHangSection(
+            heading,
+            body,
+            maxWidth: maxWidth,
+            trailingBlankLines: trailingBlankLines
+        );
 
         return this;
     }

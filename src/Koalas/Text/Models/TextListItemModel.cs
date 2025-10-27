@@ -1,4 +1,4 @@
-namespace Koalas.Text.Models;
+﻿namespace Koalas.Text.Models;
 
 public record class TextListItemModel(
     string? Indicator,

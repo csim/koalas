@@ -1,9 +1,7 @@
-namespace Koalas.Text;
+﻿namespace Koalas.Text;
 
 public partial class TextFieldSetBuilder : ITextBuilder
 {
-    public int Count => _items.Count;
-
     private readonly List<TextFieldModel> _items = [];
     private bool _labelRightAlign;
     private int _labelRightPadding;
@@ -18,14 +16,28 @@ public partial class TextFieldSetBuilder : ITextBuilder
     private int _valueOverflowIndent;
     private bool _valueRightAlign;
 
+    public int Count => _items.Count;
+
     internal TextFieldSetBuilder(TextBuilder parent)
     {
         _parent = parent;
     }
 
+    public TextFieldSetBuilder AddField(TextFieldModel field)
+    {
+        _items.Add(field);
+
+        return this;
+    }
+
     public TextFieldSetBuilder AddField(string label, object value)
     {
         return StartField().Label(label).Value(value.Render()).SaveField();
+    }
+
+    public TextFieldSetBuilder AddField(string label, string value)
+    {
+        return StartField().Label(label).Value(value).SaveField();
     }
 
     public TextFieldSetBuilder AddField(string label, bool? value, int trailingBlankLines = 0)
@@ -103,18 +115,6 @@ public partial class TextFieldSetBuilder : ITextBuilder
         }
 
         return AddField(new TextFieldModel(Label: label, Value: valueModel, Format: format));
-    }
-
-    public TextFieldSetBuilder AddField(TextFieldModel field)
-    {
-        _items.Add(field);
-
-        return this;
-    }
-
-    public TextFieldSetBuilder AddField(string label, string value)
-    {
-        return StartField().Label(label).Value(value).SaveField();
     }
 
     public static TextFieldSetBuilder Create(

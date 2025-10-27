@@ -1,4 +1,4 @@
-using Koalas.Text;
+﻿using Koalas.Text;
 
 namespace Koalas.Tests.Text;
 

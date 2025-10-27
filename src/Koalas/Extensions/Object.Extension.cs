@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 namespace Koalas.Extensions;
 
@@ -8,7 +8,6 @@ public static class ObjectExtensions
     {
         WriteIndented = false,
     };
-
     private static readonly JsonSerializerOptions _defaultIndentedOptions = new()
     {
         WriteIndented = true,
@@ -178,6 +177,16 @@ public static class ObjectExtensions
     /// </summary>
     /// <param name="subject"></param>
     /// <returns></returns>
+    public static string ToCSharpLiteral(this DateTime subject)
+    {
+        return $"DateTime.Parse(\"{subject.Render()}\")";
+    }
+
+    /// <summary>
+    ///     Renders the subject as a string suitable for use in C# code.
+    /// </summary>
+    /// <param name="subject"></param>
+    /// <returns></returns>
     public static string ToCSharpLiteral(this object? subject, bool allowVerbatim = true)
     {
         return subject switch
@@ -208,16 +217,6 @@ public static class ObjectExtensions
             : allowVerbatim && (subject.Contains('\n') || subject.Contains('"'))
                 ? $"\"\"\"{Environment.NewLine}{subject}{Environment.NewLine}\"\"\""
             : subject.ToString();
-    }
-
-    /// <summary>
-    ///     Renders the subject as a string suitable for use in C# code.
-    /// </summary>
-    /// <param name="subject"></param>
-    /// <returns></returns>
-    public static string ToCSharpLiteral(this DateTime subject)
-    {
-        return $"DateTime.Parse(\"{subject.Render()}\")";
     }
 
     public static string ToHash(this string? source)
@@ -266,6 +265,12 @@ public static class ObjectExtensions
         return ToJsonString(source, indented: true, options);
     }
 
+    public static string ToJsonString(this JsonNode? node, bool indented = true)
+    {
+        JsonSerializerOptions options = indented ? _defaultIndentedOptions : _defaultCompactOptions;
+        return node?.ToJsonString(options) ?? "null";
+    }
+
     public static string ToJsonString(
         this object source,
         bool indented,
@@ -282,12 +287,6 @@ public static class ObjectExtensions
             options ?? (indented ? _defaultIndentedOptions : _defaultCompactOptions);
 
         return JsonSerializer.Serialize(serializationSource, serializerOptions);
-    }
-
-    public static string ToJsonString(this JsonNode? node, bool indented = true)
-    {
-        JsonSerializerOptions options = indented ? _defaultIndentedOptions : _defaultCompactOptions;
-        return node?.ToJsonString(options) ?? "null";
     }
 
     public static bool ValueEquals<T>(this T? left, T? right)

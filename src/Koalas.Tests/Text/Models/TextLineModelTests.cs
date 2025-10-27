@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Koalas.Text.Models;
 
 namespace Koalas.Tests.Text.Models;
