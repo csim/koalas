@@ -51,13 +51,6 @@ public interface ITextRowBuilder : IRender
 //_layoutBorderComputed = false;
 public class TextRowBuilder : ITextRowBuilder
 {
-    private readonly int _dataColumnCount;
-    private int _rowId = 1;
-    private readonly List<ITextRow> _rows;
-    private readonly TextTableBuilder _table;
-
-    public IReadOnlyList<ITextRow> Rows => _rows;
-
     public TextRowBuilder(
         TextTableBuilder table,
         List<ITextRow> rows,
@@ -70,6 +63,13 @@ public class TextRowBuilder : ITextRowBuilder
         List<TextColumn> textColumns = [.. columns.OfType<TextColumn>()];
         _dataColumnCount = textColumns.Count != 0 ? textColumns.Max(i => i.DataColumnIndex) + 1 : 0;
     }
+
+    private readonly int _dataColumnCount;
+    private int _rowId = 1;
+    private readonly List<ITextRow> _rows;
+    private readonly TextTableBuilder _table;
+
+    public IReadOnlyList<ITextRow> Rows => _rows;
 
     public ITextRowBuilder AddBorderRow()
     {
