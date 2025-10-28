@@ -1,4 +1,4 @@
-namespace Koalas.Extensions;
+﻿namespace Koalas.Extensions;
 
 public static partial class LinqExtensions
 {
@@ -102,14 +102,14 @@ public static partial class LinqExtensions
         return items.Take(size);
     }
 
-    public static bool None<T>(this IEnumerable<T> items, T? item)
-    {
-        return !items.Any(item);
-    }
-
     public static bool None<T>(this IEnumerable<T> items)
     {
         return !items.Any();
+    }
+
+    public static bool None<T>(this IEnumerable<T> items, T? item)
+    {
+        return !items.Any(item);
     }
 
     public static bool None<T>(this IEnumerable<T> items, Func<T, bool> predicate)

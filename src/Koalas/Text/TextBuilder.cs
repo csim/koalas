@@ -1,12 +1,12 @@
-namespace Koalas.Text;
+﻿namespace Koalas.Text;
 
 public partial class TextBuilder : ITextBuilder
 {
-    public int IndentSize { get; private set; }
-
     private readonly List<IRender> _children = [];
     private readonly int _defaultIndentSize;
     private readonly List<int> _indentStack = [];
+
+    public int IndentSize { get; private set; }
 
     private TextBuilder(int indentSize)
     {
@@ -77,20 +77,6 @@ public partial class TextBuilder : ITextBuilder
         return this;
     }
 
-    public TextBuilder AddHangSection(
-        string heading,
-        string body,
-        int? maxWidth = null,
-        int trailingBlankLines = 1
-    )
-    {
-        return StartHangSection()
-            .Heading(heading)
-            .AddLine(body.ToWrapString(maxWidth))
-            .AddBlankLine(trailingBlankLines)
-            .SaveHangSection();
-    }
-
     public TextBuilder AddHangSection(string heading, ITextBuilder body, int trailingBlankLines = 1)
     {
         return StartHangSection()
@@ -105,6 +91,20 @@ public partial class TextBuilder : ITextBuilder
         return StartHangSection()
             .Heading(heading)
             .AddLine(body.Render())
+            .AddBlankLine(trailingBlankLines)
+            .SaveHangSection();
+    }
+
+    public TextBuilder AddHangSection(
+        string heading,
+        string body,
+        int? maxWidth = null,
+        int trailingBlankLines = 1
+    )
+    {
+        return StartHangSection()
+            .Heading(heading)
+            .AddLine(body.ToWrapString(maxWidth))
             .AddBlankLine(trailingBlankLines)
             .SaveHangSection();
     }
@@ -196,22 +196,6 @@ public partial class TextBuilder : ITextBuilder
 
     public TextBuilder AddSection(
         string heading,
-        string body,
-        string headingSuffix = "",
-        int? maxWidth = null,
-        int trailingBlankLines = 2
-    )
-    {
-        return StartSection()
-            .Heading(heading)
-            .HeadingSuffix(headingSuffix)
-            .AddLine(body.ToWrapString(maxWidth))
-            .AddBlankLine(trailingBlankLines)
-            .SaveSection();
-    }
-
-    public TextBuilder AddSection(
-        string heading,
         ITextBuilder body,
         string headingSuffix = "",
         int trailingBlankLines = 2
@@ -236,6 +220,22 @@ public partial class TextBuilder : ITextBuilder
             .Heading(heading)
             .HeadingSuffix(headingSuffix)
             .AddLine(body.Render())
+            .AddBlankLine(trailingBlankLines)
+            .SaveSection();
+    }
+
+    public TextBuilder AddSection(
+        string heading,
+        string body,
+        string headingSuffix = "",
+        int? maxWidth = null,
+        int trailingBlankLines = 2
+    )
+    {
+        return StartSection()
+            .Heading(heading)
+            .HeadingSuffix(headingSuffix)
+            .AddLine(body.ToWrapString(maxWidth))
             .AddBlankLine(trailingBlankLines)
             .SaveSection();
     }

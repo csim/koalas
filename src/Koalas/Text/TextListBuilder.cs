@@ -1,4 +1,4 @@
-namespace Koalas.Text;
+﻿namespace Koalas.Text;
 
 public partial class TextListBuilder : ITextBuilder
 {
@@ -16,6 +16,28 @@ public partial class TextListBuilder : ITextBuilder
     public TextListBuilder AddItem(TextListItemModel model)
     {
         _items.Add(model);
+
+        return this;
+    }
+
+    public TextListBuilder AddItem(
+        Action<TextBuilder> bodyFactory,
+        string? id = null,
+        string? indicator = null,
+        string? separator = null
+    )
+    {
+        TextBuilder bodyBuilder = TextBuilder.Create();
+        bodyFactory(bodyBuilder);
+
+        AddItem(
+            new TextListItemModel(
+                Indicator: indicator,
+                Id: id,
+                Separator: separator,
+                Body: bodyBuilder
+            )
+        );
 
         return this;
     }
@@ -137,28 +159,6 @@ public partial class TextListBuilder : ITextBuilder
             .Add(body)
             .AddBlankLine(trailingBlankLines ?? _defaultTrailingBlankLines)
             .SaveItem();
-    }
-
-    public TextListBuilder AddItem(
-        Action<TextBuilder> bodyFactory,
-        string? id = null,
-        string? indicator = null,
-        string? separator = null
-    )
-    {
-        TextBuilder bodyBuilder = TextBuilder.Create();
-        bodyFactory(bodyBuilder);
-
-        AddItem(
-            new TextListItemModel(
-                Indicator: indicator,
-                Id: id,
-                Separator: separator,
-                Body: bodyBuilder
-            )
-        );
-
-        return this;
     }
 
     public static TextListBuilder Create(

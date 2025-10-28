@@ -1,4 +1,4 @@
-namespace Koalas.Text;
+﻿namespace Koalas.Text;
 
 /*************************************************************
  * Column Types
@@ -6,9 +6,13 @@ namespace Koalas.Text;
 public interface IDynamicWidthTextColumn : ITextColumn
 {
     public string Heading { get; }
+
     public int? LeftPadding { get; set; }
+
     public int? MaximumWidth { get; set; }
+
     public int MinimumWidth { get; }
+
     public int? RightPadding { get; set; }
 }
 
@@ -17,31 +21,42 @@ public interface ITextRowBuilder : IRender
     public IReadOnlyList<ITextRow> Rows { get; }
 
     public ITextRowBuilder AddBorderRow();
+
     public ITextRowBuilder AddDataRow(params object[] cells);
+
     public ITextRowBuilder AddDataRow(IReadOnlyList<object?> row, int? rowId = null);
+
     public ITextRowBuilder AddDataRows(
         IReadOnlyList<IReadOnlyList<object?>> rows,
         int? startRowId = null
     );
+
     public ITextRowBuilder AddDoubleBorderRow();
+
     public ITextRowBuilder AddEllipsisRow(string indicator = "...", int indicatorColumnIndex = 0);
+
     public ITextRowBuilder AddHeadingRow();
+
     public ITextRowBuilder AddHeadingRow(params string[] headingOverrides);
+
     public ITextRowBuilder ClearRows();
+
     public ITextRowBuilder InsertRow(int index, ITextRow row);
+
     public ITextRowBuilder RemoveRow(int index);
+
     public TextBuilder SaveTable();
 }
 
 //_layoutBorderComputed = false;
 public class TextRowBuilder : ITextRowBuilder
 {
-    public IReadOnlyList<ITextRow> Rows => _rows;
-
     private readonly int _dataColumnCount;
     private int _rowId = 1;
     private readonly List<ITextRow> _rows;
     private readonly TextTableBuilder _table;
+
+    public IReadOnlyList<ITextRow> Rows => _rows;
 
     public TextRowBuilder(
         TextTableBuilder table,
@@ -174,9 +189,6 @@ public class TextRowBuilder : ITextRowBuilder
 
 public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
 {
-    public IReadOnlyList<ITextRow> Rows => _rows;
-    private ITextRowBuilder RowBuilder => _rowBuilder ??= new TextRowBuilder(this, _rows, _columns);
-
     private TextTableBorder _border = TextTableBorder.None;
     private readonly List<ITextColumn> _columns = [];
     private int _currentDataColumnIndex;
@@ -187,6 +199,10 @@ public partial class TextTableBuilder : ITextBuilder, ITextRowBuilder
     private int? _rowLimit;
     private readonly List<ITextRow> _rows = [];
     private bool _saved;
+
+    public IReadOnlyList<ITextRow> Rows => _rows;
+
+    private ITextRowBuilder RowBuilder => _rowBuilder ??= new TextRowBuilder(this, _rows, _columns);
 
     internal TextTableBuilder(TextBuilder parent)
     {

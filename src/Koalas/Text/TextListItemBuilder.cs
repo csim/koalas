@@ -1,4 +1,4 @@
-namespace Koalas.Text;
+﻿namespace Koalas.Text;
 
 public partial class TextListItemBuilder : IRender
 {
@@ -71,23 +71,6 @@ public partial class TextListItemBuilder : IRender
 
     public TextListItemBuilder AddHangSection(
         string heading,
-        string body,
-        int? maxWidth = null,
-        int trailingBlankLines = 1
-    )
-    {
-        _bodyBuilder.AddHangSection(
-            heading,
-            body,
-            maxWidth: maxWidth,
-            trailingBlankLines: trailingBlankLines
-        );
-
-        return this;
-    }
-
-    public TextListItemBuilder AddHangSection(
-        string heading,
         ITextBuilder body,
         int trailingBlankLines = 1
     )
@@ -104,6 +87,23 @@ public partial class TextListItemBuilder : IRender
     )
     {
         _bodyBuilder.AddHangSection(heading, body, trailingBlankLines: trailingBlankLines);
+
+        return this;
+    }
+
+    public TextListItemBuilder AddHangSection(
+        string heading,
+        string body,
+        int? maxWidth = null,
+        int trailingBlankLines = 1
+    )
+    {
+        _bodyBuilder.AddHangSection(
+            heading,
+            body,
+            maxWidth: maxWidth,
+            trailingBlankLines: trailingBlankLines
+        );
 
         return this;
     }
@@ -129,25 +129,6 @@ public partial class TextListItemBuilder : IRender
 
     public TextListItemBuilder AddSection(
         string heading,
-        string body,
-        string headingSuffix = "",
-        int? maxWidth = null,
-        int trailingBlankLines = 2
-    )
-    {
-        _bodyBuilder.AddSection(
-            heading: heading,
-            body: body,
-            headingSuffix: headingSuffix,
-            maxWidth: maxWidth,
-            trailingBlankLines: trailingBlankLines
-        );
-
-        return this;
-    }
-
-    public TextListItemBuilder AddSection(
-        string heading,
         ITextBuilder body,
         string headingSuffix = "",
         int trailingBlankLines = 2
@@ -174,6 +155,25 @@ public partial class TextListItemBuilder : IRender
             heading: heading,
             body: body,
             headingSuffix: headingSuffix,
+            trailingBlankLines: trailingBlankLines
+        );
+
+        return this;
+    }
+
+    public TextListItemBuilder AddSection(
+        string heading,
+        string body,
+        string headingSuffix = "",
+        int? maxWidth = null,
+        int trailingBlankLines = 2
+    )
+    {
+        _bodyBuilder.AddSection(
+            heading: heading,
+            body: body,
+            headingSuffix: headingSuffix,
+            maxWidth: maxWidth,
             trailingBlankLines: trailingBlankLines
         );
 
