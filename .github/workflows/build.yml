@@ -10,7 +10,7 @@ on:
 env:
   DOTNET_VERSION: "8.0.x"
   BUILD_CONFIG: "Release"
-  SOLUTION: "src/Koalas.sln"
+  SOLUTION: "src/Koalas.slnx"
   PROJECT: "src/Koalas/Koalas.csproj"
   PREVIEW_VERSION: "2.0.0"
 
