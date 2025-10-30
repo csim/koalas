@@ -85,7 +85,11 @@ jobs:
             -p:PackageVersion=${{ needs.version.outputs.version }}${{ needs.version.outputs.suffix }}
 
       - name: Run tests
-        run: dotnet test ${{ env.SOLUTION }} --configuration ${{ env.BUILD_CONFIG }} --no-build --verbosity normal
+        run: |
+          dotnet test ${{ env.SOLUTION }} \
+            --configuration ${{ env.BUILD_CONFIG }} \
+            --no-build \
+            --verbosity normal
 
   nuget:
     runs-on: ubuntu-latest
