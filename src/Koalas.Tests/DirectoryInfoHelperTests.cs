@@ -27,7 +27,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
         );
 
         Assert.NotNull(ancestorsMethod); // Ancestors method should exist as private method
-        Assert.True(ancestorsMethod!.IsPublic); // Ancestors method should be private
+        Assert.True(ancestorsMethod.IsPublic); // Ancestors method should be private
     }
 
     [Fact]
