@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Microsoft.VisualBasic;
 
 namespace Koalas.Tests;
 
@@ -188,36 +189,137 @@ public sealed class DirectoryInfoHelperTests : IDisposable
     }
 
     [Fact]
-    public void FindDirectory_WithExistingFile_ReturnsCorrectDirectory()
+    public void FindFileAncestorDirectory_FileExistsInImmediateParent_ReturnsImmediateParent()
     {
         // Arrange
-        Assembly assembly = Assembly.GetExecutingAssembly();
-        string searchFileName = "Koalas.Tests.csproj";
+        DirectoryInfo parentDir = _tempDirectory.CreateSubdirectory("parent");
+        DirectoryInfo childDir = parentDir.CreateSubdirectory("child");
 
-        // The test assembly should be in a directory structure where we can find the project file
-        // Create a mock scenario by creating the expected file structure
-        FileInfo projectFile = new(Path.Combine(_tempDirectory.Parent!.FullName, searchFileName));
-        File.WriteAllText(projectFile.FullName, "<Project />");
+        string testFileName = "config.json";
+        string testFilePath = Path.Combine(parentDir.FullName, testFileName);
+        File.WriteAllText(testFilePath, "{}");
 
-        // Act & Assert - This test is tricky because it depends on actual assembly location
-        // Let's test the logic by creating a scenario where we know the file exists
-        Exception? exception = Record.Exception(() =>
-            DirectoryInfoHelper.FindDirectory(assembly, "Koalas.Tests.csproj")
+        // Act
+        DirectoryInfo result = DirectoryInfoHelper.FindFileAncestorDirectory(
+            childDir,
+            testFileName
         );
-        Assert.Null(exception);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(parentDir.FullName, result.FullName);
     }
 
     [Fact]
-    public void FindDirectory_WithNonExistentFile_ReturnsNull()
+    public void FindFileAncestorDirectory_FileExistsInParent_ReturnsParentDirectory()
     {
         // Arrange
-        Assembly assembly = Assembly.GetExecutingAssembly();
-        string nonExistentFile = "nonexistent-file-12345.txt";
+        DirectoryInfo parentDir = _tempDirectory.CreateSubdirectory("parent");
+        DirectoryInfo childDir = parentDir.CreateSubdirectory("child");
+        DirectoryInfo grandchildDir = childDir.CreateSubdirectory("grandchild");
+
+        string testFileName = "test.txt";
+        string testFilePath = Path.Combine(parentDir.FullName, testFileName);
+        File.WriteAllText(testFilePath, "test content");
 
         // Act
-        DirectoryInfo? result = DirectoryInfoHelper.FindDirectory(assembly, nonExistentFile);
+        DirectoryInfo result = DirectoryInfoHelper.FindFileAncestorDirectory(
+            grandchildDir,
+            testFileName
+        );
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(parentDir.FullName, result.FullName);
+    }
+
+    [Fact]
+    public void FindFileAncestorDirectory_FileExistsInRoot_ReturnsRootDirectory()
+    {
+        // Arrange
+        DirectoryInfo level1 = _tempDirectory.CreateSubdirectory("level1");
+        DirectoryInfo level2 = level1.CreateSubdirectory("level2");
+        DirectoryInfo level3 = level2.CreateSubdirectory("level3");
+
+        string testFileName = "root.config";
+        string testFilePath = Path.Combine(_tempDirectory.FullName, testFileName);
+        File.WriteAllText(testFilePath, "root config");
+
+        // Act
+        DirectoryInfo result = DirectoryInfoHelper.FindFileAncestorDirectory(level3, testFileName);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(_tempDirectory.FullName, result.FullName);
+    }
+
+    [Fact]
+    public void FindFileAncestorDirectory_FileNotFound_ReturnsNull()
+    {
+        // Arrange
+        DirectoryInfo parentDir = _tempDirectory.CreateSubdirectory("parent");
+        DirectoryInfo childDir = parentDir.CreateSubdirectory("child");
+
+        string nonExistentFileName = "nonexistent.txt";
+
+        // Act
+        DirectoryInfo result = DirectoryInfoHelper.FindFileAncestorDirectory(
+            childDir,
+            nonExistentFileName
+        );
 
         // Assert
         Assert.Null(result);
+    }
+
+    [Fact]
+    public void FindFileAncestorDirectory_MultipleFilesWithSameName_ReturnsNearestAncestor()
+    {
+        // Arrange
+        DirectoryInfo root = _tempDirectory.CreateSubdirectory("root");
+        DirectoryInfo middle = root.CreateSubdirectory("middle");
+        DirectoryInfo leaf = middle.CreateSubdirectory("leaf");
+
+        string fileName = "duplicate.txt";
+
+        // Create file in root
+        File.WriteAllText(Path.Combine(root.FullName, fileName), "root version");
+        // Create file in middle (closer ancestor)
+        File.WriteAllText(Path.Combine(middle.FullName, fileName), "middle version");
+
+        // Act
+        DirectoryInfo result = DirectoryInfoHelper.FindFileAncestorDirectory(leaf, fileName);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(middle.FullName, result.FullName);
+    }
+
+    [Fact]
+    public void FindFileAncestorDirectory_WithDifferentFileExtensions_FindsCorrectFile()
+    {
+        // Arrange
+        DirectoryInfo parentDir = _tempDirectory.CreateSubdirectory("parent");
+        DirectoryInfo childDir = parentDir.CreateSubdirectory("child");
+
+        // Create files with different extensions
+        File.WriteAllText(Path.Combine(parentDir.FullName, "project.csproj"), "<Project />");
+        File.WriteAllText(Path.Combine(parentDir.FullName, "project.sln"), "solution");
+
+        // Act
+        DirectoryInfo csprojResult = DirectoryInfoHelper.FindFileAncestorDirectory(
+            childDir,
+            "project.csproj"
+        );
+        DirectoryInfo slnResult = DirectoryInfoHelper.FindFileAncestorDirectory(
+            childDir,
+            "project.sln"
+        );
+
+        // Assert
+        Assert.NotNull(csprojResult);
+        Assert.NotNull(slnResult);
+        Assert.Equal(parentDir.FullName, csprojResult.FullName);
+        Assert.Equal(parentDir.FullName, slnResult.FullName);
     }
 }
