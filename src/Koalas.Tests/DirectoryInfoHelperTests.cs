@@ -32,6 +32,53 @@ public sealed class DirectoryInfoHelperTests : IDisposable
     }
 
     [Fact]
+    public void Ancestors_WithExistingDirectory_ReturnsAllParents()
+    {
+        // Arrange
+        DirectoryInfo level1 = _tempDirectory.CreateSubdirectory("level1");
+        DirectoryInfo level2 = level1.CreateSubdirectory("level2");
+        DirectoryInfo level3 = level2.CreateSubdirectory("level3");
+
+        // Act
+        List<DirectoryInfo> result = [.. level3.Ancestors()];
+
+        // Assert
+        Assert.NotEmpty(result);
+        Assert.Equal(level2.FullName, result[0].FullName);
+        Assert.Equal(level1.FullName, result[1].FullName);
+        Assert.Equal(_tempDirectory.FullName, result[2].FullName);
+    }
+
+    [Fact]
+    public void Ancestors_WithNonExistentDirectory_ThrowsArgumentException()
+    {
+        // Arrange
+        DirectoryInfo nonExistent = new(Path.Combine(_tempDirectoryPath, "nonexistent"));
+
+        // Act & Assert
+        ArgumentException exception = Assert.Throws<ArgumentException>(() =>
+            nonExistent.Ancestors().ToList()
+        );
+        Assert.Contains("not found", exception.Message);
+    }
+
+    [Fact]
+    public void Ancestors_WithRootDirectory_ReturnsParentsUpToRoot()
+    {
+        // Arrange
+        DirectoryInfo deepDir = _tempDirectory.CreateSubdirectory("deep");
+
+        // Act
+        List<DirectoryInfo> result = [.. deepDir.Ancestors()];
+
+        // Assert
+        Assert.NotEmpty(result);
+        Assert.Equal(_tempDirectory.FullName, result[0].FullName);
+        // Continue until we reach the root
+        Assert.Contains(result, d => d.Parent == null);
+    }
+
+    [Fact]
     public void Directories_PreservesOrder()
     {
         // Arrange
@@ -186,6 +233,86 @@ public sealed class DirectoryInfoHelperTests : IDisposable
         {
             _tempDirectory.Delete(recursive: true);
         }
+    }
+
+    [Fact]
+    public void FindAncestorDirectory_CaseInsensitiveMatch_ReturnsDirectory()
+    {
+        // Arrange
+        DirectoryInfo parent = _tempDirectory.CreateSubdirectory("MyProject");
+        DirectoryInfo child = parent.CreateSubdirectory("src");
+
+        // Act
+        DirectoryInfo result = DirectoryInfoHelper.FindAncestorDirectory(child, "myproject");
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("MyProject", result.Name);
+        Assert.Equal(parent.FullName, result.FullName);
+    }
+
+    [Fact]
+    public void FindAncestorDirectory_DirectoryExistsInImmediateParent_ReturnsImmediateParent()
+    {
+        // Arrange
+        DirectoryInfo parent = _tempDirectory.CreateSubdirectory("parent");
+        DirectoryInfo child = parent.CreateSubdirectory("child");
+
+        // Act
+        DirectoryInfo result = DirectoryInfoHelper.FindAncestorDirectory(child, "parent");
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("parent", result.Name);
+        Assert.Equal(parent.FullName, result.FullName);
+    }
+
+    [Fact]
+    public void FindAncestorDirectory_DirectoryExistsInParent_ReturnsParentDirectory()
+    {
+        // Arrange
+        DirectoryInfo root = _tempDirectory.CreateSubdirectory("root");
+        DirectoryInfo middle = root.CreateSubdirectory("middle");
+        DirectoryInfo leaf = middle.CreateSubdirectory("leaf");
+
+        // Act
+        DirectoryInfo result = DirectoryInfoHelper.FindAncestorDirectory(leaf, "root");
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("root", result.Name);
+        Assert.Equal(root.FullName, result.FullName);
+    }
+
+    [Fact]
+    public void FindAncestorDirectory_DirectoryNotFound_ReturnsNull()
+    {
+        // Arrange
+        DirectoryInfo parent = _tempDirectory.CreateSubdirectory("parent");
+        DirectoryInfo child = parent.CreateSubdirectory("child");
+
+        // Act
+        DirectoryInfo result = DirectoryInfoHelper.FindAncestorDirectory(child, "nonexistent");
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void FindAncestorDirectory_MultipleAncestorsWithSimilarNames_ReturnsNearestMatch()
+    {
+        // Arrange
+        DirectoryInfo root = _tempDirectory.CreateSubdirectory("project");
+        DirectoryInfo middle = root.CreateSubdirectory("src");
+        DirectoryInfo leaf = middle.CreateSubdirectory("nested");
+
+        // Act
+        DirectoryInfo result = DirectoryInfoHelper.FindAncestorDirectory(leaf, "project");
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("project", result.Name);
+        Assert.Equal(root.FullName, result.FullName);
     }
 
     [Fact]

@@ -25,6 +25,51 @@ public sealed class FileInfoHelperTests : IDisposable
     }
 
     [Fact]
+    public void File_WithNonExistentPath_ReturnsFileInfo()
+    {
+        // Arrange
+        string nonExistentPath = Path.Combine(_tempDirectoryPath, "nonexistent.txt");
+
+        // Act
+        FileInfo result = FileInfoHelper.File(nonExistentPath);
+
+        // Assert
+        Assert.IsType<FileInfo>(result);
+        Assert.Equal(nonExistentPath, result.FullName);
+        Assert.False(result.Exists);
+    }
+
+    [Fact]
+    public void File_WithSpecialCharacters_HandlesCorrectly()
+    {
+        // Arrange
+        string specialPath = Path.Combine(_tempDirectoryPath, "test file & symbols!.txt");
+
+        // Act
+        FileInfo result = FileInfoHelper.File(specialPath);
+
+        // Assert
+        Assert.IsType<FileInfo>(result);
+        Assert.Equal(specialPath, result.FullName);
+    }
+
+    [Fact]
+    public void File_WithValidPath_ReturnsFileInfo()
+    {
+        // Arrange
+        string filePath = Path.Combine(_tempDirectoryPath, "test.txt");
+        File.WriteAllText(filePath, "content");
+
+        // Act
+        FileInfo result = FileInfoHelper.File(filePath);
+
+        // Assert
+        Assert.IsType<FileInfo>(result);
+        Assert.Equal(filePath, result.FullName);
+        Assert.True(result.Exists);
+    }
+
+    [Fact]
     public void FileInfoHelper_IsStaticClass()
     {
         // Arrange & Act & Assert
@@ -33,6 +78,109 @@ public sealed class FileInfoHelperTests : IDisposable
         Assert.True(type.IsClass);
         Assert.True(type.IsAbstract);
         Assert.True(type.IsSealed);
+    }
+
+    [Fact]
+    public void Files_FromFilePaths_IsLazyEvaluated()
+    {
+        // Arrange
+        string file1Path = Path.Combine(_tempDirectoryPath, "file1.txt");
+        File.WriteAllText(file1Path, "content");
+
+        string[] filePaths = [file1Path];
+
+        // Act
+        IEnumerable<FileInfo> result = FileInfoHelper.Files(filePaths);
+
+        // Create another file and add to array (demonstrates lazy evaluation)
+        string file2Path = Path.Combine(_tempDirectoryPath, "file2.txt");
+        File.WriteAllText(file2Path, "content2");
+
+        // Assert - Only evaluates when enumerated
+        Assert.NotNull(result);
+        List<FileInfo> list = [.. result];
+        Assert.Single(list); // Only includes the original file
+    }
+
+    [Fact]
+    public void Files_FromFilePaths_PreservesOrder()
+    {
+        // Arrange
+        string[] orderedPaths =
+        [
+            Path.Combine(_tempDirectoryPath, "zfile.txt"),
+            Path.Combine(_tempDirectoryPath, "afile.txt"),
+            Path.Combine(_tempDirectoryPath, "mfile.txt"),
+        ];
+
+        File.WriteAllText(orderedPaths[0], "z");
+        File.WriteAllText(orderedPaths[1], "a");
+        File.WriteAllText(orderedPaths[2], "m");
+
+        // Act
+        List<FileInfo> result = [.. FileInfoHelper.Files(orderedPaths)];
+
+        // Assert
+        Assert.Equal(3, result.Count);
+        Assert.Equal("zfile.txt", result[0].Name);
+        Assert.Equal("afile.txt", result[1].Name);
+        Assert.Equal("mfile.txt", result[2].Name);
+    }
+
+    [Fact]
+    public void Files_FromFilePaths_WithEmptyCollection_ReturnsEmptyCollection()
+    {
+        // Arrange
+        string[] emptyPaths = [];
+
+        // Act
+        List<FileInfo> result = [.. FileInfoHelper.Files(emptyPaths)];
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void Files_FromFilePaths_WithNonExistentPaths_ReturnsFileInfoObjects()
+    {
+        // Arrange
+        string[] nonExistentPaths =
+        [
+            Path.Combine(_tempDirectoryPath, "nonexistent1.txt"),
+            Path.Combine(_tempDirectoryPath, "nonexistent2.txt"),
+        ];
+
+        // Act
+        List<FileInfo> result = [.. FileInfoHelper.Files(nonExistentPaths)];
+
+        // Assert
+        Assert.Equal(2, result.Count);
+        Assert.IsType<FileInfo>(result[0]);
+        Assert.IsType<FileInfo>(result[1]);
+        Assert.False(result[0].Exists);
+        Assert.False(result[1].Exists);
+    }
+
+    [Fact]
+    public void Files_FromFilePaths_WithValidPaths_ReturnsFileInfoCollection()
+    {
+        // Arrange
+        string file1Path = Path.Combine(_tempDirectoryPath, "file1.txt");
+        string file2Path = Path.Combine(_tempDirectoryPath, "file2.txt");
+        File.WriteAllText(file1Path, "content1");
+        File.WriteAllText(file2Path, "content2");
+
+        string[] filePaths = [file1Path, file2Path];
+
+        // Act
+        List<FileInfo> result = [.. FileInfoHelper.Files(filePaths)];
+
+        // Assert
+        Assert.Equal(2, result.Count);
+        Assert.Equal(file1Path, result[0].FullName);
+        Assert.Equal(file2Path, result[1].FullName);
+        Assert.True(result[0].Exists);
+        Assert.True(result[1].Exists);
     }
 
     [Fact]
