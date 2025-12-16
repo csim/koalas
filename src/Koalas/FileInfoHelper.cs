@@ -3,6 +3,31 @@
 public static class FileInfoHelper
 {
     /// <summary>
+    /// Get file from <see cref="path"/>.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public static FileInfo File(string path)
+    {
+        return new FileInfo(path);
+    }
+
+    /// <summary>
+    /// Get all files from a directory.
+    /// </summary>
+    /// <param name="directory"></param>
+    /// <param name="searchPattern"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public static IEnumerable<FileInfo> Files(IEnumerable<string> filePaths)
+    {
+        foreach (string filePath in filePaths)
+        {
+            yield return File(filePath);
+        }
+    }
+
+    /// <summary>
     /// Get all files from a directory.
     /// </summary>
     /// <param name="directory"></param>

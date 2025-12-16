@@ -39,13 +39,13 @@ public static class DirectoryInfoHelper
     }
 
     /// <summary>
-    /// Transform <see cref="directoryPahts"/> into <see cref="DirectoryInfo"/>
+    /// Get directory from <see cref="path"/>.
     /// </summary>
-    /// <param name="directoryPath"></param>
+    /// <param name="path"></param>
     /// <returns></returns>
-    public static DirectoryInfo Directory(string directoryPath)
+    public static DirectoryInfo Directory(string path)
     {
-        return new DirectoryInfo(directoryPath);
+        return new DirectoryInfo(path);
     }
 
     /// <summary>
