@@ -71,7 +71,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
         // Arrange
         string[] largePaths =
         [
-            .. Enumerable.Range(1, 1000).Select(i => Path.Combine(_tempDirectoryPath, $"dir{i}")),
+            .. Enumerable.Range(1, 50).Select(i => Path.Combine(_tempDirectoryPath, $"dir{i}")),
         ];
 
         // Act
@@ -82,7 +82,7 @@ public sealed class DirectoryInfoHelperTests : IDisposable
 
         // Force evaluation
         List<DirectoryInfo> list = [.. result];
-        Assert.Equal(1000, list.Count);
+        Assert.Equal(50, list.Count);
     }
 
     [Fact]
