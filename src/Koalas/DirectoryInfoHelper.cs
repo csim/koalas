@@ -49,21 +49,35 @@ public static class DirectoryInfoHelper
     }
 
     /// <summary>
-    /// Find the given <see cref="searchFilename"/> in any ancestor directory.
+    /// Find the directory where <see cref="filename"/> exists in any ancestor directory.
     /// </summary>
     /// <param name="assembly"></param>
-    /// <param name="searchFileName"></param>
+    /// <param name="ancestoryDirectoryName"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static DirectoryInfo FindDirectory(Assembly assembly, string searchFilename)
+    public static DirectoryInfo FindAncestorDirectory(
+        DirectoryInfo directory,
+        string ancestoryDirectoryName
+    )
     {
-        DirectoryInfo assemblyDirectory = new(
-            new FileInfo(assembly.Location).Directory?.FullName
-                ?? throw new InvalidOperationException("Could not determine assembly location")
-        );
-
-        return assemblyDirectory
+        return directory
             .Ancestors()
-            .FirstOrDefault(dir => File.Exists(Path.Combine(dir.FullName, searchFilename)));
+            .FirstOrDefault(dir =>
+                dir.Name.Equals(ancestoryDirectoryName, StringComparison.OrdinalIgnoreCase)
+            );
+    }
+
+    /// <summary>
+    /// Find the directory where <see cref="filename"/> exists in any ancestor directory.
+    /// </summary>
+    /// <param name="assembly"></param>
+    /// <param name="filename"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static DirectoryInfo FindFileAncestorDirectory(DirectoryInfo directory, string filename)
+    {
+        return directory
+            .Ancestors()
+            .FirstOrDefault(dir => File.Exists(Path.Combine(dir.FullName, filename)));
     }
 }
