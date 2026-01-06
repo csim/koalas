@@ -343,7 +343,7 @@ def print_package_diffs(
                 f"[cyan]Dependency diff ({framework})[/cyan]",
                 f"project: {project_path}",
                 f"         {before_file} -> {after_file}",
-                f"global: {global_version_path.name if global_version_path else 'N/A'}",
+                f"global: {global_version_path if global_version_path else 'N/A'}",
             ]
 
             table = Table(
