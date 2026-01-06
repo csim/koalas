@@ -6,7 +6,7 @@ import rich
 from rich.table import Table
 from rich.tree import Tree
 
-from koalas.types import DependencyType, PackageSummary, PackageUsage
+from koalas.dependencies.types import DependencyType, PackageSummary, PackageUsage
 
 from .utils import (
     _find_project_paths,
@@ -14,15 +14,12 @@ from .utils import (
     _parse_framework_version,
 )
 
-
-def _parse_dep_type(type_str: str) -> DependencyType:
-    type_map = {
-        "Direct": DependencyType.DIRECT,
-        "Transitive": DependencyType.TRANSITIVE,
-        "CentralTransitive": DependencyType.CENTRAL_TRANSITIVE,
-        "Project": DependencyType.PROJECT,
-    }
-    return type_map.get(type_str, DependencyType.UNKNOWN)
+type_map = {
+    "Direct": DependencyType.DIRECT,
+    "Transitive": DependencyType.TRANSITIVE,
+    "CentralTransitive": DependencyType.CENTRAL_TRANSITIVE,
+    "Project": DependencyType.PROJECT,
+}
 
 
 def _capitalize_name(name: str) -> str:
@@ -60,7 +57,7 @@ def _package_summary(packages_file_path: Path, include_transitive: bool = False)
         # Check each dependency
         for dep_name, dep_info in deps.items():
             dep_type_str = dep_info.get("type", "Unknown")
-            dep_type = _parse_dep_type(dep_type_str)
+            dep_type = type_map.get(dep_type_str, DependencyType.UNKNOWN)
 
             if not include_transitive and dep_type == DependencyType.TRANSITIVE:
                 continue
