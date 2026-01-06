@@ -90,6 +90,7 @@ def _print_projects_add_package(
     usage: PackageUsage,
     badge_map: dict,
     framework: str,
+    max_name_length: int,
     visited: set[str] | None = None,
     indent_level: int = 0,
     include_transitive: bool = False,
@@ -127,16 +128,16 @@ def _print_projects_add_package(
         else "red"
     )
     badge = badge_map[usage.type]
-    pkg_label = f"[{color}][{badge}][/{color}] {_capitalize_name(usage.name)}"
+    name_display = _capitalize_name(usage.name)
+    padding = (max_name_length + 1) - (indent_level * 4)
+    pkg_label = f"[{color}][{badge}][/{color}] {name_display:<{padding}} {usage.resolved_version}"
     pkg_node = parent_node.add(pkg_label)
 
     # Add nested dependencies if they exist
     if usage.dependencies:
         for dep_name, dep_version in sorted(usage.dependencies.items()):
             dep_name_lower = dep_name.lower()
-            # Find the dependency in the package lookup
             dep_usages = summary.lookup.get(dep_name_lower, [])
-            # Find usage matching the framework (try exact match first)
             matching_usage = next((u for u in dep_usages if u.framework_version == framework), None)
 
             # If no exact framework match, try any usage from this package
@@ -151,6 +152,7 @@ def _print_projects_add_package(
                     matching_usage,
                     badge_map,
                     framework,
+                    max_name_length,
                     visited.copy(),  # Copy to allow different branches to revisit packages
                     indent_level + 1,
                 )
@@ -204,6 +206,9 @@ def print_projects(
             framework_node = project_node.add(f"{framework}")
             packages = framework_groups[framework]
 
+            # Calculate max package name length for this framework
+            max_name_length = max((len(_capitalize_name(p.name)) for p in packages), default=0)
+
             if nested:
                 # Show nested dependencies
                 top_level_packages = [p for p in packages if p.type in (DependencyType.DIRECT, DependencyType.PROJECT)]
@@ -214,6 +219,7 @@ def print_projects(
                         usage,
                         badge_map,
                         framework,
+                        max_name_length,
                         include_transitive=include_transitive,
                     )
             else:
@@ -229,7 +235,10 @@ def print_projects(
                         else "dim"
                     )
                     badge = badge_map[usage.type]
-                    pkg_label = f"[{color}][{badge}][/{color}] {_capitalize_name(usage.name)}"
+                    name_display = _capitalize_name(usage.name)
+                    pkg_label = (
+                        f"[{color}][{badge}][/{color}] {name_display:<{max_name_length}} {usage.resolved_version}"
+                    )
                     framework_node.add(pkg_label)
 
         rich.print(tree)
@@ -353,7 +362,11 @@ def print_package_diffs(
 
 
 def print_project_summary(
-    base_dir: Path, global_version_path: Path, flat: bool = False, project_filter: str | None = None
+    base_dir: Path,
+    global_version_path: Path,
+    flat: bool = False,
+    project_filter: str | None = None,
+    only_changes: bool = False,
 ):
     nested = not flat
     include_transitive = flat
@@ -363,8 +376,7 @@ def print_project_summary(
     print_package_diffs(
         base_dir,
         global_version_path=global_version_path,
-        only_changes=True,
-        # only_changes=False,
+        only_changes=only_changes,
         include_transitive=include_transitive,
         project_filter=project_filter,
     )

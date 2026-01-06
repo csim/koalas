@@ -141,3 +141,42 @@ jobs:
         with:
           name: nuget-packages
           path: ${{ env.ARTIFACTS_DIR }}/*.nupkg
+
+  pypi:
+    runs-on: ubuntu-latest
+    needs: [version, build]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build Python package
+        run: |
+          cd src/python
+          python -m build
+
+      - name: Publish to PyPI
+        if: needs.version.outputs.is_release == 'true'
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          cd src/python
+          python -m twine upload dist/*
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-packages
+          path: src/python/dist/*
