@@ -4,17 +4,17 @@
 
 #!csharp
 
-#r "C:\src\koalas\artifacts\bin\Koalas\debug\Koalas.dll"
+#r "C:\src\Outback\artifacts\bin\Outback\debug\Outback.dll"
 
-using Koalas.Text;
-using Koalas.Extensions;
-using static Koalas.FileInfoHelper;
-using static Koalas.DirectoryInfoHelper;
+using Outback.Text;
+using Outback.Extensions;
+using static Outback.FileInfoHelper;
+using static Outback.DirectoryInfoHelper;
 
 #!csharp
 
-//var files = Files(Directory(@"C:\\src\\koalas\\src\\Koalas\\Extensions"));
-var files = Directory(@"C:\\src\\koalas\\src\\Koalas\\Extensions").Files();
+//var files = Files(Directory(@"C:\\src\\Outback\\src\\Outback\\Extensions"));
+var files = Directory(@"C:\\src\\Outback\\src\\Outback\\Extensions").Files();
 files.Print();
 
 var lines = files.ReadLines();

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Solution>
+    <Folder Name="/Solution Items/">
+        <File Path="../.editorconfig" />
+        <File Path="../.gitignore" />
+        <File Path="../Directory.Build.props" />
+        <File Path="../LICENSE" />
+        <File Path="../nuget.config" />
+        <File Path="../README.md" />
+    </Folder>
+    <Project Path="Outback\Outback.csproj" />
+    <Project Path="Outback.Tests\Outback.Tests.csproj" />
+</Solution>

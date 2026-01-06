@@ -1,4 +1,4 @@
-"""Koalas - Python utilities for .NET package dependency analysis and management."""
+"""Outback - Python utilities for .NET package dependency analysis and management."""
 
 from .print import (
     print_package_diffs,

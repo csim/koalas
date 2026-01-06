@@ -1,4 +1,4 @@
-"""Koalas - Python utilities for .NET package dependency analysis and management."""
+"""Outback - Python utilities for .NET package dependency analysis and management."""
 
 try:
     from .__version__ import __version__
