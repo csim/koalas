@@ -1,59 +1,21 @@
-from collections import defaultdict
-from dataclasses import dataclass
-from enum import Enum
-import rich
-from rich.tree import Tree
-from rich.table import Table
 import json
 import re
 from pathlib import Path
-from utils import (
-    capture_before_deps as capture_before_deps,
-    find_project_paths as find_project_paths,
-    load_deps as load_deps,
-    load_global_deps as load_global_deps,
-    parse_framework_version as parse_framework_version,
-    remove_before_deps as remove_before_deps,
+
+import rich
+from rich.table import Table
+from rich.tree import Tree
+
+from koalas.types import DependencyType, PackageSummary, PackageUsage
+
+from .utils import (
+    _find_project_paths,
+    _load_global_deps,
+    _parse_framework_version,
 )
 
 
-class DependencyType(Enum):
-    DIRECT = "Direct"
-    TRANSITIVE = "Transitive"
-    CENTRAL_TRANSITIVE = "CentralTransitive"
-    PROJECT = "Project"
-    UNKNOWN = "Unknown"
-
-
-@dataclass
-class PackageUsage:
-    name: str
-    name_lower: str
-    type: DependencyType
-    framework_version: str
-    requested_version: str
-    resolved_version: str
-    dependencies: dict[str, str] | None = None  # package_name -> version
-
-
-@dataclass
-class PackageSummary:
-    project_path: Path
-    packages_file_path: Path
-    usages: list[PackageUsage]
-
-    @property
-    def lookup(self) -> dict[str, list[PackageUsage]]:
-        """Returns a dictionary mapping package names (lowercase) to their usages."""
-        if not hasattr(self, "_lookup_cache"):
-            result = defaultdict(list)
-            for usage in self.usages:
-                result[usage.name_lower].append(usage)
-            self._lookup_cache = dict(result)
-        return self._lookup_cache
-
-
-def parse_dep_type(type_str: str) -> DependencyType:
+def _parse_dep_type(type_str: str) -> DependencyType:
     type_map = {
         "Direct": DependencyType.DIRECT,
         "Transitive": DependencyType.TRANSITIVE,
@@ -63,11 +25,11 @@ def parse_dep_type(type_str: str) -> DependencyType:
     return type_map.get(type_str, DependencyType.UNKNOWN)
 
 
-def capitalize_name(name: str) -> str:
+def _capitalize_name(name: str) -> str:
     return re.sub(r"(?:^|(?<=\.))(.)(?=\w)", lambda m: m.group(1).upper(), name)
 
 
-def package_summary(packages_file_path: Path, include_transitive: bool = False) -> PackageSummary:
+def _package_summary(packages_file_path: Path, include_transitive: bool = False) -> PackageSummary:
     """
     Analyze package usage across multiple .NET projects.
 
@@ -88,17 +50,17 @@ def package_summary(packages_file_path: Path, include_transitive: bool = False) 
     if not packages_file_path.exists():
         raise Exception(f"Packages file not found: {packages_file_path}")
 
-    with open(packages_file_path, "r") as f:
+    with open(packages_file_path) as f:
         package_json = json.load(f)
 
     # Iterate through all frameworks
     for framework, deps in package_json.get("dependencies", {}).items():
         # Parse framework version once here
-        parsed_framework = parse_framework_version(framework)
+        parsed_framework = _parse_framework_version(framework)
         # Check each dependency
         for dep_name, dep_info in deps.items():
             dep_type_str = dep_info.get("type", "Unknown")
-            dep_type = parse_dep_type(dep_type_str)
+            dep_type = _parse_dep_type(dep_type_str)
 
             if not include_transitive and dep_type == DependencyType.TRANSITIVE:
                 continue
@@ -168,7 +130,7 @@ def _add_package(
         else "red"
     )
     badge = badge_map[usage.type]
-    pkg_label = f"[{color}][{badge}][/{color}] {capitalize_name(usage.name)}"
+    pkg_label = f"[{color}][{badge}][/{color}] {_capitalize_name(usage.name)}"
     pkg_node = parent_node.add(pkg_label)
 
     # Add nested dependencies if they exist
@@ -197,7 +159,7 @@ def _add_package(
                 )
             elif include_transitive:
                 # Dependency not found in package lookup - show as transitive
-                pkg_node.add(f"[cyan][T ][/cyan] [dim]{capitalize_name(dep_name)} {dep_version}[/dim]")
+                pkg_node.add(f"[cyan][T ][/cyan] [dim]{_capitalize_name(dep_name)} {dep_version}[/dim]")
 
 
 def print_projects(
@@ -215,7 +177,7 @@ def print_projects(
         project_filter: Optional glob pattern to filter project paths (e.g., "*/Transformation.*/*")
         nested: Show nested dependencies (True) or flat list (False)
     """
-    project_paths = find_project_paths(base_dir, project_filter=project_filter)
+    project_paths = _find_project_paths(base_dir, project_filter=project_filter)
 
     badge_map = {
         DependencyType.DIRECT: "D ",
@@ -227,7 +189,7 @@ def print_projects(
 
     # Use project_lookup directly - already grouped by project
     for project_path in sorted(project_paths):
-        summary = package_summary(project_path / packages_file_name, include_transitive=include_transitive)
+        summary = _package_summary(project_path / packages_file_name, include_transitive=include_transitive)
         usages = summary.usages
 
         # Create a new tree for each project
@@ -270,7 +232,7 @@ def print_projects(
                         else "dim"
                     )
                     badge = badge_map[usage.type]
-                    pkg_label = f"[{color}][{badge}][/{color}] {capitalize_name(usage.name)}"
+                    pkg_label = f"[{color}][{badge}][/{color}] {_capitalize_name(usage.name)}"
                     framework_node.add(pkg_label)
 
         rich.print(tree)
@@ -307,9 +269,9 @@ def print_package_diffs(
         include_transitive: Include transitive dependencies
     """
     # Load global package versions
-    global_versions = load_global_deps(global_version_path) if global_version_path else {}
+    global_versions = _load_global_deps(global_version_path) if global_version_path else {}
 
-    project_paths = find_project_paths(base_dir, project_filter=project_filter)
+    project_paths = _find_project_paths(base_dir, project_filter=project_filter)
 
     # Process each project
     for project_path in sorted(project_paths):
@@ -320,8 +282,8 @@ def print_package_diffs(
         if not before_path.exists() or not after_path.exists():
             continue
 
-        before_summary = package_summary(before_path, include_transitive=include_transitive)
-        after_summary = package_summary(after_path, include_transitive=include_transitive)
+        before_summary = _package_summary(before_path, include_transitive=include_transitive)
+        after_summary = _package_summary(after_path, include_transitive=include_transitive)
 
         # Collect all frameworks from both summaries
         frameworks = set()
@@ -354,7 +316,7 @@ def print_package_diffs(
                     continue
                 if not (pkg := (after_pkg or before_pkg)):
                     continue
-                pkg_name_display = capitalize_name(pkg.name)
+                pkg_name_display = _capitalize_name(pkg.name)
 
                 before_display = _format_version_display(before_pkg)
                 after_display = _format_version_display(
@@ -371,8 +333,15 @@ def print_package_diffs(
             if not rows:
                 continue
 
+            title = [
+                f"[cyan]Dependency diff ({framework})[/cyan]",
+                f"project: {project_path}",
+                f"         {before_file} -> {after_file}",
+                f"global: {global_version_path.name if global_version_path else 'N/A'}",
+            ]
+
             table = Table(
-                title=f"[cyan]Dependency diff ({framework})[/cyan]\nproject: {project_path}\n           {before_file} -> {after_file}\nglobal: {global_version_path.name if global_version_path else 'N/A'}",
+                title="\n".join(title),
                 title_justify="left",
             )
             table.add_column(f"Package   ({len(rows)})", style="white")

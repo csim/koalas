@@ -8,7 +8,48 @@ from typing import Any
 import rich
 
 
-def find_project_paths(base_dir: Path | str, project_filter: str | None = None) -> list[Path]:
+def capture_before_deps(base_dir: Path):
+    """Copy packages.lock.json to packages.before.lock.json"""
+    project_paths = _find_project_paths(base_dir)
+    # Convert single path to list for uniform processing
+    if isinstance(project_paths, Path):
+        project_paths = [project_paths]
+
+    for project_path in project_paths:
+        source = project_path / "packages.lock.json"
+        destination = project_path / "packages.before.lock.json"
+
+        if source.exists():
+            shutil.copy2(source, destination)
+            print(f"Copied {source} to {destination}")
+        else:
+            print(f"Warning: {source} does not exist")
+
+
+def remove_before_deps(base_dir: Path | str):
+    """Remove all packages.before.lock.json files from base directory"""
+    base_path = Path(base_dir)
+    before_files = list(base_path.rglob("packages.before.lock.json"))
+
+    for before_file in before_files:
+        before_file.unlink()
+        print(f"Removed {before_file}")
+
+    print(f"Total files removed: {len(before_files)}")
+
+
+def _load_deps(file_path: Path, framework: str, project_path: Path) -> dict[str, Any]:
+    """Load and filter dependencies from a packages.lock.json file."""
+    with open(file_path) as f:
+        data = json.load(f)
+    if framework not in data["dependencies"]:
+        rich.print(f"{project_path}: [yellow]skipping, {framework} not available[/yellow]")
+        return {}
+    deps = data["dependencies"][framework]
+    return {k.lower(): v for k, v in deps.items() if not k.startswith("runtime") and v["type"] != "Project"}
+
+
+def _find_project_paths(base_dir: Path | str, project_filter: str | None = None) -> list[Path]:
     """Find all .csproj files recursively from a base directory.
 
     Args:
@@ -40,48 +81,7 @@ def find_project_paths(base_dir: Path | str, project_filter: str | None = None) 
     return sorted(packages_paths)
 
 
-def capture_before_deps(base_dir: Path):
-    """Copy packages.lock.json to packages.before.lock.json"""
-    project_paths = find_project_paths(base_dir)
-    # Convert single path to list for uniform processing
-    if isinstance(project_paths, Path):
-        project_paths = [project_paths]
-
-    for project_path in project_paths:
-        source = project_path / "packages.lock.json"
-        destination = project_path / "packages.before.lock.json"
-
-        if source.exists():
-            shutil.copy2(source, destination)
-            print(f"Copied {source} to {destination}")
-        else:
-            print(f"Warning: {source} does not exist")
-
-
-def remove_before_deps(base_dir: Path | str):
-    """Remove all packages.before.lock.json files from base directory"""
-    base_path = Path(base_dir)
-    before_files = list(base_path.rglob("packages.before.lock.json"))
-
-    for before_file in before_files:
-        before_file.unlink()
-        print(f"Removed {before_file}")
-
-    print(f"Total files removed: {len(before_files)}")
-
-
-def load_deps(file_path: Path, framework: str, project_path: Path) -> dict[str, Any]:
-    """Load and filter dependencies from a packages.lock.json file."""
-    with open(file_path) as f:
-        data = json.load(f)
-    if framework not in data["dependencies"]:
-        rich.print(f"{project_path}: [yellow]skipping, {framework} not available[/yellow]")
-        return {}
-    deps = data["dependencies"][framework]
-    return {k.lower(): v for k, v in deps.items() if not k.startswith("runtime") and v["type"] != "Project"}
-
-
-def load_global_deps(global_package_path: Path | None) -> dict[str, str]:
+def _load_global_deps(global_package_path: Path | None) -> dict[str, str]:
     """Parse global package versions from .props or .packageset file."""
     if not global_package_path:
         return {}
@@ -103,7 +103,7 @@ def load_global_deps(global_package_path: Path | None) -> dict[str, str]:
     return {}
 
 
-def parse_framework_version(framework: str) -> str:
+def _parse_framework_version(framework: str) -> str:
     """Extract version number from framework string."""
     # Match patterns like "net8.0" -> "8.0" or ".NETFramework,Version=v4.7.2" -> "4.7.2"
     match = re.search(r"(\d+\.\d+(?:\.\d+)?)", framework)

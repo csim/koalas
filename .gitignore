@@ -3,6 +3,8 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+koalas.egg-info/
+
 # User-specific files
 *.rsuser
 *.suo
@@ -348,3 +350,5 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+src/python/koalas.egg-info/SOURCES.txt
+src/python/koalas.egg-info/SOURCES.txt
