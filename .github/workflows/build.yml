@@ -10,7 +10,7 @@ on:
 env:
   DOTNET_VERSION: "8.0.x"
   BUILD_CONFIG: "Release"
-  SOLUTION: "src/Koalas.slnx"
+  SOLUTION: "src/dotnet/Koalas.slnx"
   PROJECT: "src/dotnet/Koalas/Koalas.csproj"
   ARTIFACTS_DIR: "./artifacts"
   PREVIEW_VERSION: "2.0.0"
