@@ -6,7 +6,7 @@ import rich
 from rich.table import Table
 from rich.tree import Tree
 
-from koalas.dependencies.types import DependencyType, PackageSummary, PackageUsage
+from outback.dependencies.types import DependencyType, PackageSummary, PackageUsage
 
 from .utils import (
     find_project_paths,

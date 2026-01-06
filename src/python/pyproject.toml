@@ -3,13 +3,13 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "koalas"
+name = "outback"
 version = "0.1.0"
 description = "Python utilities for .NET package dependency analysis and management"
 requires-python = ">=3.8"
 license = "MIT"
 authors = [
-    {name = "Koalas Contributors"}
+    {name = "Outback Contributors"}
 ]
 keywords = ["dotnet", "nuget", "dependencies", "package-management"]
 classifiers = [
@@ -42,7 +42,7 @@ Repository = "https://github.com/csim/koalas"
 Issues = "https://github.com/csim/koalas/issues"
 
 [tool.setuptools]
-packages = ["koalas"]
+packages = ["outback"]
 
 [tool.black]
 line-length = 100
