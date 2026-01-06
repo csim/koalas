@@ -9,9 +9,9 @@ from rich.tree import Tree
 from koalas.dependencies.types import DependencyType, PackageSummary, PackageUsage
 
 from .utils import (
-    _find_project_paths,
-    _load_global_deps,
-    _parse_framework_version,
+    find_project_paths,
+    load_global_deps,
+    parse_framework_version,
 )
 
 type_map = {
@@ -53,7 +53,7 @@ def _package_summary(packages_file_path: Path, include_transitive: bool = False)
     # Iterate through all frameworks
     for framework, deps in package_json.get("dependencies", {}).items():
         # Parse framework version once here
-        parsed_framework = _parse_framework_version(framework)
+        parsed_framework = parse_framework_version(framework)
         # Check each dependency
         for dep_name, dep_info in deps.items():
             dep_type_str = dep_info.get("type", "Unknown")
@@ -84,7 +84,7 @@ def _package_summary(packages_file_path: Path, include_transitive: bool = False)
     return PackageSummary(project_path=packages_file_path, packages_file_path=packages_file_path, usages=usages)
 
 
-def _add_package(
+def _print_projects_add_package(
     parent_node,
     summary: PackageSummary,
     usage: PackageUsage,
@@ -145,7 +145,7 @@ def _add_package(
 
             if matching_usage:
                 # Recursively add the dependency and its dependencies
-                _add_package(
+                _print_projects_add_package(
                     pkg_node,
                     summary,
                     matching_usage,
@@ -174,7 +174,7 @@ def print_projects(
         project_filter: Optional glob pattern to filter project paths (e.g., "*/Transformation.*/*")
         nested: Show nested dependencies (True) or flat list (False)
     """
-    project_paths = _find_project_paths(base_dir, project_filter=project_filter)
+    project_paths = find_project_paths(base_dir, project_filter=project_filter)
 
     badge_map = {
         DependencyType.DIRECT: "D ",
@@ -208,7 +208,7 @@ def print_projects(
                 # Show nested dependencies
                 top_level_packages = [p for p in packages if p.type in (DependencyType.DIRECT, DependencyType.PROJECT)]
                 for usage in sorted(top_level_packages, key=lambda x: x.name_lower):
-                    _add_package(
+                    _print_projects_add_package(
                         framework_node,
                         summary,
                         usage,
@@ -266,9 +266,9 @@ def print_package_diffs(
         include_transitive: Include transitive dependencies
     """
     # Load global package versions
-    global_versions = _load_global_deps(global_version_path) if global_version_path else {}
+    global_versions = load_global_deps(global_version_path) if global_version_path else {}
 
-    project_paths = _find_project_paths(base_dir, project_filter=project_filter)
+    project_paths = find_project_paths(base_dir, project_filter=project_filter)
 
     # Process each project
     for project_path in sorted(project_paths):

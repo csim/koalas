@@ -11,7 +11,7 @@
       "type": "process",
       "args": [
         "build",
-        "./src/Koalas.slnx",
+        "./src/dotnet/Koalas.slnx",
         "/property:GenerateFullPaths=true",
       ],
       "problemMatcher": "$msCompile",
@@ -48,7 +48,7 @@
         "test",
       ],
       "options": {
-        "cwd": "${workspaceFolder}/src/Koalas.Tests"
+        "cwd": "${workspaceFolder}/src/dotnet/Koalas.Tests"
       },
       "problemMatcher": "$msCompile",
       "group": {
@@ -70,7 +70,7 @@
         "quiet"
       ],
       "options": {
-        "cwd": "${workspaceFolder}/src/Koalas.Tests"
+        "cwd": "${workspaceFolder}/src/dotnet/Koalas.Tests"
       },
       "problemMatcher": "$msCompile",
       "group": "test",

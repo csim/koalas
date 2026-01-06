@@ -8,9 +8,22 @@ from typing import Any
 import rich
 
 
+def _apply_path_filter(sources: list[Path], filter: str) -> list[Path]:
+    patterns = [p.strip() for p in filter.split(";")]
+    include_patterns = [p for p in patterns if not p.startswith("!")]
+    exclude_patterns = [p[1:] for p in patterns if p.startswith("!")]
+
+    if include_patterns:
+        sources = [p for p in sources if any(p.match(pattern) for pattern in include_patterns)]
+    if exclude_patterns:
+        sources = [p for p in sources if not any(p.match(pattern) for pattern in exclude_patterns)]
+
+    return sources
+
+
 def capture_before_deps(base_dir: Path):
     """Copy packages.lock.json to packages.before.lock.json"""
-    project_paths = _find_project_paths(base_dir)
+    project_paths = find_project_paths(base_dir)
     # Convert single path to list for uniform processing
     if isinstance(project_paths, Path):
         project_paths = [project_paths]
@@ -38,7 +51,7 @@ def remove_before_deps(base_dir: Path | str):
     print(f"Total files removed: {len(before_files)}")
 
 
-def _load_deps(file_path: Path, framework: str, project_path: Path) -> dict[str, Any]:
+def load_deps(file_path: Path, framework: str, project_path: Path) -> dict[str, Any]:
     """Load and filter dependencies from a packages.lock.json file."""
     with open(file_path) as f:
         data = json.load(f)
@@ -49,7 +62,7 @@ def _load_deps(file_path: Path, framework: str, project_path: Path) -> dict[str,
     return {k.lower(): v for k, v in deps.items() if not k.startswith("runtime") and v["type"] != "Project"}
 
 
-def _find_project_paths(base_dir: Path | str, project_filter: str | None = None) -> list[Path]:
+def find_project_paths(base_dir: Path | str, project_filter: str | None = None) -> list[Path]:
     """Find all .csproj files recursively from a base directory.
 
     Args:
@@ -66,22 +79,12 @@ def _find_project_paths(base_dir: Path | str, project_filter: str | None = None)
 
     # Apply glob filter if provided
     if project_filter:
-        patterns = [p.strip() for p in project_filter.split(";")]
-        include_patterns = [p for p in patterns if not p.startswith("!")]
-        exclude_patterns = [p[1:] for p in patterns if p.startswith("!")]
-
-        # Apply include patterns (if any)
-        if include_patterns:
-            packages_paths = [p for p in packages_paths if any(p.match(pattern) for pattern in include_patterns)]
-
-        # Apply exclude patterns
-        if exclude_patterns:
-            packages_paths = [p for p in packages_paths if not any(p.match(pattern) for pattern in exclude_patterns)]
+        packages_paths = _apply_path_filter(packages_paths, project_filter)
 
     return sorted(packages_paths)
 
 
-def _load_global_deps(global_package_path: Path | None) -> dict[str, str]:
+def load_global_deps(global_package_path: Path | None) -> dict[str, str]:
     """Parse global package versions from .props or .packageset file."""
     if not global_package_path:
         return {}
@@ -103,7 +106,7 @@ def _load_global_deps(global_package_path: Path | None) -> dict[str, str]:
     return {}
 
 
-def _parse_framework_version(framework: str) -> str:
+def parse_framework_version(framework: str) -> str:
     """Extract version number from framework string."""
     # Match patterns like "net8.0" -> "8.0" or ".NETFramework,Version=v4.7.2" -> "4.7.2"
     match = re.search(r"(\d+\.\d+(?:\.\d+)?)", framework)
