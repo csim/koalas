@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "outback"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Python utilities for .NET package dependency analysis and management"
 requires-python = ">=3.8"
 license = "MIT"
@@ -43,6 +43,9 @@ Issues = "https://github.com/csim/koalas/issues"
 
 [tool.setuptools]
 packages = ["outback"]
+
+[tool.setuptools.dynamic]
+version = {attr = "outback.__version__"}
 
 [tool.black]
 line-length = 100

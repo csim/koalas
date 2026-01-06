@@ -161,6 +161,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install build twine
 
+      - name: Set package version
+        run: |
+          cd src/python/outback
+          echo "__version__ = '${{ needs.version.outputs.version }}${{ needs.version.outputs.suffix }}'" > __version__.py
+
       - name: Build Python package
         run: |
           cd src/python
