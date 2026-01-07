@@ -123,7 +123,7 @@ def _print_projects_add_package(
     badge = badge_map[usage.type]
     name_display = _capitalize_name(usage.name)
     padding = (max_name_length + 1) - (indent_level * 4)
-    pkg_label = f"[{color}][{badge}][/{color}] {name_display:<{padding}} {usage.resolved_version}"
+    pkg_label = f"[{color}]{badge}[/{color}] {name_display:<{padding}} {usage.resolved_version}"
     pkg_node = parent_node.add(pkg_label)
 
     # Add nested dependencies if they exist
@@ -172,11 +172,11 @@ def print_projects(
     project_paths = find_project_paths(base_dir, project_filter=project_filter)
 
     badge_map = {
-        DependencyType.DIRECT: "D ",
-        DependencyType.CENTRAL_TRANSITIVE: "CT",
-        DependencyType.TRANSITIVE: "T ",
-        DependencyType.PROJECT: "P ",
-        DependencyType.UNKNOWN: "? ",
+        DependencyType.DIRECT: "[D]",
+        DependencyType.CENTRAL_TRANSITIVE: "[C]",
+        DependencyType.TRANSITIVE: "[T]",
+        DependencyType.PROJECT: "[P]",
+        DependencyType.UNKNOWN: "[?]",
     }
 
     # Use project_lookup directly - already grouped by project
@@ -234,13 +234,11 @@ def print_projects(
                     )
                     badge = badge_map[usage.type]
                     name_display = _capitalize_name(usage.name)
-                    pkg_label = (
-                        f"[{color}][{badge}][/{color}] {name_display:<{max_name_length}} {usage.resolved_version}"
-                    )
+                    pkg_label = f"[{color}]{badge}[/{color}] {name_display:<{max_name_length}} {usage.resolved_version}"
                     framework_node.add(pkg_label)
 
         rich.print(tree)
-        # rich.print("[green][D ][/green] Direct  [yellow][CT][/yellow] CentralTransitive  [dim][T ][/dim] Transitive")
+        # rich.print("[green][D][/green] Direct  [yellow][C][/yellow] CentralTransitive  [dim][T][/dim] Transitive")
 
 
 def _format_version_display(usage: PackageUsage | None, highlight: bool = False, absent_value: str = "") -> str:
