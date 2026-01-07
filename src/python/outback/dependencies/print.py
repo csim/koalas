@@ -44,17 +44,12 @@ def _package_summary(packages_file_path: Path, include_transitive: bool = False)
     """
     usages: list[PackageUsage] = []
 
-    if not packages_file_path.exists():
-        raise Exception(f"Packages file not found: {packages_file_path}")
-
     with open(packages_file_path) as f:
         package_json = json.load(f)
 
     # Iterate through all frameworks
     for framework, deps in package_json.get("dependencies", {}).items():
-        # Parse framework version once here
         parsed_framework = parse_framework_version(framework)
-        # Check each dependency
         for dep_name, dep_info in deps.items():
             dep_type_str = dep_info.get("type", "Unknown")
             dep_type = type_map.get(dep_type_str, DependencyType.UNKNOWN)
@@ -65,8 +60,6 @@ def _package_summary(packages_file_path: Path, include_transitive: bool = False)
             dep_name_lower = dep_name.lower()
             requested_version = dep_info.get("requested", "")
             resolved_version = dep_info.get("resolved", "")
-
-            # Extract nested dependencies
             nested_deps = dep_info.get("dependencies", {})
 
             usage = PackageUsage(
@@ -188,11 +181,16 @@ def print_projects(
 
     # Use project_lookup directly - already grouped by project
     for project_path in sorted(project_paths):
-        summary = _package_summary(project_path / packages_file_name, include_transitive=include_transitive)
+        packages_path = project_path / packages_file_name
+        if not packages_path.exists():
+            print(f"packages not found: {packages_path}")
+            return
+
+        summary = _package_summary(packages_path, include_transitive=include_transitive)
         usages = summary.usages
 
         # Create a new tree for each project
-        tree = Tree(f"[bold cyan]Project Dependencies[/bold cyan] - {project_path}")
+        tree = Tree(f"[cyan]Project Dependencies[/cyan] - {project_path}")
         project_node = tree
 
         # Group by framework
@@ -242,6 +240,7 @@ def print_projects(
                     framework_node.add(pkg_label)
 
         rich.print(tree)
+        # rich.print("[green][D ][/green] Direct  [yellow][CT][/yellow] CentralTransitive  [dim][T ][/dim] Transitive")
 
 
 def _format_version_display(usage: PackageUsage | None, highlight: bool = False, absent_value: str = "") -> str:
@@ -249,9 +248,14 @@ def _format_version_display(usage: PackageUsage | None, highlight: bool = False,
     if not usage:
         return absent_value
     if usage.type == DependencyType.PROJECT:
-        return "[dim]Project[/dim]\n"
+        return "Project\n"
     color = "yellow" if highlight else "white"
-    return f"[dim]{usage.type.value}[/dim]\n[{color}]{usage.requested_version}\n  → {usage.resolved_version}[/{color}]"
+    return "\n".join(
+        [
+            f"[{color}]{usage.type.value}[/{color}]\n[{color}]{usage.requested_version}",
+            f"  → {usage.resolved_version}[/{color}]",
+        ]
+    )
 
 
 def print_package_diffs(
@@ -284,14 +288,16 @@ def print_package_diffs(
         before_path = project_path / before_file
         after_path = project_path / after_file
 
-        # Skip if files don't exist
-        if not before_path.exists() or not after_path.exists():
+        if not after_path.exists():
+            print(f"packages not found: {before_path}")
+            continue
+        if not before_path.exists():
+            print(f"before packages not found: {before_path}")
             continue
 
         before_summary = _package_summary(before_path, include_transitive=include_transitive)
         after_summary = _package_summary(after_path, include_transitive=include_transitive)
 
-        # Collect all frameworks from both summaries
         frameworks = set()
         for usage in before_summary.usages + after_summary.usages:
             frameworks.add(usage.framework_version)
@@ -363,7 +369,7 @@ def print_package_diffs(
 
 def print_project_summary(
     base_dir: Path,
-    global_version_path: Path,
+    global_version_path: Path | None = None,
     flat: bool = False,
     project_filter: str | None = None,
     only_changes: bool = False,

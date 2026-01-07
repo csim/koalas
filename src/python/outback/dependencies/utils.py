@@ -73,15 +73,15 @@ def find_project_paths(base_dir: Path | str, project_filter: str | None = None) 
                        (e.g., "**/Transformation.Formula;!**/Semantics/**")
     """
     base_path = Path(base_dir)
-    project_dirs = [csproj.parent for csproj in base_path.rglob("*.csproj")]
+    project_paths = [csproj.parent for csproj in base_path.rglob("*.csproj")]
     # Filter to only include directories with packages.lock.json
-    packages_paths = [p for p in project_dirs if (p / "packages.lock.json").exists()]
+    # packages_paths = [p for p in project_dirs if (p / "packages.lock.json").exists()]
 
     # Apply glob filter if provided
     if project_filter:
-        packages_paths = _apply_path_filter(packages_paths, project_filter)
+        project_paths = _apply_path_filter(project_paths, project_filter)
 
-    return sorted(packages_paths)
+    return sorted(project_paths)
 
 
 def load_global_deps(global_package_path: Path | None) -> dict[str, str]:
