@@ -184,7 +184,7 @@ def print_projects(
         packages_path = project_path / packages_file_name
         if not packages_path.exists():
             print(f"packages not found: {packages_path}")
-            return
+            continue
 
         summary = _package_summary(packages_path, include_transitive=include_transitive)
         usages = summary.usages
@@ -248,7 +248,7 @@ def _format_version_display(usage: PackageUsage | None, highlight: bool = False,
     if not usage:
         return absent_value
     if usage.type == DependencyType.PROJECT:
-        return "Project\n"
+        return "Project"
     color = "yellow" if highlight else "white"
     return "\n".join(
         [
